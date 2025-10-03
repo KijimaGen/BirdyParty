@@ -6,7 +6,6 @@
  */
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Windows;
 
 public class RacePlayer : MonoBehaviour{
     //スピード
@@ -35,6 +34,10 @@ public class RacePlayer : MonoBehaviour{
 
     
     void Update(){
+        //ゲームが始まっているかどうかを確認
+        if (!RaceManager.instance.isStart)
+            return;
+        
         //動く
         Move();
     }

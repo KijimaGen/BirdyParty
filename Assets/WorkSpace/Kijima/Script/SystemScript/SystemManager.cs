@@ -35,6 +35,7 @@ public class SystemManager : MonoBehaviour {
         }
         // スタンバイパートの実行
         //UniTask task = PartManager.instance.TransitionPart(eGamePart.Standby);
+        await FadeManager.instance.FadeIn();
     }
 
 }

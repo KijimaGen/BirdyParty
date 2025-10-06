@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 
 public class ButtonManager : MonoBehaviour
 {
@@ -65,6 +67,11 @@ public class ButtonManager : MonoBehaviour
         modeUI.SetActive(true);
         offLine.SetActive(false);
         onLine.SetActive(true);
+    }
+
+    public void startGame(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
     }
 
     public void OnExit()

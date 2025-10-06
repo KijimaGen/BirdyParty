@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "name": "controller",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "b8b62d6e-0fe4-41fa-96fe-129b82f02a67",
+            "actions": [
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "213ac84c-a6eb-4bf8-88a3-89ab86be72fc",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "LeftButton",
+                    "type": "Button",
+                    "id": "1fbd42a6-f289-40ef-97fd-ff9a29e801e2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "8f977e2f-a37e-4621-a512-09c11f7aaa09",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2f75b5ec-4324-486f-8423-5dc38327c906",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

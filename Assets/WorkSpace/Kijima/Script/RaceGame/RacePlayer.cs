@@ -1,88 +1,75 @@
-/**
+ï»¿/**
  * @file RacePlayer.cs
- * @brief ƒŒ[ƒXƒQ[ƒ€‚ÌƒvƒŒƒCƒ„[
+ * @brief ãƒ¬ãƒ¼ã‚¹ã‚²ãƒ¼ãƒ ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
  * @author Sum1r3
- * @date 2025/10/03
+ * @date 2025/9/6
  */
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class RacePlayer : MonoBehaviour{
-    //ƒXƒs[ƒh
-    const float SPEED = 0.001f;
-    //Z²‚ÌˆÚ“®ƒXƒs[ƒh
-    const float ZSPEED = 0.01f;
-    //ƒCƒ“ƒvƒbƒgƒAƒNƒVƒ‡ƒ“
-    PlayerContoroller inputActions;
-    //ƒRƒ“ƒgƒ[ƒ‰[‚ÌLƒXƒeƒBƒbƒN‚©‚ç‚à‚ç‚¦‚é’l
-    Vector2 controllerLStickValue;
+[RequireComponent(typeof(Rigidbody))]
+public class RacePlayer : MonoBehaviour {
+    [SerializeField] private float moveSpeed = 8f;
 
-    void Start(){
-        inputActions = new PlayerContoroller();
-        //ƒCƒ“ƒvƒbƒgƒAƒNƒVƒ‡ƒ“‚©‚çƒRƒ“ƒgƒ[ƒ‰[‚Ì“ü—Í‚ğ‚à‚ç‚¦‚é‚æ‚¤‚É‚·‚é
-        inputActions.RaceGame.UpDown.performed += controllerLStickMove;
-        inputActions.RaceGame.UpDown.canceled += controllerLStickDontMove;
-        //ª
-        inputActions.RaceGame.Up.performed += KeybordUp;
-        inputActions.RaceGame.Up.canceled += KeybordDontUp;
-        //«
-        inputActions.RaceGame.Down.performed += KeybordDown;
-        inputActions.RaceGame.Down.canceled += KeybordDontDown;
+    private Vector2 moveInput;
+    private Rigidbody rb;
 
-        inputActions.Enable();
+    void Start() {
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        //ã‚«ãƒ¡ãƒ©ã®å‚ç…§ã«è‡ªèº«ã‚’å…¥ã‚Œã‚‹
+        Camera.main.gameObject.GetComponent<RaceCameraContoroller>().AddRacers(this.transform);
     }
 
-    
-    void Update(){
-        //ƒQ[ƒ€‚ªn‚Ü‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğŠm”F
-        if (!RaceManager.instance.isStart)
+    //ã‚¢ãƒƒãƒ—ãƒ‡ãƒ¼ãƒˆ
+    void FixedUpdate() {
+        if (!RaceManager.instance.isStart) {
+            rb.velocity = Vector3.zero;
             return;
-        
-        //“®‚­
+        }
+
         Move();
     }
 
+    //ã‚¤ãƒ³ãƒ—ãƒƒãƒˆã‚·ã‚¹ãƒ†ãƒ ã®å…¥åŠ›å€¤ã®å—ã‘å–ã‚Š
+    public void OnMove(InputAction.CallbackContext context) {
+        moveInput = context.ReadValue<Vector2>();
+    }
+
     /// <summary>
-    /// “®‚­
+    /// ç§»å‹•
     /// </summary>
     private void Move() {
-        //ˆÚ“®—Ê‚ğì‚é
-        Vector3 moveValue = Vector3.zero;
-        //X²‚ÌˆÚ“®—Ê
-        moveValue.x = SPEED;
-        //y²‚ÍŒÅ’è
-        moveValue.y = 0;
-        moveValue.z = controllerLStickValue.y * ZSPEED;
-        //À•W‚É”½‰f
-        transform.position += moveValue;
+        // Xæ–¹å‘ã¯å›ºå®šï¼ˆå¸¸ã«å‰é€²ï¼‰
+        float x = 1f; // â† é€²è¡Œæ–¹å‘å›ºå®šã—ãŸã„ãªã‚‰ã“ã‚Œã§OK
+        float z = moveInput.y;
 
+        // æ­£è¦åŒ–ã—ãªã„ã§ãã®ã¾ã¾é©ç”¨
+        Vector3 moveDir = new Vector3(x, 0, z);
+        rb.velocity = moveDir * moveSpeed;
     }
 
     /// <summary>
-    /// ƒRƒ“ƒgƒ[ƒ‰[‚ÌLƒXƒeƒBƒbƒN‚Ì“ü—Í‚ğó‚¯æ‚é
+    /// æ¸›é€Ÿ
     /// </summary>
-    /// <param name="context"></param>
-    public void controllerLStickMove(InputAction.CallbackContext context) {
-        controllerLStickValue = context.ReadValue<Vector2>();
-    }
-    public void controllerLStickDontMove(InputAction.CallbackContext context) {
-        controllerLStickValue = Vector2.zero;
-    }
-
-    //ã‚°ƒ{ƒ^ƒ“
-    public void KeybordUp(InputAction.CallbackContext context) {
-        controllerLStickValue.y = 1.0f;
+    /// <returns></returns>
+    public async UniTask Slow() {
+        float originalSpeed = moveSpeed;
+        moveSpeed *= 0.5f;
+        await UniTask.Delay(3000);
+        moveSpeed = originalSpeed;
     }
 
-    public void KeybordDontUp(InputAction.CallbackContext context) {
-        controllerLStickValue.y = 0;
-    }
-
-    //‰º‚°ƒ{ƒ^ƒ“
-    public void KeybordDown(InputAction.CallbackContext context) {
-        controllerLStickValue.y = -1.0f;
-    }
-    public void KeybordDontDown(InputAction.CallbackContext context) {
-        controllerLStickValue.y = 0;
+    /// <summary>
+    /// åŠ é€Ÿ
+    /// </summary>
+    /// <returns></returns>
+    public async UniTask Boost() {
+        float originalSpeed = moveSpeed;
+        moveSpeed *= 1.5f; // 50%åŠ é€Ÿ
+        await UniTask.Delay(2000); // 2ç§’æŒç¶š
+        moveSpeed = originalSpeed;
     }
 }

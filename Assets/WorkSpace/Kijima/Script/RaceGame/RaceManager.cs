@@ -31,22 +31,20 @@ public class RaceManager : SystemObject{
     /// ゲーム開始時のカウントダウンをここで行う
     /// </summary>
     private async UniTask StartCountDown() {
-        float time = GameStartCount;
         _ = AudioManager.instance.PlaySE(2);
-        while(time > 0) {
-            time -= Time.deltaTime;
-        }
+        await UniTask.Delay(3000);
         //スタート
         isStart = true;
         await UniTask.CompletedTask;
     }
 
-    public override UniTask Initialize() {
+    public override async UniTask Initialize() {
         instance = this;
 
+        await FadeManager.instance.FadeIn();
 
         isStart = false;
-        _ = StartCountDown();
-        return UniTask.CompletedTask;
+        await StartCountDown();
+        
     }
 }

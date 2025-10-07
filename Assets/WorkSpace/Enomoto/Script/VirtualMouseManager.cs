@@ -3,76 +3,83 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
 
 public class VirtualMouseManager : MonoBehaviour
 {
-    // カーソルの親オブジェクト
-    [SerializeField] private RectTransform _root;
-
-    // プレイヤーのカーソルPrefab一覧（複数対応）
+    [SerializeField] private RectTransform _root; 
     [SerializeField] private VirtualMouseInput[] _cursorPrefabs;
-
-    // 移動のAction名
     [SerializeField] private string _moveActionName = "Move";
-
-    // 左クリックAction名
     [SerializeField] private string _leftButtonActionName = "LeftButton";
 
-    // 生成されたカーソル一覧
     private readonly List<VirtualMouseInput> _cursors = new();
 
-    // プレイヤーの参加時に呼びだし
+    // カーソル移動速度
+    [SerializeField] private float cursorSpeed = 1000f;
+
+    private void LateUpdate()
+    {
+        foreach (var cursor in _cursors)
+        {
+            if (cursor == null) continue;
+
+            RectTransform cursorRect = cursor.GetComponent<RectTransform>();
+            if (cursorRect == null) continue;
+
+            Vector2 pos = cursorRect.anchoredPosition;
+            Vector2 canvasSize = _root.rect.size;
+            Vector2 cursorSize = cursorRect.rect.size;
+
+            float minX = cursorSize.x * cursorRect.pivot.x;
+            float maxX = canvasSize.x - cursorSize.x * (1f - cursorRect.pivot.x);
+            float minY = cursorSize.y * cursorRect.pivot.y;
+            float maxY = canvasSize.y - cursorSize.y * (1f - cursorRect.pivot.y);
+
+            float margin = 0f;
+
+            pos.x = Mathf.Clamp(pos.x, minX + margin, maxX - margin);
+            pos.y = Mathf.Clamp(pos.y, minY + margin, maxY - margin);
+
+            cursorRect.anchoredPosition = pos;
+        }
+    }
+
+
     public void OnPlayerJoined(PlayerInput playerInput)
     {
-        print($"プレイヤー#{playerInput.playerIndex}が参加しました。");
+        print($"プレイヤー#{playerInput.playerIndex + 1}が参加しました。");
 
-        // インデックスチェック
-        var playerIndex = playerInput.playerIndex;
+        int playerIndex = playerInput.playerIndex;
         if (playerIndex < 0 || playerIndex >= _cursorPrefabs.Length)
         {
             Debug.LogError("参加できるプレイヤー数を超えています");
             return;
         }
 
-        // カーソル生成
         var cursor = Instantiate(_cursorPrefabs[playerIndex], _root);
         cursor.name = $"Cursor#{playerIndex}";
-
-        // カーソルをリストに追加（管理リスト）
         _cursors.Add(cursor);
 
-        // InputActionを取得
+        // VirtualMouseInput にアクションを紐づけ
         var actions = playerInput.actions;
-
         var moveAction = actions.FindAction(_moveActionName);
         var leftButtonAction = actions.FindAction(_leftButtonActionName);
 
-        // ActionPropatyの設定
         if (moveAction != null)
-        {
             cursor.stickAction = new InputActionProperty(moveAction);
-        }
-
         if (leftButtonAction != null)
-        {
             cursor.leftButtonAction = new InputActionProperty(leftButtonAction);
-        }
     }
 
-    // プレイヤーの離脱時に呼びだし
     public void OnPlayerLeft(PlayerInput playerInput)
     {
-        print($"プレイヤー#{playerInput.playerIndex}が離脱しました。");
+        print($"プレイヤー#{playerInput.playerIndex + 1}が離脱しました。");
 
-        // カーソルをリストから削除（管理リスト）
-        var playerIndex = playerInput.playerIndex;
-
-        // 生成されたカーソルを取得
+        int playerIndex = playerInput.playerIndex;
         var cursor = _cursors.Find(c => c != null && c.name == $"Cursor#{playerIndex}");
         if (cursor == null) return;
 
-        // 取得したカーソルを削除
         _cursors.Remove(cursor);
         Destroy(cursor.gameObject);
     }

@@ -15,36 +15,43 @@ public class VirtualMouseManager : MonoBehaviour
 
     private readonly List<VirtualMouseInput> _cursors = new();
 
-    // カーソル移動速度
-    [SerializeField] private float cursorSpeed = 1000f;
-
     private void LateUpdate()
     {
         foreach (var cursor in _cursors)
         {
             if (cursor == null) continue;
-
             RectTransform cursorRect = cursor.GetComponent<RectTransform>();
             if (cursorRect == null) continue;
 
-            Vector2 pos = cursorRect.anchoredPosition;
             Vector2 canvasSize = _root.rect.size;
             Vector2 cursorSize = cursorRect.rect.size;
-
             float minX = cursorSize.x * cursorRect.pivot.x;
             float maxX = canvasSize.x - cursorSize.x * (1f - cursorRect.pivot.x);
             float minY = cursorSize.y * cursorRect.pivot.y;
             float maxY = canvasSize.y - cursorSize.y * (1f - cursorRect.pivot.y);
 
-            float margin = 0f;
-
-            pos.x = Mathf.Clamp(pos.x, minX + margin, maxX - margin);
-            pos.y = Mathf.Clamp(pos.y, minY + margin, maxY - margin);
-
+            // UI上の座標Clamp
+            Vector2 pos = cursorRect.anchoredPosition;
+            pos.x = Mathf.Clamp(pos.x, minX, maxX);
+            pos.y = Mathf.Clamp(pos.y, minY, maxY);
             cursorRect.anchoredPosition = pos;
+
+            // ---- ここが重要 ----
+            // 仮想マウスの座標をUIの位置と同期させる
+            if (cursor.virtualMouse != null)
+            {
+                // 仮想マウスのスクリーン座標をUI座標に合わせて再設定
+                var virtualMouse = cursor.virtualMouse;
+                var mousePos = virtualMouse.position.ReadValue();
+
+                // UI座標をスクリーンに変換
+                Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, cursorRect.position);
+
+                // Clamp後の位置に強制セット
+                InputState.Change(virtualMouse.position, screenPos);
+            }
         }
     }
-
 
     public void OnPlayerJoined(PlayerInput playerInput)
     {

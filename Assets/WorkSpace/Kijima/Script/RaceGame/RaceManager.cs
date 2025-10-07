@@ -14,7 +14,7 @@ public class RaceManager : SystemObject{
     //ゲーム開始時のカウントダウン
     private const float GameStartCount = 3.0f;
     //順位
-    private List<GameObject> Ranking;
+    private List<GameObject> Ranking = new List<GameObject>();
     //スタートしたか
     public bool isStart;
     //自身のインスタンス
@@ -31,6 +31,16 @@ public class RaceManager : SystemObject{
     /// ゲーム開始時のカウントダウンをここで行う
     /// </summary>
     private async UniTask StartCountDown() {
+        //プレイヤーが揃うまで待つ
+        Camera camera = Camera.main;
+        
+        while (camera.gameObject.GetComponent<RaceCameraController>().GetRacer() < 2) {
+
+
+            await UniTask.DelayFrame(100);
+        }
+
+
         _ = AudioManager.instance.PlaySE(2);
         await UniTask.Delay(3000);
         //スタート
@@ -46,5 +56,17 @@ public class RaceManager : SystemObject{
         isStart = false;
         await StartCountDown();
         
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="player"></param>
+    public void AddRanking(GameObject player) {
+        Ranking.Add(player);
+    }
+
+    public int GetRankingCount(GameObject player) {
+        return Ranking.IndexOf(player);
     }
 }

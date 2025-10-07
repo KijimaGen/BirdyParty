@@ -1,59 +1,62 @@
-/**
- * @file RaceCameraContoroller.cs
- * @brief レースゲームのカメラコントローラー
- * @author Sum1r3
- * @date 2025/10/06
- */
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RaceCameraContoroller : MonoBehaviour{
+public class RaceCameraController : MonoBehaviour {
     [Header("プレイヤー達")]
-    public List<Transform> racers;
+    public List<Transform> racers = new List<Transform>();
 
     [Header("カメラ設定")]
     public float smoothTime = 0.3f;
     public float minZoom = 10f;
-    public float maxZoom = 25f;
-    public Vector3 offset = new Vector3(0, 10, -15);
+    public float maxZoom = 30f;
+    public Vector3 offset = new Vector3(0, 15, -15);
 
     private Vector3 velocity;
 
     void LateUpdate() {
-        if (racers == null || racers.Count == 0) return;
+        if (racers == null || racers.Count == 0)
+            return;
 
-        // ====== 1位とビリを取得（Z軸方向前提）======
-        Transform first = racers.OrderByDescending(r => r.position.z).First();
-        Transform last = racers.OrderBy(r => r.position.z).First();
+        // ====== 1. 最前と最後をX軸基準で取得 ======
+        Transform first = racers.OrderByDescending(r => r.position.x).First();
+        Transform last = racers.OrderBy(r => r.position.x).First();
 
-        // ====== 2. 中心点を求める ======
-        Vector3 center = (first.position + last.position) / 2f;
+        // ====== 2. 中心点を求める（X軸だけ追う） ======
+        float centerX = (first.position.x + last.position.x) / 2f;
+        Vector3 center = new Vector3(centerX, 0, 0);
 
         // ====== 3. 距離を測ってズーム補正 ======
-        float distance = Vector3.Distance(first.position, last.position);
-        float zoom = Mathf.Lerp(minZoom, maxZoom, distance / 40f);
+        float distance = Mathf.Abs(first.position.x - last.position.x);
+        float zoomFactor = Mathf.Clamp01(distance / 30f); // 調整しやすく
+        float zoom = Mathf.Lerp(1f, 2f, zoomFactor); // 1～2倍にスケーリング
 
-        // ====== 4. カメラの目標位置 ======
-        Vector3 desiredPosition = center + offset.normalized * zoom;
+        // ====== 4. オフセットをスケーリングして使う ======
+        Vector3 scaledOffset = offset * zoom;
 
-        // ====== 5. スムーズに移動 ======
+        // ====== 5. カメラ位置を決める（Xだけ可変） ======
+        Vector3 desiredPosition = new Vector3(center.x, 0, 0) + scaledOffset;
+        desiredPosition.y = scaledOffset.y; // Y固定
+        desiredPosition.z = scaledOffset.z; // Z固定
+
+        // ====== 6. スムーズ移動 ======
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
-
-        // ====== 6. カメラの向き（コース方向に固定） ======
-        // コースがZ軸方向なので、XZ平面で向きを制御
-        Vector3 lookPoint = center;
-        lookPoint.y = center.y + 1f; // 少し上を見せる
-        transform.LookAt(lookPoint);
     }
 
     /// <summary>
-    /// レーサーの追加
+    /// カメラ操作のためにプレイヤーの数を取っておく
     /// </summary>
     /// <param name="racerTransform"></param>
-    public void AddRacers(Transform racerTransform) {
-        if (racers.Count < GameConst.PLAYER_MAX)
+    public void AddRacer(Transform racerTransform) {
+        if (!racers.Contains(racerTransform))
             racers.Add(racerTransform);
+    }
+
+    /// <summary>
+    /// プレイヤーの数を返す
+    /// </summary>
+    /// <returns></returns>
+    public int GetRacer() {
+        return racers.Count;
     }
 }

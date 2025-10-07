@@ -22,7 +22,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -21.14
+      value: -94.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a1c46a836b9457419247f5e2b82e9b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
+  moveSpeed: 4
 --- !u!114 &562674536964947774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +211,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
@@ -236,9 +236,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1.12
-  m_Height: 3.64
+  m_Height: 4.18
   m_Direction: 1
-  m_Center: {x: -0.2, y: -0.03, z: -0.04}
+  m_Center: {x: -0.2, y: -0.36, z: -0.04}
 --- !u!1001 &1221733395933411736
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -10,17 +10,23 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RacePlayer : MonoBehaviour {
+    //移動速度
     [SerializeField] private float moveSpeed = 8f;
 
+    //入力値
     private Vector2 moveInput;
     private Rigidbody rb;
+
+    //ゴールしたかどうか
+    private bool isGoal;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         //カメラの参照に自身を入れる
-        Camera.main.gameObject.GetComponent<RaceCameraContoroller>().AddRacers(this.transform);
+        Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
+        isGoal = false;
     }
 
     //アップデート
@@ -31,6 +37,10 @@ public class RacePlayer : MonoBehaviour {
         }
 
         Move();
+
+        if(isGoal) {
+            rb.velocity = Vector3.zero;
+        }
     }
 
     //インプットシステムの入力値の受け取り
@@ -56,10 +66,13 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public async UniTask Slow() {
-        float originalSpeed = moveSpeed;
-        moveSpeed *= 0.5f;
+        if(moveSpeed * 0.75f < 2) {
+            return;
+        }
+
+        moveSpeed *= 0.75f;
         await UniTask.Delay(3000);
-        moveSpeed = originalSpeed;
+        moveSpeed /= 0.75f;
     }
 
     /// <summary>
@@ -67,9 +80,27 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public async UniTask Boost() {
-        float originalSpeed = moveSpeed;
+        if (moveSpeed * 1.5f > 8) {
+            return;
+        }
         moveSpeed *= 1.5f; // 50%加速
-        await UniTask.Delay(2000); // 2秒持続
-        moveSpeed = originalSpeed;
+        await UniTask.Delay(3000); // 3秒持続
+        moveSpeed /= 1.5f; // 50%加速
+    }
+
+    /// <summary>
+    /// ゴールしました
+    /// </summary>
+    public void Goal() {
+        isGoal = true;
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        if(other.gameObject.tag == "Finish") {
+            Goal();
+            RaceManager.instance.AddRanking(this.gameObject);
+            Debug.Log(this.gameObject.name + "は" + RaceManager.instance.GetRankingCount(this.gameObject));
+
+        }
     }
 }

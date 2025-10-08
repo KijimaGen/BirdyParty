@@ -32,11 +32,9 @@ public class RaceManager : SystemObject{
     /// </summary>
     private async UniTask StartCountDown() {
         //プレイヤーが揃うまで待つ
+        //カメラゲット
         Camera camera = Camera.main;
-        
         while (camera.gameObject.GetComponent<RaceCameraController>().GetRacer() < 2) {
-
-
             await UniTask.DelayFrame(100);
         }
 
@@ -59,13 +57,18 @@ public class RaceManager : SystemObject{
     }
 
     /// <summary>
-    /// 
+    /// ランキングに追加
     /// </summary>
     /// <param name="player"></param>
     public void AddRanking(GameObject player) {
         Ranking.Add(player);
     }
 
+    /// <summary>
+    /// 特定のゲームオブジェクトがランキングのどこにいるかを返す
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
     public int GetRankingCount(GameObject player) {
         return Ranking.IndexOf(player);
     }

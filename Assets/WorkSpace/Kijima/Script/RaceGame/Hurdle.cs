@@ -15,7 +15,7 @@ public class Hurdle : MonoBehaviour{
     /// <param name="other"></param>
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.tag == "Player") {
-            _ = other.gameObject.GetComponent<RacePlayer>().Slow();
+            other.gameObject.GetComponent<RacePlayer>().Slow();
         }
     }
 }

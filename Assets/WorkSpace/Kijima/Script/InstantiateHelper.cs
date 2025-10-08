@@ -28,4 +28,23 @@ public static class InstantiateHelper {
         obj.transform.SetParent(parent, true);
         return obj;
     }
+
+    /// <summary>
+    /// ローカル座標で生成してから親に設定する
+    /// </summary>
+    /// <param name="parent"></param>
+    /// <param name="prefab"></param>
+    /// <param name="localPosition"></param>
+    /// <param name="localEuler"></param>
+    /// <returns></returns>
+    public static GameObject SpawnChildLocal(this Transform parent,GameObject prefab, Vector3 localPosition, Vector3 localEuler) {
+        //一旦プレファブを生成(位置・回転は親のローカル基準で設定)
+        GameObject obj = Object.Instantiate(prefab, parent);
+
+        //ローカル座標・回転を設定
+        obj.transform.localPosition = localPosition;
+        obj.transform.localRotation = Quaternion.Euler(localEuler);
+
+        return obj;
+    }
 }

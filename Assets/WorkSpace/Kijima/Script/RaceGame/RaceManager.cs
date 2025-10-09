@@ -19,6 +19,21 @@ public class RaceManager : SystemObject{
     public bool isStart;
     //自身のインスタンス
     public static RaceManager instance;
+
+    //各プレイヤーを取っておく
+    private List<RacePlayer> racers = new List<RacePlayer>();
+
+    //各プレイヤーの開始位置
+    private readonly Vector3[] spawnPositions = new Vector3[]
+    {
+        new Vector3(-65f, 1.2f, 1f),
+        new Vector3 (-65, 1.2f, -3.2f),
+        new Vector3(-65, 1.2f, -7),
+        new Vector3 (-65, 1.2f, -11)
+    };
+
+
+
     void Start(){
         
     }
@@ -35,9 +50,19 @@ public class RaceManager : SystemObject{
         //カメラゲット
         Camera camera = Camera.main;
         while (camera.gameObject.GetComponent<RaceCameraController>().GetRacer() < 2) {
+            //プレイヤーをスタートラインに置いておく
+            for(int i = 0,max = racers.Count; i< max; i++) {
+                if(racers[i] != null || racers != null)
+                racers[i].SetPosition(spawnPositions[i]);
+            }
             await UniTask.DelayFrame(100);
         }
 
+        //プレイヤーをスタートラインに置いておく(OneMore)
+        for (int i = 0, max = racers.Count; i < max; i++) {
+            if (racers[i] != null || racers != null)
+                racers[i].SetPosition(spawnPositions[i]);
+        }
 
         _ = AudioManager.instance.PlaySE(2);
         await UniTask.Delay(3000);
@@ -72,4 +97,13 @@ public class RaceManager : SystemObject{
     public int GetRankingCount(GameObject player) {
         return Ranking.IndexOf(player);
     }
+
+    /// <summary>
+    /// レーサーのリストにプレイヤーを入れる
+    /// </summary>
+    /// <param name="player"></param>
+    public void AddRacers(RacePlayer player) {
+        racers.Add(player);
+    }
+
 }

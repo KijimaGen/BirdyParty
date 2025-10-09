@@ -20,6 +20,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         Debug.Log("部屋に参加しました！");
         // プレイヤーを生成
         Vector3 spawnPos = new Vector3(Random.Range(-2, 2), 0, Random.Range(-2, 2));
-        PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, Quaternion.identity);
+        PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, Quaternion.Euler(0, -90, 0));
     }
 }

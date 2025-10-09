@@ -17,11 +17,11 @@ public class ObstacleManager : MonoBehaviour{
     private GameObject boost;
 
     //障害物を置くに当たり、必要なランダムの上限ライン
-    private const float MAX_Z = 5;
-    private const float MIN_Z = -14;
+    private const float MAX_Z = 10;
+    private const float MIN_Z = -20;
     //スタートライン(ちゃんとマージンは取ってます)
     private const float MAX_X = 315;
-    private const float MIN_X = -85;
+    private const float MIN_X = -60;
     //アイテムの数のマックス
     private const int ITEM_MAX = 100;
     private const int ITEM_MIN = 50;

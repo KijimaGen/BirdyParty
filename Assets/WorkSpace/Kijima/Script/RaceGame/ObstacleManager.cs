@@ -21,7 +21,7 @@ public class ObstacleManager : MonoBehaviour{
     private const float MIN_Z = -14;
     //スタートライン(ちゃんとマージンは取ってます)
     private const float MAX_X = 315;
-    private const float MIN_X = -85;
+    private const float MIN_X = -60;
     //アイテムの数のマックス
     private const int ITEM_MAX = 100;
     private const int ITEM_MIN = 50;

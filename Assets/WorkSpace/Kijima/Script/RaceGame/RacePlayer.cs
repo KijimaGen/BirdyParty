@@ -52,13 +52,14 @@ public class RacePlayer : MonoBehaviour {
     
 
     void Start() {
-        //自身が何番目にきたプレイヤーなのかをもらい、それに合わせた位置に移動
-
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         //カメラの参照に自身を入れる
         Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
+        //レースマネージャーにも入れる
+        RaceManager.instance.AddRacers(this);
+
         isGoal = false;
         //スピードのオリジナルを取得
         originSpeed = moveSpeed;
@@ -178,5 +179,12 @@ public class RacePlayer : MonoBehaviour {
             Debug.Log(this.gameObject.name + "は" + RaceManager.instance.GetRankingCount(this.gameObject));
 
         }
+    }
+
+    /// <summary>
+    /// 位置移動
+    /// </summary>
+    public void SetPosition(Vector3 setPos) {
+        transform.position = setPos;
     }
 }

@@ -51,18 +51,12 @@ public class RaceManager : SystemObject{
         Camera camera = Camera.main;
         while (camera.gameObject.GetComponent<RaceCameraController>().GetRacer() < 2) {
             //プレイヤーをスタートラインに置いておく
-            for(int i = 0,max = racers.Count; i< max; i++) {
-                if(racers[i] != null || racers != null)
-                racers[i].SetPosition(spawnPositions[i]);
-            }
+            PlayerStartPosSet();
             await UniTask.DelayFrame(100);
         }
 
         //プレイヤーをスタートラインに置いておく(OneMore)
-        for (int i = 0, max = racers.Count; i < max; i++) {
-            if (racers[i] != null || racers != null)
-                racers[i].SetPosition(spawnPositions[i]);
-        }
+        PlayerStartPosSet();
 
         _ = AudioManager.instance.PlaySE(2);
         await UniTask.Delay(3000);
@@ -104,6 +98,25 @@ public class RaceManager : SystemObject{
     /// <param name="player"></param>
     public void AddRacers(RacePlayer player) {
         racers.Add(player);
+    }
+
+    /// <summary>
+    /// プレイヤーを最初の位置に着かせる
+    /// </summary>
+    public void PlayerStartPosSet() {
+        for (int i = 0, max = racers.Count; i < max; i++) {
+            if (racers[i] != null || racers != null)
+                racers[i].SetPosition(spawnPositions[i]);
+        }
+    }
+
+    /// <summary>
+    /// 自分が何番目に入ってきたプレイヤーかを渡す
+    /// </summary>
+    /// <param name="racePlayer"></param>
+    /// <returns></returns>
+    public int GetPlayerNumber(RacePlayer racePlayer) {
+        return racers.IndexOf(racePlayer);
     }
 
 }

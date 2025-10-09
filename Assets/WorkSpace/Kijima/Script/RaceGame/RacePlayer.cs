@@ -36,6 +36,8 @@ public class RacePlayer : MonoBehaviour {
 
     //自身の名前
     private string playerName;
+    //自身の番号
+    private int myNumber;
 
     //ブーストエフェクト
     [SerializeField]
@@ -59,7 +61,10 @@ public class RacePlayer : MonoBehaviour {
         Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
         //レースマネージャーにも入れる
         RaceManager.instance.AddRacers(this);
-
+        //自身のポジションを設定
+        RaceManager.instance.PlayerStartPosSet();
+        //自身の番号を取得
+        myNumber = RaceManager.instance.GetPlayerNumber(this);
         isGoal = false;
         //スピードのオリジナルを取得
         originSpeed = moveSpeed;
@@ -67,6 +72,10 @@ public class RacePlayer : MonoBehaviour {
 
     //アップデート
     void FixedUpdate() {
+        //ポジション固定
+        Vector3 setpos = new Vector3(transform.position.x,1.2f,transform.position.z);
+        transform.position = setpos;
+
         //デバッグ用
         if (Input.GetMouseButtonDown(0)) {
             moveSpeed *= 10;
@@ -186,5 +195,13 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     public void SetPosition(Vector3 setPos) {
         transform.position = setPos;
+    }
+
+    /// <summary>
+    /// マイナンバーを引き渡す
+    /// </summary>
+    /// <returns></returns>
+    public int GetMyNumber() {
+        return myNumber;
     }
 }

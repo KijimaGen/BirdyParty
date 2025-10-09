@@ -12,9 +12,10 @@ using UnityEngine;
 public class ObstacleManager : MonoBehaviour{
     //障害物と加速アイテム
     [SerializeField]
-    private GameObject obstacle;
-    [SerializeField]
-    private GameObject boost;
+    List<GameObject> itemList;
+
+    //ベクター3の回転
+    private readonly Vector3 spawnRot = new Vector3(-90, 0, -90);
 
     //障害物を置くに当たり、必要なランダムの上限ライン
     private const float MAX_Z = 10;
@@ -45,13 +46,10 @@ public class ObstacleManager : MonoBehaviour{
             itemSpawnPos.y = 0.05f;
 
             //実際にアイテムを生成
-            int rand = Random.Range(0, 2);
-            if (rand == 0) {
-                transform.SpawnChildWorld(obstacle, itemSpawnPos, new Vector3(-90, 0, -90));
-            }
-            else {
-                transform.SpawnChildWorld(boost, itemSpawnPos, new Vector3(-90, 0, -90));
-            }
+            int rand = Random.Range(0, itemList.Count);
+            transform.SpawnChildWorld(itemList[rand], itemSpawnPos, spawnRot);
+            
+            
         }
 
         await UniTask.CompletedTask;

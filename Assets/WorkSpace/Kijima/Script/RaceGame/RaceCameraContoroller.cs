@@ -14,9 +14,20 @@ public class RaceCameraController : MonoBehaviour {
 
     private Vector3 velocity;
 
+    private readonly Vector3 isGoalPosition = new Vector3(0,3.5f,-103);
+    private readonly Vector3 NormalRotation = new Vector3(45,0, 0);
+
     void LateUpdate() {
         if (racers == null || racers.Count == 0)
             return;
+
+
+        if (RaceManager.instance.isGoal) {
+            transform.position = isGoalPosition;
+            transform.eulerAngles = Vector3.zero;
+            return;
+        }
+
 
         // ====== 1. 最前と最後をX軸基準で取得 ======
         Transform first = racers.OrderByDescending(r => r.position.x).First();
@@ -41,6 +52,11 @@ public class RaceCameraController : MonoBehaviour {
 
         // ====== 6. スムーズ移動 ======
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
+
+        // ======７.回転の固定========
+        transform.eulerAngles = NormalRotation;
+
+
     }
 
     /// <summary>

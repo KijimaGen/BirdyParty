@@ -5,14 +5,11 @@
  * @date 2025/10/03
  */
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class RaceManager : SystemObject{
-    //ゲーム開始時のカウントダウン
-    private const float GameStartCount = 3.0f;
+
     //順位
     private List<GameObject> Ranking = new List<GameObject>();
     //スタートしたか
@@ -32,14 +29,28 @@ public class RaceManager : SystemObject{
         new Vector3 (-65, 1.2f, -11)
     };
 
+    private readonly Vector3[] RankingPositions = new Vector3[]
+    {
+        new Vector3 (-3.6f, 6, -96f),
+        new Vector3 (-1.6f, 5, -96f),
+        new Vector3 (0.4f, 4, -96f),
+        new Vector3(2.4f, 3, -96f)
+    };
 
+    public bool isGoal { get; private set; } = false;
+
+    private bool isStandby = false; 
 
     void Start(){
         
     }
 
     void Update(){
-        
+        //ランキングに入っている人数 == レーサーの人数 = 全員ゴールしている
+        if(racers.Count == Ranking.Count && isStart) {
+            PlayerGoalPosSet();
+            isGoal = true;
+        }
     }
 
     /// <summary>
@@ -47,9 +58,8 @@ public class RaceManager : SystemObject{
     /// </summary>
     private async UniTask StartCountDown() {
         //プレイヤーが揃うまで待つ
-        //カメラゲット
-        Camera camera = Camera.main;
-        while (camera.gameObject.GetComponent<RaceCameraController>().GetRacer() < 2) {
+
+        while (!isStandby) {
             //プレイヤーをスタートラインに置いておく
             PlayerStartPosSet();
             await UniTask.DelayFrame(100);
@@ -70,7 +80,9 @@ public class RaceManager : SystemObject{
 
         await FadeManager.instance.FadeIn();
 
+        isGoal = false;
         isStart = false;
+        isStandby = false;
         await StartCountDown();
         
     }
@@ -117,6 +129,20 @@ public class RaceManager : SystemObject{
     /// <returns></returns>
     public int GetPlayerNumber(RacePlayer racePlayer) {
         return racers.IndexOf(racePlayer);
+    }
+
+    /// <summary>
+    /// プレイヤーをゴール後の位置に着かせる
+    /// </summary>
+    public void PlayerGoalPosSet() {
+        for (int i = 0, max = racers.Count; i < max; i++) {
+            if (racers[i] != null || racers != null)
+                racers[i].SetPosition(RankingPositions[i]);
+        }
+    }
+
+    public void StandbyOK() {
+        isStandby = true;
     }
 
 }

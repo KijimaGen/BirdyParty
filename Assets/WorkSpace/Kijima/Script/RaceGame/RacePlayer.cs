@@ -119,6 +119,7 @@ public class RacePlayer : MonoBehaviour {
         //ゴールしているのに動いてはならない
         if(isGoal) {
             rb.velocity = Vector3.zero;
+            transform.eulerAngles = Vector3.zero;
         }
         
 
@@ -203,5 +204,9 @@ public class RacePlayer : MonoBehaviour {
     /// <returns></returns>
     public int GetMyNumber() {
         return myNumber;
+    }
+
+    public void Plus(InputAction.CallbackContext context) {
+        RaceManager.instance.StandbyOK();
     }
 }

@@ -11,18 +11,15 @@ public class PlayerIndexCanvas : MonoBehaviour {
     [SerializeField]
     TextMeshProUGUI text;
 
-    void Start() {
+
+    public void InitializeCanvas() {
         canvas = GetComponent<Canvas>();
         canvas.worldCamera = Camera.main;
         //©g‚Ìe‚ğæ“¾
         GameObject player = transform.parent.gameObject;
-        myNumber = player.GetComponent<RacePlayer>().GetMyNumber() +1;
+        myNumber = player.GetComponent<RacePlayer>().GetMyNumber() + 1;
 
         text.text = myNumber.ToString() + "P";
-    }
-
-    void LateUpdate() {
-        
     }
 }
 

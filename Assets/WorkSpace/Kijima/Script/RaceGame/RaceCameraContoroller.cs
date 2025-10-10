@@ -21,13 +21,11 @@ public class RaceCameraController : MonoBehaviour {
         if (racers == null || racers.Count == 0)
             return;
 
-
-        if (RaceManager.instance.isGoal) {
+        if (RaceManager_PUN.instance != null && RaceManager_PUN.instance.isGoal) {
             transform.position = isGoalPosition;
             transform.eulerAngles = Vector3.zero;
             return;
         }
-
 
         // ====== 1. Å‘O‚ÆÅŒã‚ğX²Šî€‚Åæ“¾ ======
         Transform first = racers.OrderByDescending(r => r.position.x).First();
@@ -53,7 +51,7 @@ public class RaceCameraController : MonoBehaviour {
         // ====== 6. ƒXƒ€[ƒYˆÚ“® ======
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
 
-        // ======‚V.‰ñ“]‚ÌŒÅ’è========
+        // ======‚V.‰ñ“]‚ÌŒÅ’è
         transform.eulerAngles = NormalRotation;
 
 

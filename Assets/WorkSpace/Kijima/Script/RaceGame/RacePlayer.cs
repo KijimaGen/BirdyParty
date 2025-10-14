@@ -83,10 +83,7 @@ public class RacePlayer : MonoBehaviour {
         Vector3 setpos = new Vector3(transform.position.x,1.2f,transform.position.z);
         transform.position = setpos;
 
-        //デバッグ用
-        if (Input.GetMouseButtonDown(0)) {
-            moveSpeed *= 10;
-        }
+        
         //ここでブースト時間の確認＆switchの切り替え
         if (isBoost) {
             boostTime -= Time.deltaTime;
@@ -121,7 +118,7 @@ public class RacePlayer : MonoBehaviour {
         }
 
         //移動
-        if (photonView.IsMine)
+        if (photonView.IsMine || !isGoal)
             Move();
 
         //ゴールしているのに動いてはならない
@@ -158,6 +155,8 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public void Slow() {
+        if (!photonView.IsMine) return;
+
         _ = AudioManager.instance.PlaySE(1);
         slowTime = MAX_TIME;
         if(!isSlow) {
@@ -172,6 +171,8 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public void Boost() {
+        if (!photonView.IsMine) return;
+
         _ = AudioManager.instance.PlaySE(0);
         boostTime = MAX_TIME;
         if (!isBoost) {
@@ -199,10 +200,7 @@ public class RacePlayer : MonoBehaviour {
         }
     }
 
-   
-
-    
-    
+    //プラスボタンを押したときにホストだったらゲーム開始(そのうちなくす予定)
     public void Plus(InputAction.CallbackContext context) {
         RaceManager_PUN.instance.TryStartCountDown();
     }

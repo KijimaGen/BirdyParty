@@ -5,8 +5,6 @@
  * @date 2025/10/14
  */
 using Cysharp.Threading.Tasks;
-using Photon.Pun.Demo.Cockpit;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,7 +14,8 @@ public class PlayerManager : SystemObject {
     //自身のインスタンス
     public static PlayerManager instance;
     //プレイヤーたち
-    List<PlayerInfomation> playerList = new List<PlayerInfomation>(PLAYER_MAX);
+    [SerializeField]
+    private List<PlayerInfomation> playerList = new List<PlayerInfomation>(PLAYER_MAX);
 
     public override async UniTask Initialize() {
         instance = this;
@@ -32,14 +31,20 @@ public class PlayerManager : SystemObject {
     /// </summary>
     /// <param Name="player"></param>
     public void AddPlayer(PlayerInfomation player) {
-        //一応最大数を超えそうだったら規制
-        if (playerList.Count + 1 > PLAYER_MAX) return;
         //プレイヤーリストに追加
-        playerList.Add(player);
+        for(int i = 0; i < playerList.Count; i++) {
+            if (playerList[i] == null) {
+                playerList[i] = player;
+                return;
+            }
+        }
     }
 
+    /// <summary>
+    /// プレイヤーリストを引き渡す
+    /// </summary>
+    /// <returns></returns>
     public List<PlayerInfomation> GetPlayerList(){
         return playerList;
-
     }
 }

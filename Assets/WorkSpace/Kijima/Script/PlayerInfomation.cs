@@ -6,6 +6,7 @@
  */
 using Photon.Pun;
 using System.Drawing;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static GameConst;
@@ -38,6 +39,8 @@ public class PlayerInfomation:MonoBehaviour{
         photonView = GetComponent<PhotonView>();
         //自身の番号を取得
         myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        //プレイヤー管理クラスに登録
+        PlayerManager.instance.AddPlayer(this);
         // シーン読み込み時のコールバック登録
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -72,6 +75,9 @@ public class PlayerInfomation:MonoBehaviour{
     public void LoadRaceScene() {
 
     }
+
+    
+
 
     #region 各種ゲッターとセッター
     // Point

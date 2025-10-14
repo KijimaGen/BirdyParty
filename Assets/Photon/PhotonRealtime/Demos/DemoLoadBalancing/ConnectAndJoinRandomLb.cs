@@ -134,7 +134,7 @@ namespace Photon.Realtime.Demo
 
 
         /// <summary>A callback of the RegionHandler, provided in OnRegionListReceived.</summary>
-        /// <param name="regionHandler">The regionHandler wraps up best region and other region relevant info.</param>
+        /// <param Name="regionHandler">The regionHandler wraps up best region and other region relevant info.</param>
         private void OnRegionPingCompleted(RegionHandler regionHandler)
         {
             Debug.Log("OnRegionPingCompleted " + regionHandler.BestRegion);

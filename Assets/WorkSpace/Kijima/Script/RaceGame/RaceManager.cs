@@ -18,10 +18,12 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     private List<RacePlayer> racers = new List<RacePlayer>();
     private List<GameObject> ranking = new List<GameObject>();
 
-    private bool isStandby = false;
+    //準備完了かどうか
+    //private bool isStandby = false;
     public bool isStart { get; private set; } = false;
     public bool isGoal { get; private set; } = false;
 
+    //オンラインか否か
     public bool isOnline;
 
     // --- 各プレイヤーの開始位置 ---
@@ -42,8 +44,12 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         new Vector3 (2.6f, 3, -96f)
     };
 
+    [SerializeField]
+    private RacePlayer racersPlayer;
+
     private void Awake() {
         instance = this;
+        //racers = PlayerManager.instance.GetPlayerList();
     }
 
     private void Update() {
@@ -107,7 +113,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 引数に来たオブジェクトが、何番目に来たのかを渡す
     /// </summary>
-    /// <param name="player"></param>
+    /// <param Name="player"></param>
     /// <returns></returns>
     public int GetPlayerNumber(RacePlayer player) {
         return racers.IndexOf(player);
@@ -125,7 +131,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
-    /// 全員がゴールした後に、表彰台に並べたい
+    /// 全員がゴールした後に、表彰台に並べる
     /// </summary>
     public void PlayerGoalPosSet() {
         for (int i = 0; i < racers.Count; i++) {
@@ -137,7 +143,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// <summary>
     /// ランキングに加える
     /// </summary>
-    /// <param name="player"></param>
+    /// <param Name="player"></param>
     public void AddRanking(GameObject player) {
         ranking.Add(player);
     }
@@ -145,7 +151,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 引数にきたオブジェクトがランキングの何番目にいるのか返す
     /// </summary>
-    /// <param name="player"></param>
+    /// <param Name="player"></param>
     /// <returns></returns>
     public int GetRankingCount(GameObject player) {
         return ranking.IndexOf(player);

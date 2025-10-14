@@ -9,4 +9,4 @@ EditorBuildSettings:
     path: Assets/WorkSpace/Kijima/Scene/Race.unity
     guid: 697187f96ae4de247a7d17d22674b5b7
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 1d26aa9fe63a4cd4094352df89205029, type: 3}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 68e444f9dd426d44395b462a7ef2390c, type: 3}

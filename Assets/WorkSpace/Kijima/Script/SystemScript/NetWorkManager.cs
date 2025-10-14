@@ -7,6 +7,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     [SerializeField] private GameObject playerPrefab;
 
     void Start() {
+        DontDestroyOnLoad(gameObject);
         Debug.Log("Photon‚ÉÚ‘±’†...");
         PhotonNetwork.ConnectUsingSettings(); // Ú‘±ŠJn
     }

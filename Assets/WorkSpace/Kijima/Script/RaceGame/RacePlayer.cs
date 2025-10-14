@@ -52,10 +52,8 @@ public class RacePlayer : MonoBehaviour {
     //つけるオーラの名前
     private const string SLOW_AURA_NAME = "SlowAura(Clone)";
     private const string BOOST_AURA_NAME = "BoostAura(Clone)";
+    //自身のフォトンビュー
     PhotonView photonView;
-
-
-
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -190,11 +188,9 @@ public class RacePlayer : MonoBehaviour {
         isGoal = true;
     }
 
-    /// <summary>
-    /// ゴール
-    /// </summary>
-    /// <param name="other"></param>
+    
     private void OnTriggerEnter(Collider other) {
+        //ゴールしたときにレースマネージャーのランキングに入れる
         if(other.gameObject.tag == "Finish") {
             Goal();
             RaceManager_PUN.instance.AddRanking(this.gameObject);

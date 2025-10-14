@@ -30,7 +30,7 @@ public class FadeManager : SystemObject {
     /// <summary>
     /// フェードアウト、暗くする
     /// </summary>
-    /// <param name="duration"></param>
+    /// <param Name="duration"></param>
     /// <returns></returns>
     public async UniTask FadeOut(float duration = _DEFAULT_FADE_DURATION) {
         await FadeTargetAlpha(1.0f, duration);
@@ -39,7 +39,7 @@ public class FadeManager : SystemObject {
     /// <summary>
     /// フェードイン、どうだ？明るくなっただろう？
     /// </summary>
-    /// <param name="duration"></param>
+    /// <param Name="duration"></param>
     /// <returns></returns>
     public async UniTask FadeIn(float duration = _DEFAULT_FADE_DURATION) {
         await FadeTargetAlpha(0.0f, duration);
@@ -48,8 +48,8 @@ public class FadeManager : SystemObject {
     /// <summary>
     /// フェード画像を指定の不透明度に変化させる
     /// </summary>
-    /// <param name="targetAlpha"></param>
-    /// <param name="duration"></param>
+    /// <param Name="targetAlpha"></param>
+    /// <param Name="duration"></param>
     /// <returns></returns>
     private async UniTask FadeTargetAlpha(float targetAlpha, float duration) {
         float elapsedTime = 0.0f;//経過時間

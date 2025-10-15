@@ -12,10 +12,28 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject onlineUI;
     [SerializeField] private GameObject minigameSelectUI;
     [SerializeField] private GameObject playerSelectUI;
+    [SerializeField] private GameObject gameReadyUI;
 
     [Header("通信切り替え時の表示用")]
     [SerializeField] private GameObject offLine;
     [SerializeField] private GameObject onLine;
+
+    private static ButtonManager instance;
+    private string currentMiniGame = null;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
 
     private void Start()
     {
@@ -34,8 +52,13 @@ public class ButtonManager : MonoBehaviour
             minigameSelectUI.SetActive(false);
             modeUI.SetActive(false);
         }
+        if (openUI == gameReadyUI)
+        {
+            playerSelectUI.SetActive(false);
+            minigameSelectUI.SetActive(false);
+        }
 
-            openUI.SetActive(true);
+        openUI.SetActive(true);
     }
 
     public void Back(GameObject closeUI)
@@ -48,6 +71,7 @@ public class ButtonManager : MonoBehaviour
         if (closeUI == onlineUI) netWorkUI.SetActive(true);
         if (closeUI == minigameSelectUI) modeUI.SetActive(true);
         if (closeUI == playerSelectUI) modeUI.SetActive(true);
+        if (closeUI == gameReadyUI) minigameSelectUI.SetActive(true);
     }
 
     public void localSetting()
@@ -66,22 +90,54 @@ public class ButtonManager : MonoBehaviour
         onLine.SetActive(true);
     }
 
+    // ? ミニゲーム開始（Additive方式）
     public void startGame(string sceneName)
     {
-        SceneManager.LoadScene(sceneName);
+        currentMiniGame = sceneName;
+        // UI全部閉じる（またはローディング表示）
+        titleUI.SetActive(false);
+        modeUI.SetActive(false);
+        optionUI.SetActive(false);
+        netWorkUI.SetActive(false);
+        onlineUI.SetActive(false);
+        minigameSelectUI.SetActive(false);
+        playerSelectUI.SetActive(false);
+        gameReadyUI.SetActive(false);
+
+        // ミニゲームをAdditiveで読み込み
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
+    }
+
+    // ? ミニゲーム終了・UI選択に戻る
+    public void ReturnToSelect()
+    {
+        if (!string.IsNullOrEmpty(currentMiniGame))
+        {
+            SceneManager.UnloadSceneAsync(currentMiniGame);
+            currentMiniGame = null;
+        }
+
+        // UIを再表示
+        titleUI.SetActive(false);
+        modeUI.SetActive(false);
+        optionUI.SetActive(false);
+        netWorkUI.SetActive(false);
+        onlineUI.SetActive(false);
+
+        // 選択UIを再表示
+        minigameSelectUI.SetActive(true);
     }
 
     public void OnExit()
     {
         #if UNITY_EDITOR
 
-            UnityEditor.EditorApplication.isPlaying = false;
+                UnityEditor.EditorApplication.isPlaying = false;
 
         #else
 
-            Application.Quit();
+                Application.Quit();
 
         #endif
     }
-
 }

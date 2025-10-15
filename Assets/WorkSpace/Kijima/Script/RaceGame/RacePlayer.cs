@@ -200,6 +200,9 @@ public class RacePlayer : MonoBehaviour {
             RaceManager_PUN.instance.AddRanking(this);
             myRank = RaceManager_PUN.instance.GetRankingCount(this);
 
+            //自身の順位をプレイヤー情報管理クラスに引き渡す
+            GetComponent<PlayerInfomation>().SetRank(myRank);
+
             //デバッグでランキング表示
             Debug.Log(this.gameObject.name + "は" + RaceManager_PUN.instance.GetRankingCount(this));
         }
@@ -225,7 +228,7 @@ public class RacePlayer : MonoBehaviour {
         transform.position = pos;
     }
 
-    public void GetRank() {
-
+    public int GetRank() {
+        return myRank;
     }
 }

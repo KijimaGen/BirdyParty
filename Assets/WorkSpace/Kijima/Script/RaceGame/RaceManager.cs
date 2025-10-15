@@ -16,7 +16,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
 
     // --- 各種管理 ---
     private List<RacePlayer> racers = new List<RacePlayer>();
-    private List<GameObject> ranking = new List<GameObject>();
+    private List<RacePlayer> ranking = new List<RacePlayer>();
 
     //準備完了かどうか
     //private bool isStandby = false;
@@ -49,7 +49,6 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
 
     private void Awake() {
         instance = this;
-        //racers = PlayerManager.instance.GetPlayerList();
     }
 
     private void Update() {
@@ -136,7 +135,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     public void PlayerGoalPosSet() {
         for (int i = 0; i < racers.Count; i++) {
             if (racers[i] == null) continue;
-            racers[i].SetPosition(rankingPositions[GetRankingCount(racers[i].gameObject)]);
+            racers[i].SetPosition(rankingPositions[racers[i].myRank]);
         }
     }
 
@@ -144,7 +143,13 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// ランキングに加える
     /// </summary>
     /// <param Name="player"></param>
-    public void AddRanking(GameObject player) {
+    public void AddRanking(RacePlayer player) {
+        //一応ここでランキングが重複しないかチェック
+        for(int i = 0,max = ranking.Count;i < max; i++) {
+            if (ranking[i] == player)
+                return;
+        }
+
         ranking.Add(player);
     }
 
@@ -153,7 +158,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param Name="player"></param>
     /// <returns></returns>
-    public int GetRankingCount(GameObject player) {
+    public int GetRankingCount(RacePlayer player) {
         return ranking.IndexOf(player);
     }
 

@@ -17,6 +17,7 @@ public class RacePlayer : MonoBehaviour {
 
     //入力値
     private Vector2 moveInput;
+    //りぎっどボディの入手
     private Rigidbody rb;
 
     //ゴールしたかどうか
@@ -38,9 +39,9 @@ public class RacePlayer : MonoBehaviour {
     //自身の名前
     private string playerName;
     //自身の番号
-    public int myNumber;
+    public int myNumber { get; private set; }
     //自身の順位
-    public int myRank;
+    public int myRank { get; private set; }
 
     //ブーストエフェクト
     [SerializeField]
@@ -193,10 +194,14 @@ public class RacePlayer : MonoBehaviour {
     private void OnTriggerEnter(Collider other) {
         //ゴールしたときにレースマネージャーのランキングに入れる
         if(other.gameObject.tag == "Finish") {
+            //ゴールした時の処理を呼ぶ
             Goal();
-            RaceManager_PUN.instance.AddRanking(this.gameObject);
-            Debug.Log(this.gameObject.name + "は" + RaceManager_PUN.instance.GetRankingCount(this.gameObject));
+            //自身の順位を入れてもらい、値をもらう
+            RaceManager_PUN.instance.AddRanking(this);
+            myRank = RaceManager_PUN.instance.GetRankingCount(this);
 
+            //デバッグでランキング表示
+            Debug.Log(this.gameObject.name + "は" + RaceManager_PUN.instance.GetRankingCount(this));
         }
     }
 
@@ -218,5 +223,9 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     public void SetPosition(Vector3 pos) {
         transform.position = pos;
+    }
+
+    public void GetRank() {
+
     }
 }

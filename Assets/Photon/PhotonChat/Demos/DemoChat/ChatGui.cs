@@ -29,7 +29,7 @@ namespace Photon.Chat.Demo
     /// some friends are already set in the Chat demo "DemoChat-Scene", 'Joe', 'Jane' and 'Bob', simply log with them so that you can see the status changes in the Interface
     ///
     /// Workflow:
-    /// Create ChatClient, Connect to a server with your AppID, Authenticate the user (apply a unique name,)
+    /// Create ChatClient, Connect to a server with your AppID, Authenticate the user (apply a unique Name,)
     /// and subscribe to some channels.
     /// Subscribe a channel before you publish to that channel!
     ///
@@ -246,7 +246,7 @@ namespace Photon.Chat.Demo
             string privateChatTarget = string.Empty;
             if (doingPrivateChat)
             {
-                // the channel name for a private conversation is (on the client!!) always composed of both user's IDs: "this:remote"
+                // the channel Name for a private conversation is (on the client!!) always composed of both user's IDs: "this:remote"
                 // so the remote ID is simple to figure out
 
                 string[] splitNames = this.selectedChannelName.Split(new char[] { ':' });
@@ -566,11 +566,11 @@ namespace Photon.Chat.Demo
         /// <summary>
         /// New status of another user (you get updates for users set in your friends list).
         /// </summary>
-        /// <param name="user">Name of the user.</param>
-        /// <param name="status">New status of that user.</param>
-        /// <param name="gotMessage">True if the status contains a message you should cache locally. False: This status update does not include a
+        /// <param Name="user">Name of the user.</param>
+        /// <param Name="status">New status of that user.</param>
+        /// <param Name="gotMessage">True if the status contains a message you should cache locally. False: This status update does not include a
         /// message (keep any you have).</param>
-        /// <param name="message">Message that user set.</param>
+        /// <param Name="message">Message that user set.</param>
         public void OnStatusUpdate(string user, int status, bool gotMessage, object message)
         {
 

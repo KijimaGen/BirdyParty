@@ -1,122 +1,169 @@
-/**
- * @file RacePlayer.cs
- * @brief ƒŒ[ƒXƒQ[ƒ€‚Ìƒ}ƒl[ƒWƒƒ[
- * @author Sum1r3
- * @date 2025/10/03
+ï»¿/**
+ * @file RaceManager_PUN.cs
+ * @brief PUN2å¯¾å¿œã®ãƒ¬ãƒ¼ã‚¹ã‚²ãƒ¼ãƒ ç®¡ç†ã‚¯ãƒ©ã‚¹
+ * @author Sum1r3 + GPT
+ * @date 2025/10/10
  */
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class RaceManager : SystemObject{
-    //ƒQ[ƒ€ŠJn‚ÌƒJƒEƒ“ƒgƒ_ƒEƒ“
-    private const float GameStartCount = 3.0f;
-    //‡ˆÊ
-    private List<GameObject> Ranking = new List<GameObject>();
-    //ƒXƒ^[ƒg‚µ‚½‚©
-    public bool isStart;
-    //©g‚ÌƒCƒ“ƒXƒ^ƒ“ƒX
-    public static RaceManager instance;
+public class RaceManager_PUN : MonoBehaviourPunCallbacks {
+    // --- ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ ---
+    public static RaceManager_PUN instance;
 
-    //ŠeƒvƒŒƒCƒ„[‚ğæ‚Á‚Ä‚¨‚­
+    // --- å„ç¨®ç®¡ç† ---
     private List<RacePlayer> racers = new List<RacePlayer>();
+    private List<RacePlayer> ranking = new List<RacePlayer>();
 
-    //ŠeƒvƒŒƒCƒ„[‚ÌŠJnˆÊ’u
+    //æº–å‚™å®Œäº†ã‹ã©ã†ã‹
+    //private bool isStandby = false;
+    public bool isStart { get; private set; } = false;
+    public bool isGoal { get; private set; } = false;
+
+    //ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ã‹å¦ã‹
+    public bool isOnline;
+
+    // --- å„ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®é–‹å§‹ä½ç½® ---
     private readonly Vector3[] spawnPositions = new Vector3[]
     {
         new Vector3(-65f, 1.2f, 1f),
-        new Vector3 (-65, 1.2f, -3.2f),
+        new Vector3(-65, 1.2f, -3.2f),
         new Vector3(-65, 1.2f, -7),
-        new Vector3 (-65, 1.2f, -11)
+        new Vector3(-65, 1.2f, -11)
     };
 
+    // --- ã‚´ãƒ¼ãƒ«å¾Œã®è¡¨ç¤ºä½ç½® ---
+    private readonly Vector3[] rankingPositions = new Vector3[]
+    {
+        new Vector3 (-3.6f, 6, -96f),
+        new Vector3 (-1.6f, 5, -96f),
+        new Vector3 (0.6f, 4, -96f),
+        new Vector3 (2.6f, 3, -96f)
+    };
 
-
-    void Start(){
-        
+    //è‡ªèº«ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆ
+    private void Awake() {
+        instance = this;
     }
 
-    void Update(){
-        
-    }
-
-    /// <summary>
-    /// ƒQ[ƒ€ŠJn‚ÌƒJƒEƒ“ƒgƒ_ƒEƒ“‚ğ‚±‚±‚Ås‚¤
-    /// </summary>
-    private async UniTask StartCountDown() {
-        //ƒvƒŒƒCƒ„[‚ª‘µ‚¤‚Ü‚Å‘Ò‚Â
-        //ƒJƒƒ‰ƒQƒbƒg
-        Camera camera = Camera.main;
-        while (camera.gameObject.GetComponent<RaceCameraController>().GetRacer() < 2) {
-            //ƒvƒŒƒCƒ„[‚ğƒXƒ^[ƒgƒ‰ƒCƒ“‚É’u‚¢‚Ä‚¨‚­
-            PlayerStartPosSet();
-            await UniTask.DelayFrame(100);
+    private void Update() {
+        // å…¨å“¡ã‚´ãƒ¼ãƒ«åˆ¤å®š
+        if (racers.Count == ranking.Count && isStart) {
+            PlayerGoalPosSet();
+            photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered); // â†ã“ã£ã¡ãŒã‚ªã‚¹ã‚¹ãƒ¡ï¼
         }
+    }
 
-        //ƒvƒŒƒCƒ„[‚ğƒXƒ^[ƒgƒ‰ƒCƒ“‚É’u‚¢‚Ä‚¨‚­(OneMore)
+    // ============================================
+    // âœ… åˆæœŸåŒ–
+    // ============================================
+    public override void OnJoinedRoom() {
+        Debug.Log($"Room joined! Player count: {PhotonNetwork.CurrentRoom.PlayerCount}");
+
+
+    }
+
+    // ============================================
+    // âœ… å…¨å“¡ã«ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³åˆå›³ã‚’é€ã‚‹
+    // ============================================
+    public void TryStartCountDown() {
+        if (PhotonNetwork.IsMasterClient) {
+            if (isStart) return;
+
+            Debug.Log("MasterClient: Sending StartCountDownRPC to all players...");
+            photonView.RPC(nameof(StartCountDownRPC), RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    private async void StartCountDownRPC() {
+        if (isStart) return;
+        Debug.Log("All Clients: StartCountDowné–‹å§‹ï¼");
+        await StartCountDown();
+    }
+
+    // ============================================
+    // âœ… ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³
+    // ============================================
+    private async UniTask StartCountDown() {
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ã‚¹ã‚¿ãƒ¼ãƒˆä½ç½®ã«ç½®ã
         PlayerStartPosSet();
 
         _ = AudioManager.instance.PlaySE(2);
         await UniTask.Delay(3000);
-        //ƒXƒ^[ƒg
+
+        // ã‚¹ã‚¿ãƒ¼ãƒˆï¼
         isStart = true;
-        await UniTask.CompletedTask;
+        Debug.Log("GO!!!!");
     }
 
-    public override async UniTask Initialize() {
-        instance = this;
-
-        await FadeManager.instance.FadeIn();
-
-        isStart = false;
-        await StartCountDown();
-        
-    }
-
-    /// <summary>
-    /// ƒ‰ƒ“ƒLƒ“ƒO‚É’Ç‰Á
-    /// </summary>
-    /// <param name="player"></param>
-    public void AddRanking(GameObject player) {
-        Ranking.Add(player);
-    }
-
-    /// <summary>
-    /// “Á’è‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ªƒ‰ƒ“ƒLƒ“ƒO‚Ì‚Ç‚±‚É‚¢‚é‚©‚ğ•Ô‚·
-    /// </summary>
-    /// <param name="player"></param>
-    /// <returns></returns>
-    public int GetRankingCount(GameObject player) {
-        return Ranking.IndexOf(player);
-    }
-
-    /// <summary>
-    /// ƒŒ[ƒT[‚ÌƒŠƒXƒg‚ÉƒvƒŒƒCƒ„[‚ğ“ü‚ê‚é
-    /// </summary>
-    /// <param name="player"></param>
+    // ============================================
+    // âœ… ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç™»éŒ²
+    // ============================================
     public void AddRacers(RacePlayer player) {
         racers.Add(player);
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ğÅ‰‚ÌˆÊ’u‚É’…‚©‚¹‚é
+    /// å¼•æ•°ã«æ¥ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã€ä½•ç•ªç›®ã«æ¥ãŸã®ã‹ã‚’æ¸¡ã™
     /// </summary>
+    /// <param Name="player"></param>
+    /// <returns></returns>
+    public int GetPlayerNumber(RacePlayer player) {
+        return racers.IndexOf(player);
+    }
+
+    // ============================================
+    // âœ… ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åˆæœŸä½ç½®ãƒ»ã‚´ãƒ¼ãƒ«å‡¦ç†
+    // ============================================
     public void PlayerStartPosSet() {
-        for (int i = 0, max = racers.Count; i < max; i++) {
-            if (racers[i] != null || racers != null)
-                racers[i].SetPosition(spawnPositions[i]);
+        for (int i = 0; i < racers.Count; i++) {
+            if (racers[i] == null) continue;
+            int num = racers[i].GetMyNumber();
+            racers[i].SetPosition(spawnPositions[num]);
         }
     }
 
     /// <summary>
-    /// ©•ª‚ª‰½”Ô–Ú‚É“ü‚Á‚Ä‚«‚½ƒvƒŒƒCƒ„[‚©‚ğ“n‚·
+    /// å…¨å“¡ãŒã‚´ãƒ¼ãƒ«ã—ãŸå¾Œã«ã€è¡¨å½°å°ã«ä¸¦ã¹ã‚‹
     /// </summary>
-    /// <param name="racePlayer"></param>
-    /// <returns></returns>
-    public int GetPlayerNumber(RacePlayer racePlayer) {
-        return racers.IndexOf(racePlayer);
+    public void PlayerGoalPosSet() {
+        for (int i = 0; i < racers.Count; i++) {
+            if (racers[i] == null) continue;
+            racers[i].SetPosition(rankingPositions[racers[i].myRank]);
+        }
     }
 
+    /// <summary>
+    /// ãƒ©ãƒ³ã‚­ãƒ³ã‚°ã«åŠ ãˆã‚‹
+    /// </summary>
+    /// <param Name="player"></param>
+    public void AddRanking(RacePlayer player) {
+        //ä¸€å¿œã“ã“ã§ãƒ©ãƒ³ã‚­ãƒ³ã‚°ãŒé‡è¤‡ã—ãªã„ã‹ãƒã‚§ãƒƒã‚¯
+        for(int i = 0,max = ranking.Count;i < max; i++) {
+            if (ranking[i] == player)
+                return;
+        }
+
+        ranking.Add(player);
+    }
+
+    /// <summary>
+    /// å¼•æ•°ã«ããŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒãƒ©ãƒ³ã‚­ãƒ³ã‚°ã®ä½•ç•ªç›®ã«ã„ã‚‹ã®ã‹è¿”ã™
+    /// </summary>
+    /// <param Name="player"></param>
+    /// <returns></returns>
+    public int GetRankingCount(RacePlayer player) {
+        return ranking.IndexOf(player);
+    }
+
+    // ğŸ”¥ RPCã§å…¨å“¡ã«åŒæœŸã™ã‚‹å‡¦ç†
+    [PunRPC]
+    private void RPC_SetGoal() {
+        isGoal = true;
+        Debug.Log("ã‚´ãƒ¼ãƒ«ãƒ•ãƒ©ã‚°ãŒå…¨å“¡ã«ä¼ã‚ã£ãŸï¼");
+    }
 }

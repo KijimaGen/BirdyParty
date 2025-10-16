@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 /// <summary>
 /// 常にカメラを向くUI（Y軸のねじれを抑制）
@@ -11,18 +12,14 @@ public class PlayerIndexCanvas : MonoBehaviour {
     [SerializeField]
     TextMeshProUGUI text;
 
-    void Start() {
+
+    public void InitializeCanvas() {
         canvas = GetComponent<Canvas>();
         canvas.worldCamera = Camera.main;
-        //自身の親を取得
-        GameObject player = transform.parent.gameObject;
-        myNumber = player.GetComponent<RacePlayer>().GetMyNumber() +1;
+        //自身の祖先から自身のナンバーを取得
+        myNumber = GetComponentInParent<PlayerInfomation>().GetMyNumber();
 
         text.text = myNumber.ToString() + "P";
-    }
-
-    void LateUpdate() {
-        
     }
 }
 

@@ -8,6 +8,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : SystemObject{
     //ƒIƒ“ƒ‰ƒCƒ“‚©‚Ç‚¤‚©
@@ -37,4 +38,11 @@ public class GameManager : SystemObject{
         isOnline = t;
     }
 
+    public void OnBackToSelect() {
+        // –ß‚Á‚½‚±‚Æ‚ð‹L˜^
+        if (GameDataManager.Instance != null)
+            GameDataManager.Instance.comeBackFromGame = true;
+
+        SceneManager.LoadScene("Title");
+    }
 }

@@ -28,6 +28,9 @@ public class PlayerInfomation:MonoBehaviour{
     //自身のモデルが動く場所
     [SerializeField]
     private Transform myObjectRoot;
+    //
+    [SerializeField]
+    private GameObject racePlayer;
 
     /// <summary>
     /// スタート
@@ -81,7 +84,7 @@ public class PlayerInfomation:MonoBehaviour{
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-
+        Instantiate(racePlayer, myObjectRoot);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ

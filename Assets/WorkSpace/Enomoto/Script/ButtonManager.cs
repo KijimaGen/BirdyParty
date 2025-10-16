@@ -19,7 +19,6 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject online;
     [SerializeField] private GameObject offline;
 
-    public bool playOnline = false;
 
     // 開いたUIを保存して戻れるように
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
@@ -39,6 +38,8 @@ public class ButtonManager : MonoBehaviour
             uiHistory.Push(minigameSelectUI);
 
             GameDataManager.Instance.comeBackFromGame = false;
+
+            PlayStyle();
         }
         else
         {
@@ -64,11 +65,11 @@ public class ButtonManager : MonoBehaviour
 
         if (openUI == modeUI)
         {
-            playOnline = false;
+            GameDataManager.Instance.playOnline = false;
         }
         else
         {
-            playOnline = true;
+            GameDataManager.Instance.playOnline = true;
         }
     }
 
@@ -86,7 +87,7 @@ public class ButtonManager : MonoBehaviour
 
     public void PlayStyle()
     {
-        if (playOnline)
+        if (GameDataManager.Instance.playOnline)
         {
             online.SetActive(true);
             offline.SetActive(false);
@@ -96,6 +97,18 @@ public class ButtonManager : MonoBehaviour
             online.SetActive(false);
             offline.SetActive(true);
         }
+    }
+
+    // ログオープン
+    public void OpenLog(GameObject openLog)
+    {
+        openLog.SetActive(true);
+    }
+
+    // ログクローズ
+    public void CloseLog(GameObject closeLog)
+    {
+        closeLog.SetActive(false);
     }
 
     // ミニゲーム開始

@@ -10,6 +10,8 @@ public class GameDataManager : MonoBehaviour
     public string selectedMiniGame;
     public bool comeBackFromGame;
 
+    public bool playOnline;
+
     private void Awake()
     {
         if (Instance == null)

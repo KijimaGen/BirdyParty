@@ -9,11 +9,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : SystemObject
-{
+public class GameManager : SystemObject{
+    //オンラインかどうか
+    private bool isOnline;
+    //
+
+
     public override async UniTask Initialize() {
+        isOnline = false;
+
 
         await UniTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// オンラインかどうか
+    /// </summary>
+    /// <returns></returns>
+    public bool IsOnline() {
+        return isOnline;
+    }
+
+    /// <summary>
+    /// オンラインかどうかをセット
+    /// </summary>
+    public void SetIsOnline(bool t) {
+        isOnline = t;
     }
 
 }

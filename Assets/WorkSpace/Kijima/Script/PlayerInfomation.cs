@@ -43,6 +43,9 @@ public class PlayerInfomation:MonoBehaviour{
         PlayerManager.instance.AddPlayer(this);
         // シーン読み込み時のコールバック登録
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        //自身が消えないようにする
+        DontDestroyOnLoad(gameObject);
     }
 
     //自身が消えるときにコールバックを止める
@@ -55,7 +58,11 @@ public class PlayerInfomation:MonoBehaviour{
         //一回実働オブジェクトを破壊
         DestroySelectedChildren();
         if (scene.name == RACEGAME_SCENE_NAME) {
+            LoadRaceScene();
+        }
 
+        if (scene.name == DROPGAME_SCENE_NAME) {
+            LoadDropGameScene();
         }
     }
     
@@ -72,11 +79,17 @@ public class PlayerInfomation:MonoBehaviour{
         }
     }
 
+    //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
 
     }
 
-    
+    //ドロップゲームのシーンが読み込まれたときに呼ぶ
+    public void LoadDropGameScene() {
+
+    }
+
+
 
 
     #region 各種ゲッターとセッター

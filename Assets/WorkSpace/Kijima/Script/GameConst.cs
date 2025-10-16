@@ -21,8 +21,12 @@ public static class GameConst {
     }
 
     #region ミニゲームのシーン名一覧
-    public static readonly string RACEGAME_SCENE_NAME = "Race";
+    public static readonly string RACEGAME_SCENE_NAME = "Race"; 
+    public static readonly string DROPGAME_SCENE_NAME = "DropBird";
     #endregion
 
+    #region ミニゲームのアクションマップ名一覧
+    public static readonly string DROPGAME_ACTION_NAME = "DropGame";
+    #endregion
 
 }

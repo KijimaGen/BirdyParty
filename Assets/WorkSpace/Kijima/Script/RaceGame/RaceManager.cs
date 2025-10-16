@@ -44,9 +44,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         new Vector3 (2.6f, 3, -96f)
     };
 
-    [SerializeField]
-    private RacePlayer racersPlayer;
-
+    //自身のインスタンスを作成
     private void Awake() {
         instance = this;
     }

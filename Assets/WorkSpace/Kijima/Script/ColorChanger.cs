@@ -4,9 +4,10 @@
  * @author Sum1r3
  * @date 2025/10/6
  */
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class ColorChanger : MonoBehaviour
+public class ColorChanger : SystemObject
 {
     [SerializeField] Material material;
 
@@ -18,5 +19,9 @@ public class ColorChanger : MonoBehaviour
         float t = Mathf.PingPong(Time.time * colorSpeed, 1f);
         Color rainbow = Color.HSVToRGB(t, 1f, 1f); // HSV‚Å‚®‚é‚®‚é
         material.color = rainbow;
+    }
+
+    public override async UniTask Initialize() {
+        await UniTask.CompletedTask;
     }
 }

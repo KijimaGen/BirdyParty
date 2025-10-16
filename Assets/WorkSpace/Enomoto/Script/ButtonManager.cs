@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,67 +8,105 @@ public class ButtonManager : MonoBehaviour
     [Header("UI定義")]
     [SerializeField] private GameObject titleUI;
     [SerializeField] private GameObject modeUI;
+    [SerializeField] private GameObject minigameSelectUI;
     [SerializeField] private GameObject optionUI;
     [SerializeField] private GameObject netWorkUI;
     [SerializeField] private GameObject onlineUI;
-    [SerializeField] private GameObject minigameSelectUI;
     [SerializeField] private GameObject playerSelectUI;
+    [SerializeField] private GameObject gameReadyUI;
 
-    [Header("通信切り替え時の表示用")]
-    [SerializeField] private GameObject offLine;
-    [SerializeField] private GameObject onLine;
+    [Header("オンライン定義")]
+    [SerializeField] private GameObject online;
+    [SerializeField] private GameObject offline;
+
+    public bool playOnline = false;
+
+    // 開いたUIを保存して戻れるように
+    private Stack<GameObject> uiHistory = new Stack<GameObject>();
 
     private void Start()
     {
-        titleUI.SetActive(true);
+        // ゲームから戻ってきたかどうかでUIを切り替え
+        if (GameDataManager.Instance != null && GameDataManager.Instance.comeBackFromGame)
+        {
+            titleUI.SetActive(false);
+            modeUI.SetActive(false);
+            minigameSelectUI.SetActive(true);
+
+            uiHistory.Clear();
+            uiHistory.Push(titleUI);
+            uiHistory.Push(modeUI);
+            uiHistory.Push(minigameSelectUI);
+
+            GameDataManager.Instance.comeBackFromGame = false;
+        }
+        else
+        {
+            titleUI.SetActive(true);
+            modeUI.SetActive(false);
+            minigameSelectUI.SetActive(false);
+
+            uiHistory.Clear();
+            uiHistory.Push(titleUI);
+        }
     }
 
     public void Open(GameObject openUI)
     {
-        if (openUI == modeUI) titleUI.SetActive(false);
-        if (openUI == optionUI) modeUI.SetActive(false);
-        if (openUI == netWorkUI) modeUI.SetActive(false);
-        if (openUI == onlineUI) netWorkUI.SetActive(false);
-        if (openUI == minigameSelectUI) modeUI.SetActive(false);
-        if (openUI == playerSelectUI)
+        if (uiHistory.Count > 0)
         {
-            minigameSelectUI.SetActive(false);
-            modeUI.SetActive(false);
+            GameObject current = uiHistory.Peek();
+            current.SetActive(false);
         }
 
-            openUI.SetActive(true);
+        openUI.SetActive(true);
+        uiHistory.Push(openUI);
+
+        if (openUI == modeUI)
+        {
+            playOnline = false;
+        }
+        else
+        {
+            playOnline = true;
+        }
     }
 
-    public void Back(GameObject closeUI)
+    public void Back()
     {
-        closeUI.SetActive(false);
+        if (uiHistory.Count > 1)
+        {
+            GameObject closing = uiHistory.Pop();
+            closing.SetActive(false);
 
-        if (closeUI == modeUI) titleUI.SetActive(true);
-        if (closeUI == optionUI) modeUI.SetActive(true);
-        if (closeUI == netWorkUI) modeUI.SetActive(true);
-        if (closeUI == onlineUI) netWorkUI.SetActive(true);
-        if (closeUI == minigameSelectUI) modeUI.SetActive(true);
-        if (closeUI == playerSelectUI) modeUI.SetActive(true);
+            GameObject previous = uiHistory.Peek();
+            previous.SetActive(true);
+        }
     }
 
-    public void localSetting()
+    public void PlayStyle()
     {
-        netWorkUI.SetActive(false);
-        modeUI.SetActive(true);
-        offLine.SetActive(true);
-        onLine.SetActive(false);
+        if (playOnline)
+        {
+            online.SetActive(true);
+            offline.SetActive(false);
+        }
+        else
+        {
+            online.SetActive(false);
+            offline.SetActive(true);
+        }
     }
 
-    public void roomOpen()
+    // ミニゲーム開始
+    public void StartGame(string sceneName)
     {
-        onlineUI.SetActive(false);
-        modeUI.SetActive(true);
-        offLine.SetActive(false);
-        onLine.SetActive(true);
-    }
+        if (GameDataManager.Instance != null)
+        {
+            GameDataManager.Instance.selectedMiniGame = sceneName;
+            GameDataManager.Instance.comeBackFromGame = true;
+        }
 
-    public void startGame(string sceneName)
-    {
         SceneManager.LoadScene(sceneName);
     }
 
@@ -75,13 +114,12 @@ public class ButtonManager : MonoBehaviour
     {
         #if UNITY_EDITOR
 
-            UnityEditor.EditorApplication.isPlaying = false;
+                UnityEditor.EditorApplication.isPlaying = false;
 
         #else
 
-            Application.Quit();
+                Application.Quit();
 
         #endif
     }
-
 }

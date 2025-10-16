@@ -417,10 +417,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1650817816}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1126,6 +1126,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 245210441}
   m_CullTransparentMesh: 1
+--- !u!1 &262953729
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 262953731}
+  - component: {fileID: 262953730}
+  m_Layer: 0
+  m_Name: GameDataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &262953730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 262953729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7520ef5644dbbc244827d05c4104c0cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectedMiniGame: 
+  comeBackFromGame: 0
+--- !u!4 &262953731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 262953729}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 773.34863, y: 491.60648, z: 183558.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &270769311
 GameObject:
   m_ObjectHideFlags: 0
@@ -1585,7 +1631,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 324911935}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -2137,7 +2183,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u30D0\u30C9\u30B9\u30BF\u30AF\u30EB\u30EC\u30FC\u30B9(\u4EEE)"
+  m_text: "\u30D0\u30C9\u30B9\u30BF\u30AF\u30EB\u30EC\u30FC\u30B9\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
   m_sharedMaterial: {fileID: 3760129218394280299, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
@@ -2304,6 +2350,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 338083222}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 549626373}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: PlayStyle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -3108,12 +3166,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 478099917}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1464178684}
+  m_Father: {fileID: 1251824734}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3215,7 +3273,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u30D0\u30C9\u30B9\u30BF\u30AF\u30EB\u30EC\u30FC\u30B9(\u4EEE)"
+  m_text: "\u30D0\u30C9\u30B9\u30BF\u30AF\u30EB\u30EC\u30FC\u30B9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
   m_sharedMaterial: {fileID: 3760129218394280299, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
@@ -3558,10 +3616,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 942876760}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4007,10 +4065,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1850699981}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4983,7 +5041,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u3007\u3007\u3007\u3007\u3007"
+  m_text: "\uFF1F\uFF1F\uFF1F"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
   m_sharedMaterial: {fileID: 3760129218394280299, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
@@ -5145,11 +5203,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: roomOpen
-        m_Mode: 1
+        m_MethodName: Open
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 324911935}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -5878,10 +5936,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 338083222}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -5956,7 +6014,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 482207462}
-  m_Father: {fileID: 1464178684}
+  m_Father: {fileID: 1251824734}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -6503,7 +6561,19 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: localSetting
+        m_MethodName: Open
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 324911935}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 549626373}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: PlayStyle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6712,10 +6782,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 693488440}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -7294,7 +7364,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u30C9\u30ED\u30C3\u30D7\u30D0\u30FC\u30C9"
+  m_text: "\uFF1F\uFF1F\uFF1F"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
   m_sharedMaterial: {fileID: 3760129218394280299, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
@@ -7477,7 +7547,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1925219915}
-  m_Father: {fileID: 1464178684}
+  m_Father: {fileID: 1251824734}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -7607,7 +7677,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: startGame
+        m_MethodName: StartGame
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7789,6 +7859,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1240033320}
   m_CullTransparentMesh: 1
+--- !u!1 &1251824733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1251824734}
+  m_Layer: 5
+  m_Name: BatoStacle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1251824734
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251824733}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1013884926}
+  - {fileID: 1206848992}
+  - {fileID: 478099918}
+  m_Father: {fileID: 1464178684}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1256000477
 GameObject:
   m_ObjectHideFlags: 0
@@ -9105,10 +9213,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 1464178680}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -9380,15 +9488,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1013884926}
+  - {fileID: 1251824734}
   - {fileID: 1234689326}
   - {fileID: 1371710931}
   - {fileID: 439590237}
   - {fileID: 1299427057}
   - {fileID: 1097115273}
   - {fileID: 2133851308}
-  - {fileID: 1206848992}
-  - {fileID: 478099918}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -9988,7 +10094,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1650817816}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -11026,7 +11132,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1848743249}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -11131,7 +11237,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1850699981}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -11254,11 +11360,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: roomOpen
-        m_Mode: 1
+        m_MethodName: Open
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 324911935}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -11522,10 +11628,10 @@ MonoBehaviour:
       - m_Target: {fileID: 549626373}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 2
+        m_Mode: 1
         m_Arguments:
-          m_ObjectArgument: {fileID: 324911935}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -13078,7 +13184,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 113746995}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: online
+      value: 
+      objectReference: {fileID: 113746995}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: offLine
+      value: 
+      objectReference: {fileID: 1034361691}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: offline
       value: 
       objectReference: {fileID: 1034361691}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
@@ -13171,3 +13285,4 @@ SceneRoots:
   - {fileID: 942876764}
   - {fileID: 1650817820}
   - {fileID: 1464178684}
+  - {fileID: 262953731}

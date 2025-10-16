@@ -19,6 +19,9 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject online;
     [SerializeField] private GameObject offline;
 
+    [Header("エラーログ")]
+    [SerializeField] private GameObject errorMinigameSelect;
+
 
     // 開いたUIを保存して戻れるように
     private Stack<GameObject> uiHistory = new Stack<GameObject>();

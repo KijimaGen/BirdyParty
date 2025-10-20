@@ -90,11 +90,15 @@ public class ButtonManager : MonoBehaviour
         {
             online.SetActive(true);
             offline.SetActive(false);
+            //ゲームマネージャーの内部的なfalseとtrueを変える
+            GameManager.instance.SetIsOnline(true);
         }
         else
         {
             online.SetActive(false);
             offline.SetActive(true);
+            //ゲームマネージャーの内部的なfalseとtrueを変える
+            GameManager.instance.SetIsOnline(false);
         }
     }
 

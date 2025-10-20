@@ -14,11 +14,18 @@ public class GameManager : SystemObject{
     //オンラインかどうか
     private bool isOnline;
     //
-
+    public static GameManager instance;
+    //オンラインマネージャーとオフラインマネージャー
+    [SerializeField]
+    private GameObject OnlineManager;
+    [SerializeField]
+    private GameObject OfflineManager;
 
     public override async UniTask Initialize() {
         isOnline = false;
+        instance = this;
 
+        OfflineManager.SetActive(true);
 
         await UniTask.CompletedTask;
     }
@@ -36,6 +43,14 @@ public class GameManager : SystemObject{
     /// </summary>
     public void SetIsOnline(bool t) {
         isOnline = t;
+        if (t) {
+            OnlineManager.SetActive(true);
+            OfflineManager.SetActive(false);
+        }
+        else {
+            OnlineManager.SetActive(false);
+            OfflineManager.SetActive(true);
+        }
     }
 
     public void OnBackToSelect() {

@@ -8,6 +8,7 @@ using Photon.Pun;
 using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using static GameConst;
 
@@ -46,6 +47,10 @@ public class PlayerInfomation:MonoBehaviour{
         PlayerManager.instance.AddPlayer(this);
         // シーン読み込み時のコールバック登録
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
+        PlayerInput playerInput = myObjectRoot.GetChild(0).GetComponent<PlayerInput>();
+        VirtualMouseManager.instance.OnPlayerJoined(playerInput);
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);

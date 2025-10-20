@@ -15,6 +15,16 @@ public class VirtualMouseManager : MonoBehaviour
 
     private readonly List<VirtualMouseInput> _cursors = new();
 
+    //インスタンス
+    public static VirtualMouseManager instance;
+
+    /// <summary>
+    /// インスタンスを即座に作成
+    /// </summary>
+    private void Awake() {
+        instance = this;
+    }
+
     private void LateUpdate()
     {
         foreach (var cursor in _cursors)

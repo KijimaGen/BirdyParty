@@ -55,7 +55,15 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // 全員ゴール判定
         if (droppers.Count == ranking.Count && isStart) {
             PlayerGoalPosSet();
-            photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered); // ←こっちがオススメ！
+            
+            // オンライン時はRPCで同期、オフライン時は直接呼び出し
+            if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+                // オンライン：RPCで全プレイヤーに送信
+                photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
+            } else {
+                // オフライン：直接メソッドを呼び出し
+                RPC_SetGoal();
+            }
         }
     }
 
@@ -69,14 +77,23 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     // ============================================
-    // ✅ 全員にカウントダウン合図を送る
+    // ✅ 全員にカウントダウン合図を送る（オンライン/オフライン対応）
     // ============================================
     public void TryStartCountDown() {
-        if (PhotonNetwork.IsMasterClient) {
-            if (isStart) return;
+        // オンライン時の処理
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+            if (PhotonNetwork.IsMasterClient) {
+                if (isStart) return;
 
-            Debug.Log("MasterClient: Sending StartCountDownRPC to all players...");
-            photonView.RPC(nameof(StartCountDownRPC), RpcTarget.All);
+                Debug.Log("オンライン：MasterClientがカウントダウンを開始");
+                photonView.RPC(nameof(StartCountDownRPC), RpcTarget.All);
+            }
+        } 
+        // オフライン時の処理
+        else {
+            if (isStart) return;
+            Debug.Log("オフライン：カウントダウンを直接開始");
+            StartCountDownRPC();
         }
     }
 

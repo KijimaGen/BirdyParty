@@ -156,7 +156,7 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public void Slow() {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine && GameManager.instance.IsOnline()) return;
 
         _ = AudioManager.instance.PlaySE(1);
         slowTime = MAX_TIME;
@@ -172,7 +172,7 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public void Boost() {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine && GameManager.instance.IsOnline()) return;
 
         _ = AudioManager.instance.PlaySE(0);
         boostTime = MAX_TIME;
@@ -218,6 +218,10 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     /// <returns></returns>
     public int GetMyNumber() {
+        if(photonView.Owner == null) {
+            return 0;
+        }
+
         return photonView.Owner.ActorNumber - 1;
     }
 

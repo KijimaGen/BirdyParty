@@ -15,7 +15,7 @@ public class SystemManager : MonoBehaviour {
     [SerializeField]
     private SystemObject[] _systemObjectList = null;
 
-    private void Start() {
+    private void Awake() {
         UniTask task = Initialize();
         DontDestroyOnLoad(gameObject);
     }
@@ -34,7 +34,8 @@ public class SystemManager : MonoBehaviour {
             // 初期化
             await createObject.Initialize();
         }
-        
+        //音楽の再生
+        AudioManager.instance.PlayBGM(0);
         //フェードインの呼び出し
         await FadeManager.instance.FadeIn();
     }

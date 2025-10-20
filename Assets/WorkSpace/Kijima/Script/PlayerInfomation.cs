@@ -29,9 +29,11 @@ public class PlayerInfomation:MonoBehaviour{
     //自身のモデルが動く場所
     [SerializeField]
     private Transform myObjectRoot;
-    //
+    //レースゲームのプレイヤー
     [SerializeField]
     private GameObject racePlayer;
+    //エントリ～したかどうか
+    private bool isEntry = false;
 
     /// <summary>
     /// スタート
@@ -63,6 +65,9 @@ public class PlayerInfomation:MonoBehaviour{
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+        //エントリーしてないならいなくなる
+        if(!isEntry) Destroy(gameObject);
+
         //一回実働オブジェクトを破壊
         DestroySelectedChildren();
         if (scene.name == RACEGAME_SCENE_NAME) {
@@ -97,7 +102,13 @@ public class PlayerInfomation:MonoBehaviour{
 
     }
 
-
+    //タイトル画面でエントリーしたい
+    public void Plus(InputAction.CallbackContext context) {
+        if(GameDataManager.Instance.GetToriFromNumber(myNumber) != null) {
+            GameDataManager.Instance.GetToriFromNumber(myNumber).SetActive(true);
+            isEntry = true ;
+        }
+    }
 
 
     #region 各種ゲッターとセッター

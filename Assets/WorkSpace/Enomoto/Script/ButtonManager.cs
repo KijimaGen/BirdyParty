@@ -26,6 +26,9 @@ public class ButtonManager : MonoBehaviour
     // 開いたUIを保存して戻れるように
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
 
+    //特定のUIボタンを押したタイミングを取得したい
+    private const int MAKE_ROOM_UIHISTORY_COUNT = 4;
+
     private void Start()
     {
         // ゲームから戻ってきたかどうかでUIを切り替え
@@ -61,6 +64,11 @@ public class ButtonManager : MonoBehaviour
         {
             GameObject current = uiHistory.Peek();
             current.SetActive(false);
+        }
+
+        //部屋を作るボタンを押したらランダムな番号のルームを生成
+        if(uiHistory.Count == MAKE_ROOM_UIHISTORY_COUNT) {
+            NetworkManager.instance.CreateRandomRoom();
         }
 
         openUI.SetActive(true);
@@ -119,8 +127,11 @@ public class ButtonManager : MonoBehaviour
     }
 
     // ミニゲーム開始
-    public void StartGame(string sceneName)
-    {
+    public void StartGame(string sceneName){
+        //プレイヤーがいないのにゲームは始められませんでしょう
+        if (GameDataManager.Instance.GetEntriedPlayerCount() == 0 ) return;
+
+
         if (GameDataManager.Instance != null)
         {
             GameDataManager.Instance.selectedMiniGame = sceneName;

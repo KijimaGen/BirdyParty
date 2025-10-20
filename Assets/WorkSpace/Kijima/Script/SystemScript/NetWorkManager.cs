@@ -10,8 +10,9 @@ using System;
 public class NetworkManager : MonoBehaviourPunCallbacks {
     [Header("プレイヤー設定")]
     [SerializeField] private GameObject playerPrefab; // ルーム参加時に生成するプレイヤーのプレハブ
-    
+
     // ルーム管理用の変数
+    [SerializeField]
     private string currentRoomCode = ""; // 現在のルームコード（5文字）
     private bool isCreatingRoom = false; // ルーム作成中かどうかのフラグ
     private bool isJoiningRoom = false;  // ルーム参加中かどうかのフラグ
@@ -22,6 +23,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     public static event Action<string> OnRoomJoinFailed;    // ルーム参加失敗時
     public static event Action OnConnectedToServer;         // サーバー接続完了時
 
+    //自身のインスタンス
+    public static NetworkManager instance;
+
     /// <summary>
     /// ゲーム開始時の初期化処理
     /// Photonサーバーへの接続を開始する
@@ -29,6 +33,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     void Start() {
         Debug.Log("Photonに接続中...");
         PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
+        instance = this;
     }
 
     /// <summary>

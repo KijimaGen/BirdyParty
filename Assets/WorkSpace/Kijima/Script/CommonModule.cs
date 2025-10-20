@@ -15,8 +15,8 @@ public class CommonModule {
     /// <summary>
     /// リストが空か判定
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="list"></param>
+    /// <typeparam Name="T"></typeparam>
+    /// <param Name="list"></param>
     /// <returns></returns>
     public static bool IsEmpty<T>(List<T> list) {
         // 短絡評価なので大丈夫
@@ -62,9 +62,9 @@ public class CommonModule {
     /// <summary>
     /// リストを重複なしでマージ
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="main"></param>
-    /// <param name="sub"></param>
+    /// <typeparam Name="T"></typeparam>
+    /// <param Name="main"></param>
+    /// <param Name="sub"></param>
     //メインにサブを統合
     public static void MergeList<T>(ref List<T> main, List<T> sub) {
         if (IsEmpty(sub)) {
@@ -86,7 +86,7 @@ public class CommonModule {
     /// <summary>
     /// 複数のタスクの終了を待つ
     /// </summary>
-    /// <param name="taskList"></param>
+    /// <param Name="taskList"></param>
     /// <returns></returns>
     public static async UniTask WaitTask(List<UniTask> taskList) {
         // 終了したタスクをリストから除き、リストが空になるまで待つ
@@ -105,7 +105,7 @@ public class CommonModule {
     /// <summary>
     /// 複数のタスクの終了を待つ
     /// </summary>
-    /// <param name="taskList"></param>
+    /// <param Name="taskList"></param>
     /// <returns></returns>
     public static async UniTask WaitTask(List<UniTask> taskList, CancellationToken token) {
         // 終了したタスクをリストから除き、リストが空になるまで待つ

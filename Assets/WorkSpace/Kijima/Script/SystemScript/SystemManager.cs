@@ -17,6 +17,7 @@ public class SystemManager : MonoBehaviour {
 
     private void Start() {
         UniTask task = Initialize();
+        DontDestroyOnLoad(gameObject);
     }
 
     /// <summary>
@@ -33,8 +34,8 @@ public class SystemManager : MonoBehaviour {
             // 初期化
             await createObject.Initialize();
         }
-        // スタンバイパートの実行
-        //UniTask task = PartManager.instance.TransitionPart(eGamePart.Standby);
+        
+        //フェードインの呼び出し
         await FadeManager.instance.FadeIn();
     }
 

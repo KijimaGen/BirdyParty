@@ -14,6 +14,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Plus",
+                    "type": "Button",
+                    "id": "7159fa62-257f-4aef-99ad-a367b708f7da",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -82,6 +91,17 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "c80a2b4e-4807-42cd-b5f3-dcf02bc177e4",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Plus",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

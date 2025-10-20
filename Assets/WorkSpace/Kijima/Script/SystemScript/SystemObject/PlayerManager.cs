@@ -47,4 +47,14 @@ public class PlayerManager : SystemObject {
     public List<PlayerInfomation> GetPlayerList(){
         return playerList;
     }
+
+    /// <summary>
+    /// プレイヤーをもらって
+    /// そのプレイヤーがリストの何番目なのかを渡す
+    /// </summary>
+    /// <param name="player"></param>
+    /// <returns></returns>
+    public int GetPlayerNumber(PlayerInfomation player) {
+        return playerList.IndexOf(player);
+    }
 }

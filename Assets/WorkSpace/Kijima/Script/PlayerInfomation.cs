@@ -41,10 +41,10 @@ public class PlayerInfomation:MonoBehaviour{
         point = 0;
         //自身のフォトンビュー取得
         photonView = GetComponent<PhotonView>();
-        //自身の番号を取得
-        myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
         //プレイヤー管理クラスに登録
         PlayerManager.instance.AddPlayer(this);
+        //自身の番号を取得
+        myNumber = PlayerManager.instance.GetPlayerNumber(this);
         // シーン読み込み時のコールバック登録
         SceneManager.sceneLoaded += OnSceneLoaded;
 

@@ -14,7 +14,14 @@ public class UIChanger : MonoBehaviour
     {
         if (roop)
         {
-            UIobj.fillAmount -= 1.0f / countTime * Time.deltaTime;
+            if (UIobj.fillAmount >= 0)
+            {
+                UIobj.fillAmount -= 1.0f / countTime * Time.deltaTime;
+            }
+            else if (UIobj.fillAmount == 0)
+            {
+                UIobj.fillAmount += 1.0f / countTime * Time.deltaTime;
+            }
         }
     }
 }

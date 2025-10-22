@@ -104,7 +104,7 @@ public class DropPlayer : MonoBehaviour {
         // “ü—Í’l‚Ìó‚¯æ‚è
         float x = moveInput.x;
         float z = moveInput.y;
-        float y = -1;
+        //float y = -1;
 
         // ³‹K‰»‚µ‚È‚¢‚Å‚»‚Ì‚Ü‚Ü“K—p
         Vector3 moveDir = new Vector3(x, 0, z);

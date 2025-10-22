@@ -9,6 +9,13 @@ public class DiceRoll : MonoBehaviour
     private string currentBottomFace = "";
     private string resultFace = "";
 
+    [SerializeField] private GameObject dice1;
+    [SerializeField] private GameObject dice2;
+    [SerializeField] private GameObject dice3;
+    [SerializeField] private GameObject dice4;
+    [SerializeField] private GameObject dice5;
+    [SerializeField] private GameObject dice6;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -23,6 +30,8 @@ public class DiceRoll : MonoBehaviour
 
         if (!isRolling && !string.IsNullOrEmpty(resultFace))
         {
+            DiceCheck();
+
             Debug.Log($"出目は {resultFace} です！");
             resultFace = "";
         }
@@ -35,7 +44,7 @@ public class DiceRoll : MonoBehaviour
         currentBottomFace = "";
         resultFace = "";
 
-        transform.position = new Vector3(8.92f, 8, 10.34f);
+        transform.position = new Vector3(8.92f, 10, 10.34f);
         transform.rotation = Random.rotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -69,5 +78,40 @@ public class DiceRoll : MonoBehaviour
     public void SetBottomFace(string faceName)
     {
         currentBottomFace = faceName;
+    }
+
+    private void DiceCheck()
+    {
+        dice1.SetActive(false);
+        dice2.SetActive(false);
+        dice3.SetActive(false);
+        dice4.SetActive(false);
+        dice5.SetActive(false);
+        dice6.SetActive(false);
+
+        if (resultFace == "1")
+        {
+            dice1.SetActive(true);
+        }
+        else if (resultFace == "2")
+        {
+            dice2.SetActive(true);
+        }
+        else if (resultFace == "3")
+        {
+            dice3.SetActive(true);
+        }
+        else if (resultFace == "4")
+        {
+            dice4.SetActive(true);
+        }
+        else if (resultFace == "5")
+        {
+            dice5.SetActive(true);
+        }
+        else if (resultFace == "6")
+        {
+            dice6.SetActive(true);
+        }
     }
 }

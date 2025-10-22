@@ -2,6 +2,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using TMPro;
 
 /// <summary>
 /// PUN2を使用したネットワーク管理クラス
@@ -22,18 +23,62 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     public static event Action<string> OnRoomJoined;        // ルーム参加成功時
     public static event Action<string> OnRoomJoinFailed;    // ルーム参加失敗時
     public static event Action OnConnectedToServer;         // サーバー接続完了時
+    public static event Action OnConnectionStatusChanged;   // 接続状態変更時
 
     //自身のインスタンス
     public static NetworkManager instance;
+
+    [Header("デバッグ用設定")]
+    [SerializeField] private string debugRoomCode = "TEST2"; // インスペクターで部屋番号を入力するためのフィールド（有効文字のみ使用）
+    [SerializeField] private bool autoConnectOnStart = true; // 開始時に自動接続するか
+    [SerializeField] private bool autoCreateTestRoom = false; // テスト用部屋を自動作成するか
+    [SerializeField] private bool editorAutoHost = true; // エディター実行時は自動でホストになる
+    [SerializeField] private TextMeshProUGUI connectionStatusText; // 接続状態表示用テキスト（オプション）
+    [SerializeField]
+    private TextMeshProUGUI roomNumber;
+
+    /// <summary>
+    /// 接続状態を取得するプロパティ
+    /// </summary>
+    public bool IsConnectedAndReady => PhotonNetwork.IsConnectedAndReady;
+    
+    /// <summary>
+    /// UI操作が可能かどうか（接続済みかつ処理中でない）
+    /// </summary>
+    public bool CanPerformNetworkActions => IsConnectedAndReady && !isCreatingRoom && !isJoiningRoom;
+
+    void Awake() {
+        // シングルトン設定
+        if (instance == null) {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        } else {
+            Destroy(gameObject);
+        }
+    }
 
     /// <summary>
     /// ゲーム開始時の初期化処理
     /// Photonサーバーへの接続を開始する
     /// </summary>
     void Start() {
-        Debug.Log("Photonに接続中...");
-        PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
-        instance = this;
+        if (autoConnectOnStart) {
+            Debug.Log("Photonに接続中...");
+            UpdateConnectionStatus("Photonに接続中...");
+            PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
+        }
+    }
+
+    /// <summary>
+    /// 接続状態表示を更新する
+    /// </summary>
+    /// <param name="status">表示するステータス文字列</param>
+    private void UpdateConnectionStatus(string status) {
+        if (connectionStatusText != null) {
+            connectionStatusText.text = status;
+        }
+        Debug.Log($"接続状態: {status}");
+        OnConnectionStatusChanged?.Invoke();
     }
 
     /// <summary>
@@ -42,6 +87,19 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// </summary>
     public override void OnConnectedToMaster() {
         Debug.Log("サーバーに接続完了！");
+        UpdateConnectionStatus("サーバーに接続完了！ルーム操作が可能です");
+        
+        // テスト用部屋を自動作成
+        if (autoCreateTestRoom) {
+            Debug.Log("テスト用部屋を自動作成中...");
+            CreateTestRoom();
+        }
+        // エディター実行時は自動でホストになる
+        else if (editorAutoHost && Application.isEditor) {
+            Debug.Log("エディター実行中 - 自動でテスト部屋を作成します");
+            CreateTestRoom();
+        }
+        
         OnConnectedToServer?.Invoke(); // UI更新用イベントを発火
     }
 
@@ -127,7 +185,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         // ルームコードが重複していた場合は新しいコードで再試行
         if (returnCode == ErrorCode.GameIdAlreadyExists) {
             Debug.Log("ルームコードが重複しています。新しいコードを生成中...");
+            UpdateConnectionStatus("部屋が既に存在します。新しいコードで再試行中...");
             CreateRandomRoom(); // 自動的に新しいコードで再試行
+        } else {
+            UpdateConnectionStatus($"ルーム作成失敗: {message}");
         }
     }
 
@@ -169,6 +230,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             _ => $"参加エラー: {message}"
         };
         
+        // TEST2部屋が存在しない場合は自動で作成
+        if (returnCode == ErrorCode.GameDoesNotExist && currentRoomCode == "TEST2") {
+            Debug.Log("TEST2部屋が存在しないため、自動で作成します");
+            UpdateConnectionStatus("TEST2部屋が存在しないため作成中...");
+            CreateTestRoom();
+            return;
+        }
+        
         OnRoomJoinFailed?.Invoke(errorMessage); // UIにエラーメッセージを通知
     }
 
@@ -179,6 +248,147 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// <returns>現在のルームコード（5文字）</returns>
     public string GetCurrentRoomCode() {
         return currentRoomCode;
+    }
+
+    /// <summary>
+    /// インスペクターで設定したデバッグ用ルームコードでルームに参加
+    /// テスト用途で使用
+    /// </summary>
+    [ContextMenu("デバッグ用ルーム参加")]
+    public void JoinDebugRoom() {
+        if (!string.IsNullOrEmpty(debugRoomCode)) {
+            Debug.Log($"デバッグ用ルーム参加: {debugRoomCode}");
+            JoinRoomWithCode(debugRoomCode);
+        } else {
+            Debug.LogWarning("デバッグ用ルームコードが設定されていません");
+        }
+    }
+
+    /// <summary>
+    /// 接続状態をチェックして、UI操作可能かどうかを返す
+    /// ボタンの有効/無効切り替えに使用
+    /// </summary>
+    /// <returns>UI操作可能な場合true</returns>
+    public bool CanUseNetworkUI() {
+        return CanPerformNetworkActions;
+    }
+
+    /// <summary>
+    /// テスト用の固定部屋を作成
+    /// デバッグやテスト時に使用
+    /// </summary>
+    [ContextMenu("テスト用部屋作成")]
+    public void CreateTestRoom() {
+        if (!PhotonNetwork.IsConnectedAndReady) {
+            Debug.LogWarning("Photonに接続されていません");
+            return;
+        }
+
+        string testRoomCode = string.IsNullOrEmpty(debugRoomCode) ? "TEST2" : debugRoomCode;
+        currentRoomCode = testRoomCode;
+        isCreatingRoom = true;
+        
+        RoomOptions roomOptions = new RoomOptions {
+            MaxPlayers = GameConst.PLAYER_MAX,
+            IsVisible = true,
+            IsOpen = true
+        };
+        
+        Debug.Log($"テスト用ルームを作成中: {testRoomCode}");
+        UpdateConnectionStatus($"テスト用ルーム '{testRoomCode}' を作成中...");
+        PhotonNetwork.CreateRoom(testRoomCode, roomOptions, TypedLobby.Default);
+    }
+
+    /// <summary>
+    /// 現在存在するルーム一覧を表示（デバッグ用）
+    /// </summary>
+    [ContextMenu("ルーム一覧を表示")]
+    public void ShowRoomList() {
+        if (PhotonNetwork.IsConnectedAndReady) {
+            Debug.Log("=== 現在のルーム一覧 ===");
+            Debug.Log($"実行環境: {(Application.isEditor ? "Unity エディター" : "ビルド版")}");
+            
+            if (PhotonNetwork.CurrentRoom != null) {
+                Debug.Log($"現在のルーム: {PhotonNetwork.CurrentRoom.Name} ({PhotonNetwork.CurrentRoom.PlayerCount}/{PhotonNetwork.CurrentRoom.MaxPlayers}人)");
+            } else {
+                Debug.Log("現在ルームに参加していません");
+            }
+            
+            // ロビー情報も表示
+            Debug.Log($"ロビー: {PhotonNetwork.CurrentLobby?.Name ?? "なし"}");
+            Debug.Log($"接続状態: {PhotonNetwork.NetworkClientState}");
+        } else {
+            Debug.Log("Photonに接続されていません");
+        }
+    }
+
+    /// <summary>
+    /// 実行環境を表示（エディター or ビルド）
+    /// </summary>
+    [ContextMenu("実行環境を確認")]
+    public void CheckEnvironment() {
+        string environment = Application.isEditor ? "Unity エディター" : "ビルド版";
+        string role = "";
+        
+        if (Application.isEditor && editorAutoHost) {
+            role = " (自動ホスト)";
+        } else if (!Application.isEditor) {
+            role = " (ゲスト推奨)";
+        }
+        
+        Debug.Log($"実行環境: {environment}{role}");
+        UpdateConnectionStatus($"実行環境: {environment}{role}");
+    }
+
+    /// <summary>
+    /// 強制的にTEST2部屋を作成（既存の場合は参加）
+    /// </summary>
+    [ContextMenu("🚀 強制TEST2部屋作成")]
+    public void ForceCreateOrJoinTEST2() {
+        Debug.Log($"🔍 現在のPhoton状態: {PhotonNetwork.NetworkClientState}");
+        
+        // ルーム内にいる場合は完全リセット
+        if (PhotonNetwork.NetworkClientState == Photon.Realtime.ClientState.Joined) {
+            Debug.Log("🔄 ルーム内にいるため、完全リセットします");
+            ResetPhotonConnection();
+            return;
+        }
+        
+        if (!PhotonNetwork.IsConnectedAndReady) {
+            Debug.LogWarning("Photonに接続されていません");
+            UpdateConnectionStatus("Photonに接続中...");
+            return;
+        }
+
+        Debug.Log("🚀 TEST2部屋を強制作成/参加します");
+        UpdateConnectionStatus("TEST2部屋を作成/参加中...");
+        
+        // まず参加を試す
+        currentRoomCode = "TEST2";
+        isJoiningRoom = true;
+        PhotonNetwork.JoinRoom("TEST2");
+    }
+
+    /// <summary>
+    /// Photon接続を完全にリセット
+    /// </summary>
+    [ContextMenu("🔄 Photon完全リセット")]
+    public void ResetPhotonConnection() {
+        Debug.Log("🔄 Photon接続を完全にリセットします");
+        UpdateConnectionStatus("Photon接続をリセット中...");
+        
+        // フラグをリセット
+        isCreatingRoom = false;
+        isJoiningRoom = false;
+        currentRoomCode = "";
+        
+        // Photonから完全に切断
+        if (PhotonNetwork.IsConnected) {
+            PhotonNetwork.Disconnect();
+        } else {
+            // 既に切断されている場合は直接再接続
+            OnDisconnected(Photon.Realtime.DisconnectCause.DisconnectByClientLogic);
+        }
     }
 
     /// <summary>
@@ -199,4 +409,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         Debug.Log("ルームを退出しました");
         currentRoomCode = ""; // ルームコードをクリア
     }
+
+    /// <summary>
+    /// Photonから切断された時に呼ばれる
+    /// </summary>
+    public override void OnDisconnected(Photon.Realtime.DisconnectCause cause) {
+        Debug.Log($"Photonから切断されました: {cause}");
+        UpdateConnectionStatus("Photonから切断されました");
+        
+        // リセット後の再接続
+        if (cause == Photon.Realtime.DisconnectCause.DisconnectByClientLogic) {
+            Debug.Log("🔄 リセット完了 - 再接続中...");
+            UpdateConnectionStatus("リセット完了 - 再接続中...");
+            PhotonNetwork.ConnectUsingSettings();
+        }
+    }
+
 }

@@ -11,10 +11,11 @@ using UnityEngine;
 public static class RoomCodeGenerator
 {
     // Characters to use for room codes (excluding confusing characters like 0, O, I, l)
+    // テスト用に「1」も追加（本来は紛らわしいので除外推奨）
     private static readonly char[] ROOM_CODE_CHARS = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 
         'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        '2', '3', '4', '5', '6', '7', '8', '9'
+        '1', '2', '3', '4', '5', '6', '7', '8', '9'
     };
 
     /// <summary>

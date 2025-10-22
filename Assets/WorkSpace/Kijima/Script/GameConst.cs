@@ -1,6 +1,6 @@
 /**
  * @file GameConst.cs
- * @brief ’è”’è‹`
+ * @brief å®šæ•°å®šç¾©
  * @author Sum1r3
  * @date 2025/10/6
  */
@@ -11,21 +11,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameConst {
-    // ƒvƒŒƒCƒ„[‚ÌÅ‘å”
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æœ€å¤§æ•°
     public static readonly int PLAYER_MAX = 4;
 
-    //ƒvƒŒƒCƒ„[‚ÌƒXƒLƒ“‚Ìí—Ş
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ã‚­ãƒ³ã®ç¨®é¡
     public enum SkinVariation {
-        None,   //ƒXƒLƒ“—œ
-        Straw   //”˜m‚ÌƒgƒŠƒB
+        None,   // ã‚¹ã‚­ãƒ³ãªã—
+        Straw   // éº¦ã‚ã‚‰ã®ãƒˆãƒª
     }
 
-    #region ƒ~ƒjƒQ[ƒ€‚ÌƒV[ƒ“–¼ˆê——
+    #region ãƒŸãƒ‹ã‚²ãƒ¼ãƒ ã®ã‚·ãƒ¼ãƒ³åä¸€è¦§
     public static readonly string RACEGAME_SCENE_NAME = "Race"; 
     public static readonly string DROPGAME_SCENE_NAME = "DropBird";
     #endregion
 
-    #region ƒ~ƒjƒQ[ƒ€‚ÌƒAƒNƒVƒ‡ƒ“ƒ}ƒbƒv–¼ˆê——
+    #region ãƒŸãƒ‹ã‚²ãƒ¼ãƒ ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³åãƒãƒƒãƒ—ä¸€è¦§
     public static readonly string DROPGAME_ACTION_NAME = "DropGame";
     #endregion
 

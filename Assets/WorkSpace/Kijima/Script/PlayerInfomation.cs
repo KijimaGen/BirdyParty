@@ -27,8 +27,7 @@ public class PlayerInfomation:MonoBehaviour{
     //自身のフォトンビュー
     PhotonView photonView;
     //自身のモデルが動く場所
-    [SerializeField]
-    private Transform myObjectRoot;
+   
     //レースゲームのプレイヤー
     [SerializeField]
     private GameObject racePlayer;
@@ -51,7 +50,7 @@ public class PlayerInfomation:MonoBehaviour{
         SceneManager.sceneLoaded += OnSceneLoaded;
 
         //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
-        PlayerInput playerInput = myObjectRoot.GetChild(0).GetComponent<PlayerInput>();
+        PlayerInput playerInput = transform.GetChild(0).GetComponent<PlayerInput>();
         VirtualMouseManager.instance.OnPlayerJoined(playerInput);
 
         //自身が消えないようにする
@@ -83,10 +82,10 @@ public class PlayerInfomation:MonoBehaviour{
     /// 自身の実働オブジェクトの中身を破壊
     /// </summary>
     public void DestroySelectedChildren() {
-        if (myObjectRoot == null) return;
+        if (transform == null) return;
 
         // 子オブジェクトの孫を順番に破壊
-        foreach (Transform grandChild in myObjectRoot) {
+        foreach (Transform grandChild in transform) {
             if (grandChild != null)
                 Destroy(grandChild.gameObject);
         }
@@ -94,7 +93,7 @@ public class PlayerInfomation:MonoBehaviour{
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-        Instantiate(racePlayer, myObjectRoot);
+        Instantiate(racePlayer, transform);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ

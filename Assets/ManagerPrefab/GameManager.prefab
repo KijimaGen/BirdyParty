@@ -473,7 +473,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6800934846136798815, guid: da42730291b716e41b71a4e7797d03d4, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7855071577081154185, guid: da42730291b716e41b71a4e7797d03d4, type: 3}
       propertyPath: roomNumber
@@ -481,11 +481,15 @@ PrefabInstance:
       objectReference: {fileID: 1532212205492502073}
     - target: {fileID: 7855071577081154185, guid: da42730291b716e41b71a4e7797d03d4, type: 3}
       propertyPath: editorAutoHost
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7855071577081154185, guid: da42730291b716e41b71a4e7797d03d4, type: 3}
+      propertyPath: autoConnectOnStart
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7855071577081154185, guid: da42730291b716e41b71a4e7797d03d4, type: 3}
       propertyPath: autoCreateTestRoom
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7855071577081154185, guid: da42730291b716e41b71a4e7797d03d4, type: 3}
       propertyPath: connectionStatusText

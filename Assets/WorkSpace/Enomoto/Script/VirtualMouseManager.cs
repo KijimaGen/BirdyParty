@@ -1,3 +1,12 @@
+/**
+ * @file VirtualMouseManager.cs
+ * @brief オンライン対応バーチャルマウス管理クラス
+ * コントローラーでマウスカーソルを操作し、複数プレイヤーに対応
+ * @author Enomoto + Kiro (オンライン対応修正)
+ * @date 2025/10/20
+ */
+
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,24 +14,44 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
+using Photon.Realtime;
 
-public class VirtualMouseManager : MonoBehaviour
+/// <summary>
+/// オンライン対応バーチャルマウス管理クラス
+/// 各プレイヤーが自分のカーソルのみ操作可能
+/// </summary>
+public class VirtualMouseManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private RectTransform _root; 
-    [SerializeField] private VirtualMouseInput[] _cursorPrefabs;
-    [SerializeField] private string _moveActionName = "Move";
-    [SerializeField] private string _leftButtonActionName = "LeftButton";
+    [Header("UI設定")]
+    [SerializeField] private RectTransform _root; // カーソルの親となるCanvas
+    [SerializeField] private VirtualMouseInput[] _cursorPrefabs; // プレイヤーごとのカーソルプレハブ
+    
+    [Header("入力設定")]
+    [SerializeField] private string _moveActionName = "Move"; // 移動アクション名
+    [SerializeField] private string _leftButtonActionName = "LeftButton"; // クリックアクション名
 
-    private readonly List<VirtualMouseInput> _cursors = new();
+    // カーソル管理
+    private readonly List<VirtualMouseInput> _cursors = new(); // 全カーソルのリスト
+    private readonly Dictionary<int, VirtualMouseInput> _playerCursors = new(); // プレイヤーID → カーソル
+    private VirtualMouseInput _myCursor; // 自分のカーソル
+    private int _myPlayerID; // 自分のプレイヤーID
 
-    //�C���X�^���X
+    // インスタンス
     public static VirtualMouseManager instance;
 
     /// <summary>
-    /// �C���X�^���X�𑦍��ɍ쐬
+    /// インスタンスを即座に作成
     /// </summary>
     private void Awake() {
         instance = this;
+        
+        // オンライン時は自分のプレイヤーIDを取得
+        if (PhotonNetwork.IsConnected) {
+            _myPlayerID = PhotonNetwork.LocalPlayer.ActorNumber;
+            Debug.Log($"🎮 自分のプレイヤーID: {_myPlayerID}");
+        } else {
+            _myPlayerID = 1; // オフライン時はデフォルト
+        }
     }
 
     private void LateUpdate()
@@ -40,24 +69,27 @@ public class VirtualMouseManager : MonoBehaviour
             float minY = cursorSize.y * cursorRect.pivot.y;
             float maxY = canvasSize.y - cursorSize.y * (1f - cursorRect.pivot.y);
 
-            // UI��̍��WClamp
+            // UI座標のClamp（画面内に制限）
             Vector2 pos = cursorRect.anchoredPosition;
             pos.x = Mathf.Clamp(pos.x, minX, maxX);
             pos.y = Mathf.Clamp(pos.y, minY, maxY);
             cursorRect.anchoredPosition = pos;
 
-            // ---- �������d�v ----
-            // ���z�}�E�X�̍��W��UI�̈ʒu�Ɠ���������
+            // ---- ここが重要 ----
+            // 仮想マウスの座標をUI位置と同期させる
             if (cursor.virtualMouse != null)
             {
-                // ���z�}�E�X�̃X�N���[�����W��UI���W�ɍ��킹�čĐݒ�
+                // 自分のものでなければスキップ（重要な修正！）
+                if(!cursor.GetComponent<PhotonView>().IsMine) continue;
+
+                // 仮想マウスのスクリーン座標をUI座標に合わせて再設定
                 var virtualMouse = cursor.virtualMouse;
                 var mousePos = virtualMouse.position.ReadValue();
 
-                // UI���W���X�N���[���ɕϊ�
+                // UI座標をスクリーン座標に変換
                 Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, cursorRect.position);
 
-                // Clamp��̈ʒu�ɋ����Z�b�g
+                // Clamp後の位置に強制セット
                 InputState.Change(virtualMouse.position, screenPos);
             }
         }
@@ -65,12 +97,12 @@ public class VirtualMouseManager : MonoBehaviour
 
     public void OnPlayerJoined(PlayerInput playerInput)
     {
-        print($"�v���C���[#{playerInput.playerIndex + 1}���Q�����܂����B");
+        print($"プレイヤー#{playerInput.playerIndex + 1}が参加しました。");
 
         int playerIndex = playerInput.playerIndex;
         if (playerIndex < 0 || playerIndex >= _cursorPrefabs.Length)
         {
-            Debug.LogError("�Q���ł���v���C���[���𒴂��Ă��܂�");
+            Debug.LogError("参加できるプレイヤー数を超えています");
             return;
         }
 
@@ -78,7 +110,7 @@ public class VirtualMouseManager : MonoBehaviour
         cursor.name = $"Cursor#{playerIndex}";
         _cursors.Add(cursor);
 
-        // VirtualMouseInput �ɃA�N�V������R�Â�
+        // VirtualMouseInput にアクション設定を紐付け
         var actions = playerInput.actions;
         var moveAction = actions.FindAction(_moveActionName);
         var leftButtonAction = actions.FindAction(_leftButtonActionName);
@@ -91,7 +123,7 @@ public class VirtualMouseManager : MonoBehaviour
 
     public void OnPlayerLeft(PlayerInput playerInput)
     {
-        print($"�v���C���[#{playerInput.playerIndex + 1}�����E���܂����B");
+        print($"プレイヤー#{playerInput.playerIndex + 1}が退出しました。");
 
         int playerIndex = playerInput.playerIndex;
         var cursor = _cursors.Find(c => c != null && c.name == $"Cursor#{playerIndex}");

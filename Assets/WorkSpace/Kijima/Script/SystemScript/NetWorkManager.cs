@@ -51,7 +51,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         // シングルトン設定
         if (instance == null) {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            
         } else {
             Destroy(gameObject);
         }

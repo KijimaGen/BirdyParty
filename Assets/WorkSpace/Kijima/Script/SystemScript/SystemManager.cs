@@ -1,6 +1,6 @@
 /**
  * @file SystemManager.cs
- * @brief ƒQ[ƒ€‘S‘Ì‚Åg—p‚·‚é‹@”\‚ÌŠÇ—
+ * @brief ã‚²ãƒ¼ãƒ å…¨ä½“ã§ä½¿ç”¨ã™ã‚‹æ©Ÿèƒ½ã®ç®¡ç†
  * @author yao
  * @date 2025/10/02
  */
@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class SystemManager : MonoBehaviour {
     /// <summary>
-    /// ŠÇ—‚·‚éƒVƒXƒeƒ€ƒIƒuƒWƒFƒNƒg‚ÌƒŠƒXƒg
+    /// ç®¡ç†ã™ã‚‹ã‚·ã‚¹ãƒ†ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒªã‚¹ãƒˆ
     /// </summary>
     [SerializeField]
     private SystemObject[] _systemObjectList = null;
@@ -21,22 +21,22 @@ public class SystemManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// ‰Šú‰»ˆ—
+    /// åˆæœŸåŒ–å‡¦ç†
     /// </summary>
     /// <returns></returns>
     private async UniTask Initialize() {
-        // ‘SƒVƒXƒeƒ€ƒIƒuƒWƒFƒNƒg‚Ì¶¬A‰Šú‰»
+        // å…¨ã‚·ã‚¹ãƒ†ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆã€åˆæœŸåŒ–
         for (int i = 0, max = _systemObjectList.Length; i < max; i++) {
             SystemObject origin = _systemObjectList[i];
             if (origin == null) continue;
-            // ƒVƒXƒeƒ€ƒIƒuƒWƒFƒNƒg¶¬
+            // ã‚·ã‚¹ãƒ†ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”Ÿæˆ
             SystemObject createObject = Instantiate(origin, transform);
-            // ‰Šú‰»
+            // åˆæœŸåŒ–
             await createObject.Initialize();
         }
-        //‰¹Šy‚ÌÄ¶
+        // éŸ³æ¥½ã®å†ç”Ÿ
         AudioManager.instance.PlayBGM(0);
-        //ƒtƒF[ƒhƒCƒ“‚ÌŒÄ‚Ño‚µ
+        // ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³ã®å‘¼ã³å‡ºã—
         await FadeManager.instance.FadeIn();
     }
 

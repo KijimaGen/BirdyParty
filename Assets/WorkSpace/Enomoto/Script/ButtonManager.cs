@@ -107,13 +107,13 @@ public class ButtonManager : MonoBehaviour
     }
 
     // ログオープン
-    public void OpenLog(GameObject openLog)
+    public void OpenObject(GameObject openLog)
     {
         openLog.SetActive(true);
     }
 
     // ログクローズ
-    public void CloseLog(GameObject closeLog)
+    public void CloseObject(GameObject closeLog)
     {
         closeLog.SetActive(false);
     }

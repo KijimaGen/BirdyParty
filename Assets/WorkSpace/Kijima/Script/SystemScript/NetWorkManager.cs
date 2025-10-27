@@ -47,6 +47,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// </summary>
     public bool CanPerformNetworkActions => IsConnectedAndReady && !isCreatingRoom && !isJoiningRoom;
 
+    //自身の名前
+    private string playerName = "未登録";
+    //自身の名前を取得するためのオブジェクト
+    private GameObject nameInputField;
+
     void Awake() {
         // シングルトン設定
         if (instance == null) {
@@ -66,6 +71,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             Debug.Log("Photonに接続中...");
             UpdateConnectionStatus("Photonに接続中...");
             PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
+
+            //インプットフィールド取得
+            nameInputField = GameObject.Find("MakeNameInput");
         }
     }
 
@@ -127,6 +135,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         
         Debug.Log($"ルームを作成中: {currentRoomCode}");
         PhotonNetwork.CreateRoom(currentRoomCode, roomOptions, TypedLobby.Default);
+
+        //画面上の表示をルーム番号の表示にする
+        UpdateConnectionStatus("ルーム番号:"+currentRoomCode);
+        //名づける
+        MakeName();
     }
 
     /// <summary>
@@ -161,6 +174,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         
         Debug.Log($"ルームに参加中: {currentRoomCode}");
         PhotonNetwork.JoinRoom(currentRoomCode); // Photonのルーム参加処理を実行
+
+        //名づける
+        MakeName();
     }
 
     /// <summary>
@@ -425,4 +441,23 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         }
     }
 
+    /// <summary>
+    /// インプットフィールドを取得したものから名前を付ける
+    /// </summary>
+    private void MakeName() {
+        //自身の名前をインプットフィールドから取得
+        playerName = nameInputField.GetComponent<TMP_InputField>().text;
+        //名前がない時は名無しにする
+        if (playerName == "") {
+            playerName = "名無しのトリ";
+        }
+    }
+
+    /// <summary>
+    /// 名前
+    /// </summary>
+    /// <returns></returns>
+    public string GetName() {
+        return playerName;
+    }
 }

@@ -10,6 +10,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static GameConst;
 
 public class PlayerInfomation:MonoBehaviour{
@@ -26,12 +27,12 @@ public class PlayerInfomation:MonoBehaviour{
 
     //自身のフォトンビュー
     PhotonView photonView;
-    //自身のモデルが動く場所
    
     //レースゲームのプレイヤー
     [SerializeField]
     private GameObject racePlayer;
     //エントリ～したかどうか
+    [SerializeField]
     private bool isEntry = false;
 
     /// <summary>
@@ -52,6 +53,11 @@ public class PlayerInfomation:MonoBehaviour{
         //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
         PlayerInput playerInput = transform.GetChild(0).GetComponent<PlayerInput>();
         VirtualMouseManager.instance.OnPlayerJoined(playerInput);
+        //名前の取得
+        Name = NetworkManager.instance.GetName();
+        //デバッグ名前表示
+        Debug.Log("Nameは" + Name);
+
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);

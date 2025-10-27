@@ -143,13 +143,19 @@ public class ButtonManager : MonoBehaviour
     }
 
     public void OnClickStartGame(string sceneName) {
-        
+        _ = AudioManager.instance.PlaySE(0);
         //自分がマスタークライアントだったら全員に送る
         PhotonView photonView = gameObject.GetComponent<PhotonView>();
         if (PhotonNetwork.IsMasterClient) {
             photonView.RPC("StartGame", RpcTarget.All, sceneName);
             Debug.Log("マスタークライアントなので全員におくりますた");
         }
+
+        //ローカルでまわしててもローカルで始める
+        if (!GameManager.instance.IsOnline()) {
+            StartGame(sceneName);
+        }
+
     }
 
     [PunRPC]
@@ -157,7 +163,7 @@ public class ButtonManager : MonoBehaviour
     public void StartGame(string sceneName){
         // プレイヤーがいないのにゲームは始められませんでしょう
         if (GameDataManager.Instance.GetEntriedPlayerCount() == 0 ) return;
-        _ = AudioManager.instance.PlaySE(0);
+        
 
         if (GameDataManager.Instance != null)
         {

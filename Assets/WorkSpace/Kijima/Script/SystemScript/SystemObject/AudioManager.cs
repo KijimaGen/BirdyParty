@@ -41,7 +41,7 @@ public class AudioManager : SystemObject {
     /// <summary>
     /// BGMçƒê∂
     /// </summary>
-    /// <param Name="bgmID"></param>
+    /// <param myName="bgmID"></param>
     public void PlayBGM(int bgmID) {
         if (!IsEnableIndex(_bgmAssign.bgmArray, bgmID)) return;
         _bgmAudioSource.clip = _bgmAssign.bgmArray[bgmID];

@@ -19,11 +19,11 @@ public class PlayerInfomation:MonoBehaviour{
     //現在の順位
     public int rank;
     //自分の名前
-    public string Name;
+    public string myName;
     //自分のskin
     public SkinVariation mySkin;
     //自分の番号
-    public int myNumber;
+    public int myNumber { get; private set; }
 
     //自身のフォトンビュー
     PhotonView photonView;
@@ -53,10 +53,13 @@ public class PlayerInfomation:MonoBehaviour{
         //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
         PlayerInput playerInput = transform.GetChild(0).GetComponent<PlayerInput>();
         VirtualMouseManager.instance.OnPlayerJoined(playerInput);
-        //名前の取得
-        Name = NetworkManager.instance.GetName();
-        //デバッグ名前表示
-        Debug.Log("Nameは" + Name);
+        if (GameManager.instance.IsOnline()) {
+            //名前の取得
+            myName = NetworkManager.instance.GetName();
+            //デバッグ名前表示
+            Debug.Log("Nameは" + myName);
+        }
+        
 
 
         //自身が消えないようにする
@@ -109,9 +112,12 @@ public class PlayerInfomation:MonoBehaviour{
 
     //タイトル画面でエントリーしたい
     public void Plus(InputAction.CallbackContext context) {
-        if(GameDataManager.Instance.GetToriFromNumber(myNumber) != null) {
-            GameDataManager.Instance.GetToriFromNumber(myNumber).SetActive(true);
+        if(GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
+            GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
             isEntry = true ;
+
+            //名前を登録してもらう
+            GameDataManager.instance.EntryPlayer(this);
         }
     }
 
@@ -125,9 +131,9 @@ public class PlayerInfomation:MonoBehaviour{
     public int GetRank() { return rank; }
     public void SetRank(int value) { rank = value; }
 
-    // Name
-    public string GetName() { return Name; }
-    public void SetName(string value) { Name = value; }
+    // myName
+    public string GetName() { return myName; }
+    public void SetName(string value) { myName = value; }
 
     // Skin
     public SkinVariation GetMySkin() { return mySkin; }

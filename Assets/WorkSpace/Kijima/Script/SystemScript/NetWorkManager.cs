@@ -137,7 +137,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         PhotonNetwork.CreateRoom(currentRoomCode, roomOptions, TypedLobby.Default);
 
         //画面上の表示をルーム番号の表示にする
-        UpdateConnectionStatus("ルーム番号:"+currentRoomCode);
+        UpdateConnectionStatus("ルーム番号:"+currentRoomCode+"\nあなたはホストです");
         //名づける
         MakeName();
     }
@@ -177,6 +177,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
         //名づける
         MakeName();
+
+        //画面上の表示をルーム番号の表示にする
+        UpdateConnectionStatus("ルーム番号:" + currentRoomCode + "\nあなたはクライアントです");
     }
 
     /// <summary>

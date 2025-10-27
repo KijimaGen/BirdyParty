@@ -12,7 +12,7 @@ public class DashBoard: MonoBehaviour{
     /// <summary>
     /// “üˆ—
     /// </summary>
-    /// <param Name="other"></param>
+    /// <param myName="other"></param>
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.tag == "Player") {
             other.gameObject.GetComponent<RacePlayer>().Boost();

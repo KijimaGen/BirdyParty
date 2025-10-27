@@ -38,7 +38,7 @@ public class ButtonManager : MonoBehaviour
     private void Start()
     {
         // ゲームから戻ってきたかどうかでUIを切り替え
-        if (GameDataManager.Instance != null && GameDataManager.Instance.comeBackFromGame)
+        if (GameDataManager.instance != null && GameDataManager.instance.comeBackFromGame)
         {
             titleUI.SetActive(false);
             modeUI.SetActive(false);
@@ -49,7 +49,7 @@ public class ButtonManager : MonoBehaviour
             uiHistory.Push(modeUI);
             uiHistory.Push(minigameSelectUI);
 
-            GameDataManager.Instance.comeBackFromGame = false;
+            GameDataManager.instance.comeBackFromGame = false;
 
             PlayStyle();
         }
@@ -77,11 +77,11 @@ public class ButtonManager : MonoBehaviour
 
         if (openUI == modeUI)
         {
-            GameDataManager.Instance.playOnline = false;
+            GameDataManager.instance.playOnline = false;
         }
         else
         {
-            GameDataManager.Instance.playOnline = true;
+            GameDataManager.instance.playOnline = true;
         }
     }
 
@@ -99,7 +99,7 @@ public class ButtonManager : MonoBehaviour
 
     public void PlayStyle()
     {
-        if (GameDataManager.Instance.playOnline)
+        if (GameDataManager.instance.playOnline)
         {
             online.SetActive(true);
             offline.SetActive(false);
@@ -132,12 +132,12 @@ public class ButtonManager : MonoBehaviour
     // ミニゲーム開始
     public void StartGame(string sceneName) {
         // プレイヤーがいないのにゲームは始められませんでしょう
-        if (GameDataManager.Instance.GetEntriedPlayerCount() == 0) return;
+        if (GameDataManager.instance.GetEntriedPlayerCount() == 0) return;
 
 
-        if (GameDataManager.Instance != null) {
-            GameDataManager.Instance.selectedMiniGame = sceneName;
-            GameDataManager.Instance.comeBackFromGame = true;
+        if (GameDataManager.instance != null) {
+            GameDataManager.instance.selectedMiniGame = sceneName;
+            GameDataManager.instance.comeBackFromGame = true;
         }
 
         SceneManager.LoadScene(sceneName);

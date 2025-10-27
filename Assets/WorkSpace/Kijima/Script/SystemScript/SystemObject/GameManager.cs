@@ -55,8 +55,8 @@ public class GameManager : SystemObject{
 
     public void OnBackToSelect() {
         // –ß‚Á‚½‚±‚Æ‚ð‹L˜^
-        if (GameDataManager.Instance != null)
-            GameDataManager.Instance.comeBackFromGame = true;
+        if (GameDataManager.instance != null)
+            GameDataManager.instance.comeBackFromGame = true;
 
         SceneManager.LoadScene("Title");
     }

@@ -60,7 +60,7 @@ public class RaceCameraController : MonoBehaviour {
     /// <summary>
     /// カメラ操作のためにプレイヤーの数を取っておく
     /// </summary>
-    /// <param Name="racerTransform"></param>
+    /// <param myName="racerTransform"></param>
     public void AddRacer(Transform racerTransform) {
         if (!racers.Contains(racerTransform))
             racers.Add(racerTransform);

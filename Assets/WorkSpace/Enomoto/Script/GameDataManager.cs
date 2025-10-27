@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameDataManager : MonoBehaviour
 {
-    public static GameDataManager Instance;
+    public static GameDataManager instance;
 
     public string selectedMiniGame;
     public bool comeBackFromGame;
@@ -16,11 +17,15 @@ public class GameDataManager : MonoBehaviour
     [SerializeField]
     private List<GameObject> titleToriList = new List<GameObject>();
 
+    //タイトルに固定で置いてあるからこいつに鳥のモデル情報を持っててもらいたい
+    [SerializeField]
+    private List<TextMeshProUGUI> titleToriNameList = new List<TextMeshProUGUI>();
+
     private void Awake()
     {
-        if (Instance == null)
+        if (instance == null)
         {
-            Instance = this;
+            instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -63,6 +68,15 @@ public class GameDataManager : MonoBehaviour
                 playerCount++;
         }
         return playerCount;
+    }
+
+    /// <summary>
+    /// プレイヤーの名前を入れる
+    /// </summary>
+    /// <param name="player"></param>
+    public void EntryPlayer(PlayerInfomation player) {
+        if (player.myName == "") return;
+        titleToriNameList[player.myNumber].text = player.myName;
     }
 
 }

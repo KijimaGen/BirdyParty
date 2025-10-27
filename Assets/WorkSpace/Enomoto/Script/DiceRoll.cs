@@ -1,14 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class DiceRoll : MonoBehaviour
 {
+
+    [Header("表示するテキスト")]
+    public TextMeshProUGUI textMeshPro;
+    private int diceScore = 0;
+
     private Rigidbody rb;
     private bool isRolling = false;
     private string currentBottomFace = "";
     private string resultFace = "";
 
+    [Header("表示させるサイコロ画像")]
     [SerializeField] private GameObject dice1;
     [SerializeField] private GameObject dice2;
     [SerializeField] private GameObject dice3;
@@ -30,8 +38,9 @@ public class DiceRoll : MonoBehaviour
 
         if (!isRolling && !string.IsNullOrEmpty(resultFace))
         {
-            DiceCheck();
+            DiceCheck(); 
 
+            textMeshPro.text = diceScore.ToString();
             Debug.Log($"出目は {resultFace} です！");
             resultFace = "";
         }
@@ -91,26 +100,32 @@ public class DiceRoll : MonoBehaviour
 
         if (resultFace == "1")
         {
+            diceScore += 1;
             dice1.SetActive(true);
         }
         else if (resultFace == "2")
         {
+            diceScore += 2;
             dice2.SetActive(true);
         }
         else if (resultFace == "3")
         {
+            diceScore += 3;
             dice3.SetActive(true);
         }
         else if (resultFace == "4")
         {
+            diceScore += 4;
             dice4.SetActive(true);
         }
         else if (resultFace == "5")
         {
+            diceScore += 5;
             dice5.SetActive(true);
         }
         else if (resultFace == "6")
         {
+            diceScore += 6;
             dice6.SetActive(true);
         }
     }

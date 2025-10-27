@@ -1,6 +1,6 @@
 /**
  * @file CommonModule.cs
- * @brief ‹¤—pˆ—ƒNƒ‰ƒX
+ * @brief æ±ç”¨ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£ã‚¯ãƒ©ã‚¹
  * @author yao
  * @date 2025/4/15
  */
@@ -13,13 +13,13 @@ using System.Threading;
 public class CommonModule {
 
     /// <summary>
-    /// ƒŠƒXƒg‚ª‹ó‚©”»’è
+    /// ãƒªã‚¹ãƒˆãŒç©ºã‹åˆ¤å®š
     /// </summary>
     /// <typeparam Name="T"></typeparam>
     /// <param Name="list"></param>
     /// <returns></returns>
     public static bool IsEmpty<T>(List<T> list) {
-        // ’Z—•]‰¿‚È‚Ì‚Å‘åä•v
+        // çŸ­çµ¡è©•ä¾¡ãªã®ã§é«˜é€Ÿ
         return list == null || list.Count <= 0;
     }
 
@@ -28,7 +28,7 @@ public class CommonModule {
     }
 
     /// <summary>
-    /// ƒŠƒXƒg‚É‘Î‚µ‚Ä—LŒø‚ÈƒCƒ“ƒfƒNƒX‚©”»’è
+    /// ãƒªã‚¹ãƒˆã«å¯¾ã—ã¦æœ‰åŠ¹ãªã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‹åˆ¤å®š
     /// </summary>
     /// <returns></returns>
     public static bool IsEnableIndex<T>(List<T> list, int index) {
@@ -60,22 +60,22 @@ public class CommonModule {
     }
 
     /// <summary>
-    /// ƒŠƒXƒg‚ğd•¡‚È‚µ‚Åƒ}[ƒW
+    /// ãƒªã‚¹ãƒˆã‚’é‡è¤‡ãªã—ã§ãƒãƒ¼ã‚¸
     /// </summary>
     /// <typeparam Name="T"></typeparam>
     /// <param Name="main"></param>
     /// <param Name="sub"></param>
-    //ƒƒCƒ“‚ÉƒTƒu‚ğ“‡
+    // ãƒ¡ã‚¤ãƒ³ã«ã‚µãƒ–ã‚’çµ±åˆ
     public static void MergeList<T>(ref List<T> main, List<T> sub) {
         if (IsEmpty(sub)) {
-            Console.Error.WriteLine($"ƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½");
+            Console.Error.WriteLine($"ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ");
             return;
         }
         int mergeCount = sub.Count;
         if (main == null) main = new List<T>(mergeCount);
         for (int i = 0, max = mergeCount; i < max; i++) {
-            //d•¡‚µ‚½—v‘f‚Í’Ç‰Á‚µ‚È‚¢
-            //List•û‚ÌŠÖ”‚ÌEquals‚ğg‚Á‚Ä‚¢‚é‚æ(—L”\)
+            // é‡è¤‡ã™ã‚‹è¦ç´ ã¯è¿½åŠ ã—ãªã„
+            // Listã‚¯ãƒ©ã‚¹ã®é–¢æ•°ã§Equalsã‚’ä½¿ã£ã¦ã„ã‚‹ï¼ˆä¾¿åˆ©ï¼‰
             if (main.Exists(mainElem => mainElem.Equals(sub[i]))) continue;
 
             main.Add(sub[i]);
@@ -84,17 +84,17 @@ public class CommonModule {
     }
 
     /// <summary>
-    /// •¡”‚Ìƒ^ƒXƒN‚ÌI—¹‚ğ‘Ò‚Â
+    /// è¤‡æ•°ã®ã‚¿ã‚¹ã‚¯ã®çµ‚äº†ã‚’å¾…ã¤
     /// </summary>
     /// <param Name="taskList"></param>
     /// <returns></returns>
     public static async UniTask WaitTask(List<UniTask> taskList) {
-        // I—¹‚µ‚½ƒ^ƒXƒN‚ğƒŠƒXƒg‚©‚çœ‚«AƒŠƒXƒg‚ª‹ó‚É‚È‚é‚Ü‚Å‘Ò‚Â
+        // çµ‚äº†ã—ãŸã‚¿ã‚¹ã‚¯ã‚’ãƒªã‚¹ãƒˆã‹ã‚‰é™¤å»ã—ã€ãƒªã‚¹ãƒˆãŒç©ºã«ãªã‚‹ã¾ã§å¾…ã¤
         while (!IsEmpty(taskList)) {
-            // “r’†‚Å—v‘f‚ª”²‚¯‚é‰Â”\«‚ª‚ ‚é‚Ì‚Å––”ö‚©‚ç‘–¸
+            // é€†é †ã§è¦ç´ ã‚’å‰Šé™¤ã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã®ã§å¾Œã‚ã‹ã‚‰èµ°æŸ»
             for (int i = taskList.Count - 1; i >= 0; i--) {
                 if (!taskList[i].Status.IsCompleted()) continue;
-                // ƒ^ƒXƒN‚ªI—¹‚µ‚Ä‚¢‚½‚çƒŠƒXƒg‚©‚ç”²‚­
+                // ã‚¿ã‚¹ã‚¯ãŒçµ‚äº†ã—ã¦ã„ãŸã‚‰ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
                 taskList.RemoveAt(i);
             }
             await UniTask.DelayFrame(1);
@@ -103,17 +103,17 @@ public class CommonModule {
 
 
     /// <summary>
-    /// •¡”‚Ìƒ^ƒXƒN‚ÌI—¹‚ğ‘Ò‚Â
+    /// è¤‡æ•°ã®ã‚¿ã‚¹ã‚¯ã®çµ‚äº†ã‚’å¾…ã¤ï¼ˆã‚­ãƒ£ãƒ³ã‚»ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³å¯¾å¿œï¼‰
     /// </summary>
     /// <param Name="taskList"></param>
     /// <returns></returns>
     public static async UniTask WaitTask(List<UniTask> taskList, CancellationToken token) {
-        // I—¹‚µ‚½ƒ^ƒXƒN‚ğƒŠƒXƒg‚©‚çœ‚«AƒŠƒXƒg‚ª‹ó‚É‚È‚é‚Ü‚Å‘Ò‚Â
+        // çµ‚äº†ã—ãŸã‚¿ã‚¹ã‚¯ã‚’ãƒªã‚¹ãƒˆã‹ã‚‰é™¤å»ã—ã€ãƒªã‚¹ãƒˆãŒç©ºã«ãªã‚‹ã¾ã§å¾…ã¤
         while (!IsEmpty(taskList)) {
-            // “r’†‚Å—v‘f‚ª”²‚¯‚é‰Â”\«‚ª‚ ‚é‚Ì‚Å––”ö‚©‚ç‘–¸
+            // é€†é †ã§è¦ç´ ã‚’å‰Šé™¤ã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã®ã§å¾Œã‚ã‹ã‚‰èµ°æŸ»
             for (int i = taskList.Count - 1; i >= 0; i--) {
                 if (!taskList[i].Status.IsCompleted()) continue;
-                // ƒ^ƒXƒN‚ªI—¹‚µ‚Ä‚¢‚½‚çƒŠƒXƒg‚©‚ç”²‚­
+                // ã‚¿ã‚¹ã‚¯ãŒçµ‚äº†ã—ã¦ã„ãŸã‚‰ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
                 taskList.RemoveAt(i);
             }
             await UniTask.DelayFrame(1, PlayerLoopTiming.Update, token);

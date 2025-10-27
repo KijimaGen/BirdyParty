@@ -56,6 +56,11 @@ public class RacePlayer : MonoBehaviour {
     //自身のフォトンビュー
     PhotonView photonView;
 
+    //これがプレイヤーかどうかを示す
+    [SerializeField]
+    private GameObject PlayerIsMine;
+    
+
     void Start() {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -73,9 +78,18 @@ public class RacePlayer : MonoBehaviour {
         isGoal = false;
         //スピードのオリジナルを取得
         originSpeed = moveSpeed;
-        
+
+        //自身のフォトンビューを親の物とリンクさせる
+        photonView.OwnershipTransfer = OwnershipOption.Takeover;
+
         //自身についているキャンバスの初期化処理を呼び出す
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
+
+        //自分のフォトンビューを取得して、それが自分の物だったらYouの表示をつける
+        if(photonView.IsMine)
+            PlayerIsMine.SetActive(true); 
+        else 
+            PlayerIsMine.SetActive(false);
     }
 
     //アップデート

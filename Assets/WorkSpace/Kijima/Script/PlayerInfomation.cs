@@ -23,7 +23,8 @@ public class PlayerInfomation:MonoBehaviour{
     //自分のskin
     public SkinVariation mySkin;
     //自分の番号
-    public int myNumber { get; private set; }
+    
+    public int myNumber;
 
     //自身のフォトンビュー
     PhotonView photonView;
@@ -70,6 +71,8 @@ public class PlayerInfomation:MonoBehaviour{
         DontDestroyOnLoad(gameObject);
     }
 
+
+
     //自身が消えるときにコールバックを止める
     private void OnDisable() {
         // 忘れずに解除
@@ -100,16 +103,14 @@ public class PlayerInfomation:MonoBehaviour{
         // 子オブジェクトの孫を順番に破壊
         foreach (Transform grandChild in transform) {
             if (grandChild != null)
-                Destroy(grandChild.gameObject);
+                grandChild.gameObject.SetActive(false);
         }
     }
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-        GameObject racePlayer = Instantiate(racePlayerPrefab, transform);
-
-        // 所有権を特定のプレイヤーに移譲
-        //photonView.TransferOwnership(racePlayer.GetComponents<PhotonView>());
+        
+        racePlayerPrefab.SetActive(true);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
@@ -133,7 +134,8 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <param name="context"></param>
     public void SetLeftStickValue(InputAction.CallbackContext context) {
-        myInputLeftStickValue = context.ReadValue<Vector2>();
+        if(GetComponent<PhotonView>().IsMine)
+            myInputLeftStickValue = context.ReadValue<Vector2>();
     }
 
     /// <summary>

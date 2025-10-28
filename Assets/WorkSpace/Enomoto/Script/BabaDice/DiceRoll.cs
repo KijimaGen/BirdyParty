@@ -12,9 +12,10 @@ public class DiceRoll : MonoBehaviour
     private int diceScore = 0;
 
     private Rigidbody rb;
-    private bool isRolling = false;
+    public bool isRolling = false;
     private string currentBottomFace = "";
     private string resultFace = "";
+
 
     [Header("表示させるサイコロ画像")]
     [SerializeField] private GameObject dice1;
@@ -38,7 +39,7 @@ public class DiceRoll : MonoBehaviour
 
         if (!isRolling && !string.IsNullOrEmpty(resultFace))
         {
-            DiceCheck(); 
+            DiceCheck();
 
             textMeshPro.text = diceScore.ToString();
             Debug.Log($"出目は {resultFace} です！");
@@ -46,7 +47,7 @@ public class DiceRoll : MonoBehaviour
         }
     }
 
-    void RollDice()
+    public void RollDice()
     {
         if (isRolling) return;
         isRolling = true;
@@ -129,4 +130,7 @@ public class DiceRoll : MonoBehaviour
             dice6.SetActive(true);
         }
     }
+
+    public bool IsDiceStopped => !isRolling && !string.IsNullOrEmpty(resultFace);
+    public int ResultValue => int.TryParse(resultFace, out int v) ? v : 0;
 }

@@ -51,7 +51,7 @@ MonoBehaviour:
   rank: 0
   myName: 
   mySkin: 0
-  racePlayer: {fileID: 3844068033944646966, guid: 723fa864d8978e74b96cd26a06448135, type: 3}
+  racePlayerPrefab: {fileID: 3844068033944646966, guid: 723fa864d8978e74b96cd26a06448135, type: 3}
   isEntry: 0
 --- !u!114 &2120973022606344110
 MonoBehaviour:

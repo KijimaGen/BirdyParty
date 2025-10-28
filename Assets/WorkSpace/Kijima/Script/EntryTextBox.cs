@@ -5,8 +5,6 @@
  * @date 2025/10/27
  */
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,9 +22,12 @@ public class EntryTextBox : MonoBehaviour{
     //子供のテキストボックス
     [SerializeField]
     private Image myTextBox;
+    //固定で使う文字列
+    private const string ENTRY_TEXT = "が参加しました";
     private void Start() {
         _=FadeOut();
         _= FadeOutChildBox();
+        _= FadeOutText();
     }
 
     void Update(){
@@ -107,7 +108,7 @@ public class EntryTextBox : MonoBehaviour{
 
     //自身のテキストを変更
     public void SetmyText(string text) {
-        myText.text = text;
+        myText.text = text + ENTRY_TEXT;
     }
 
 }

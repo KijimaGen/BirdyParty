@@ -51,6 +51,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     private string playerName = "未登録";
     //自身の名前を取得するためのオブジェクト
     private GameObject nameInputField;
+    
 
     void Awake() {
         // シングルトン設定
@@ -94,19 +95,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// この時点でルーム作成・参加が可能になる
     /// </summary>
     public override void OnConnectedToMaster() {
-        Debug.Log("サーバーに接続完了！");
+        
         UpdateConnectionStatus("サーバーに接続完了！ルーム操作が可能です");
         
-        // テスト用部屋を自動作成
-        if (autoCreateTestRoom) {
-            Debug.Log("テスト用部屋を自動作成中...");
-            CreateTestRoom();
-        }
-        // エディター実行時は自動でホストになる
-        else if (editorAutoHost && Application.isEditor) {
-            Debug.Log("エディター実行中 - 自動でテスト部屋を作成します");
-            CreateTestRoom();
-        }
         
         OnConnectedToServer?.Invoke(); // UI更新用イベントを発火
     }
@@ -452,7 +443,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         playerName = nameInputField.GetComponent<TMP_InputField>().text;
         //名前がない時は名無しにする
         if (playerName == "") {
-            playerName = "名無しのトリ";
+            playerName = "名無しトリ";
         }
     }
 

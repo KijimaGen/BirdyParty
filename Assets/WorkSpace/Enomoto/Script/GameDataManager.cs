@@ -1,16 +1,15 @@
-using System.Collections;
+using Photon.Pun;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public class GameDataManager : MonoBehaviour
-{
+public class GameDataManager : MonoBehaviourPunCallbacks {
     public static GameDataManager instance;
 
     public string selectedMiniGame;
     public bool comeBackFromGame;
 
+    //オンラインか否か
     public bool playOnline;
 
     //タイトルに固定で置いてあるからこいつに鳥のモデル情報を持っててもらいたい
@@ -20,6 +19,13 @@ public class GameDataManager : MonoBehaviour
     //タイトルに固定で置いてあるからこいつに鳥のモデル情報を持っててもらいたい
     [SerializeField]
     private List<TextMeshProUGUI> titleToriNameList = new List<TextMeshProUGUI>();
+
+    //テキストボックス
+    [SerializeField]
+    private GameObject textBox;
+    //自分のキャンバス
+    [SerializeField]
+    private Transform myCanvas;
 
     private void Awake()
     {
@@ -34,6 +40,9 @@ public class GameDataManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// リセット
+    /// </summary>
     public void ResetData()
     {
         selectedMiniGame = null;
@@ -77,6 +86,23 @@ public class GameDataManager : MonoBehaviour
     public void EntryPlayer(PlayerInfomation player) {
         if (player.myName == "") return;
         titleToriNameList[player.myNumber].text = player.myName;
+    }
+
+    /// <summary>
+    /// エントリーしましたテキストを作る
+    /// </summary>
+    /// <param name="name"></param>
+    [PunRPC]
+    public void InstantiateNameBox(string name) {
+        //エントリーボックス型をもらう
+        EntryTextBox box = textBox.GetComponent<EntryTextBox>();
+        //なかったらリターン
+        if (box == null) return;
+        //座標は元から置いてあるのでそのまま生成
+        EntryTextBox newNameBox = Instantiate(box, myCanvas);
+        //ボックスの中身の設定
+        newNameBox.SetmyText(name);
+
     }
 
 }

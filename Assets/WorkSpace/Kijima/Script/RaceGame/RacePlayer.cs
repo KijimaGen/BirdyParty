@@ -135,7 +135,7 @@ public class RacePlayer : MonoBehaviour {
         }
 
         //移動
-        if (photonView.IsMine && !isGoal)
+        if (!isGoal)
             Move();
 
         //ゴールしているのに動いてはならない
@@ -150,6 +150,7 @@ public class RacePlayer : MonoBehaviour {
     //インプットシステムの入力値の受け取り
     public void OnMove(InputAction.CallbackContext context) {
         moveInput = context.ReadValue<Vector2>();
+        Debug.Log(moveInput);
     }
 
     /// <summary>

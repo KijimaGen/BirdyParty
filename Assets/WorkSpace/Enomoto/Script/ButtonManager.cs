@@ -34,6 +34,8 @@ public class ButtonManager : MonoBehaviour
 
     // 開いたUIを保存して戻れるように
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
+    //ホストかどうか
+    private bool isHost;
 
     private void Start()
     {
@@ -245,19 +247,7 @@ public class ButtonManager : MonoBehaviour
         JoinRoom("TEST2");
     }
 
-    /// <summary>
-    /// TEST2ルームを作成または参加（自動判定）
-    /// </summary>
-    [ContextMenu("🎯 TEST2作成/参加")]
-    public void CreateOrJoinTestRoom() {
-        if (NetworkManager.instance != null) {
-            UpdateNetworkStatus("TEST2ルームを作成/参加中...");
-            NetworkManager.instance.CreateRandomRoom();
-        }
-        else {
-            UpdateNetworkStatus("SimpleNetworkManagerが見つかりません");
-        }
-    }
+    
 
     /// <summary>
     /// 安全版：Photonを使わないテスト
@@ -368,5 +358,26 @@ public class ButtonManager : MonoBehaviour
         else {
             Debug.LogWarning("SimpleNetworkManager.instance が見つかりません");
         }
+    }
+
+    /// <summary>
+    /// 部屋に入るか作るか
+    /// </summary>
+    public void CreateOrJoinRoom() {
+        if(isHost) {
+            CreateRoom();
+        }
+        else {
+            string roomCode = roomCodeInputField.text;
+            JoinRoom(roomCode.Trim().ToUpper());
+        }
+    }
+
+    /// <summary>
+    /// セットイズホスト
+    /// </summary>
+    /// <param name="ishost"></param>
+    public void SetIsHost(bool ishost) {
+        isHost = ishost;
     }
 }

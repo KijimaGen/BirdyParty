@@ -30,10 +30,13 @@ public class PlayerInfomation:MonoBehaviour{
    
     //レースゲームのプレイヤー
     [SerializeField]
-    private GameObject racePlayer;
+    private GameObject racePlayerPrefab;
     //エントリ～したかどうか
     [SerializeField]
     private bool isEntry = false;
+
+    //自分のコントローラーの入力値
+    Vector2 myInputLeftStickValue = Vector2.zero;
 
     /// <summary>
     /// スタート
@@ -56,11 +59,12 @@ public class PlayerInfomation:MonoBehaviour{
         if (GameManager.instance.IsOnline()) {
             //名前の取得
             myName = NetworkManager.instance.GetName();
-            //デバッグ名前表示
-            Debug.Log("Nameは" + myName);
+            
         }
-        
 
+        //エントリーしましたテキストを作る
+        if(GameManager.instance.IsOnline())
+            GameDataManager.instance.GetComponent<PhotonView>().RPC("InstantiateNameBox", RpcTarget.All, myName);
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);
@@ -102,7 +106,10 @@ public class PlayerInfomation:MonoBehaviour{
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-        Instantiate(racePlayer, transform);
+        GameObject racePlayer = Instantiate(racePlayerPrefab, transform);
+
+        // 所有権を特定のプレイヤーに移譲
+        //photonView.TransferOwnership(racePlayer.GetComponents<PhotonView>());
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
@@ -119,6 +126,22 @@ public class PlayerInfomation:MonoBehaviour{
             //名前を登録してもらう
             GameDataManager.instance.EntryPlayer(this);
         }
+    }
+
+    /// <summary>
+    /// 自分のコントローラーの入力値を受け取る
+    /// </summary>
+    /// <param name="context"></param>
+    public void SetLeftStickValue(InputAction.CallbackContext context) {
+        myInputLeftStickValue = context.ReadValue<Vector2>();
+    }
+
+    /// <summary>
+    /// 自分のコントローラーの入力値を渡す
+    /// </summary>
+    /// <returns></returns>
+    public Vector2 GetLeftStickValue() {
+        return myInputLeftStickValue;
     }
 
 

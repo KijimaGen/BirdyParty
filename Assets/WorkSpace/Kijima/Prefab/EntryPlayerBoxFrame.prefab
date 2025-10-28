@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 7528768830523601059}
   - component: {fileID: 4069701091765137373}
   - component: {fileID: 1773103765572996771}
+  - component: {fileID: -5575185685445826080}
   m_Layer: 5
   m_Name: EntryPlayerBoxFrame
   m_TagString: Untagged
@@ -184,6 +185,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 3, y: 3}
   m_UseGraphicAlpha: 1
+--- !u!114 &-5575185685445826080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8748809961888177758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1cbf17d6311aa14cbbd41cd97e1af9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 1
+  myText: {fileID: 1121230411622597281}
+  duration: 1
+  myTextBox: {fileID: 7170590677385915852}
 --- !u!1 &8814792136016036597
 GameObject:
   m_ObjectHideFlags: 0

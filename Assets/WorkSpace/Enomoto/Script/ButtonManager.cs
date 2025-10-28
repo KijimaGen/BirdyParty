@@ -129,6 +129,15 @@ public class ButtonManager : MonoBehaviour
         closeLog.SetActive(false);
     }
 
+    public void OnClickStartGame(string sceneName) {
+
+        //自分がマスタークライアントだったら全員に送る
+        PhotonView photonView = gameObject.GetComponent<PhotonView>();
+        if (PhotonNetwork.IsMasterClient) {
+            photonView.RPC("StartGame", RpcTarget.All, sceneName);
+            Debug.Log("マスタークライアントなので全員におくりますた");
+        }
+    }
 
     [PunRPC]
     // ミニゲーム開始

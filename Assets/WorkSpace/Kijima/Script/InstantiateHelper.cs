@@ -32,10 +32,10 @@ public static class InstantiateHelper {
     /// <summary>
     /// ローカル座標で生成してから親に設定する
     /// </summary>
-    /// <param Name="parent"></param>
-    /// <param Name="prefab"></param>
-    /// <param Name="localPosition"></param>
-    /// <param Name="localEuler"></param>
+    /// <param myName="parent"></param>
+    /// <param myName="prefab"></param>
+    /// <param myName="localPosition"></param>
+    /// <param myName="localEuler"></param>
     /// <returns></returns>
     public static GameObject SpawnChildLocal(this Transform parent,GameObject prefab, Vector3 localPosition, Vector3 localEuler) {
         //一旦プレファブを生成(位置・回転は親のローカル基準で設定)

@@ -29,7 +29,7 @@ public class PlayerManager : SystemObject {
     /// <summary>
     /// プレイヤーを追加
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     public void AddPlayer(PlayerInfomation player) {
         //プレイヤーリストに追加
         for(int i = 0; i < playerList.Count; i++) {

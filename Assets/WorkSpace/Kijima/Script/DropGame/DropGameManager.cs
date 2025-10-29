@@ -129,7 +129,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 引数に来たオブジェクトが、何番目に来たのかを渡す
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     /// <returns></returns>
     public int GetPlayerNumber(DropPlayer player) {
         return droppers.IndexOf(player);
@@ -159,7 +159,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <summary>
     /// ランキングに加える
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     public void AddRanking(DropPlayer player) {
         //一応ここでランキングが重複しないかチェック
         for (int i = 0, max = ranking.Count; i < max; i++) {
@@ -173,7 +173,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 引数にきたオブジェクトがランキングの何番目にいるのか返す
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     /// <returns></returns>
     public int GetRankingCount(DropPlayer player) {
         return ranking.IndexOf(player);

@@ -127,7 +127,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 引数に来たオブジェクトが、何番目に来たのかを渡す
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     /// <returns></returns>
     public int GetPlayerNumber(RacePlayer player) {
         return racers.IndexOf(player);
@@ -157,7 +157,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// <summary>
     /// ランキングに加える
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     public void AddRanking(RacePlayer player) {
         //一応ここでランキングが重複しないかチェック
         for(int i = 0,max = ranking.Count;i < max; i++) {
@@ -171,7 +171,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 引数にきたオブジェクトがランキングの何番目にいるのか返す
     /// </summary>
-    /// <param Name="player"></param>
+    /// <param myName="player"></param>
     /// <returns></returns>
     public int GetRankingCount(RacePlayer player) {
         return ranking.IndexOf(player);

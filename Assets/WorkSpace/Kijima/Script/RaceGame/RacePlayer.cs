@@ -53,8 +53,11 @@ public class RacePlayer : MonoBehaviour {
     //つけるオーラの名前
     private const string SLOW_AURA_NAME = "SlowAura(Clone)";
     private const string BOOST_AURA_NAME = "BoostAura(Clone)";
-    //自身のフォトンビュー
+    //親のフォトンビュ-
+    [SerializeField]
     PhotonView photonView;
+    [SerializeField]
+    bool PVIsMine;
 
     //これがプレイヤーかどうかを示す
     [SerializeField]
@@ -65,8 +68,10 @@ public class RacePlayer : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-        //自身のフォトンビュー取得
-        photonView = GetComponent<PhotonView>();
+        //親のフォトンビュー取得
+        photonView = transform.parent.GetComponent<PhotonView>();
+
+        
         //カメラの参照に自身を入れる
         Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
         //レースマネージャーにも入れる
@@ -78,9 +83,6 @@ public class RacePlayer : MonoBehaviour {
         isGoal = false;
         //スピードのオリジナルを取得
         originSpeed = moveSpeed;
-
-        //自身のフォトンビューを親の物とリンクさせる
-        photonView.OwnershipTransfer = OwnershipOption.Takeover;
 
         //自身についているキャンバスの初期化処理を呼び出す
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
@@ -133,7 +135,7 @@ public class RacePlayer : MonoBehaviour {
         }
 
         //移動
-        if (photonView.IsMine || !isGoal)
+        if (!isGoal)
             Move();
 
         //ゴールしているのに動いてはならない
@@ -148,6 +150,7 @@ public class RacePlayer : MonoBehaviour {
     //インプットシステムの入力値の受け取り
     public void OnMove(InputAction.CallbackContext context) {
         moveInput = context.ReadValue<Vector2>();
+        Debug.Log(moveInput);
     }
 
     /// <summary>

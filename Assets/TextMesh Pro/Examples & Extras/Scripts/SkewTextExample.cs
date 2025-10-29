@@ -41,7 +41,7 @@ namespace TMPro.Examples
         /// <summary>
         ///  Method to curve text along a Unity animation curve.
         /// </summary>
-        /// <param Name="textComponent"></param>
+        /// <param myName="textComponent"></param>
         /// <returns></returns>
         IEnumerator WarpText()
         {

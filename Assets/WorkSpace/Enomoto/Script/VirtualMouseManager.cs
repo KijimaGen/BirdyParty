@@ -102,7 +102,7 @@ public class VirtualMouseManager : MonoBehaviourPunCallbacks
         int playerIndex = playerInput.playerIndex;
         if (playerIndex < 0 || playerIndex >= _cursorPrefabs.Length)
         {
-            Debug.LogError("参加できるプレイヤー数を超えています");
+            //Debug.LogError("参加できるプレイヤー数を超えています");
             return;
         }
 

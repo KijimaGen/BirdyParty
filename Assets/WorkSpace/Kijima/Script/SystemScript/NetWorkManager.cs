@@ -34,6 +34,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     [SerializeField] private bool autoCreateTestRoom = false; // テスト用部屋を自動作成するか
     [SerializeField] private bool editorAutoHost = true; // エディター実行時は自動でホストになる
     [SerializeField] private TextMeshProUGUI connectionStatusText; // 接続状態表示用テキスト（オプション）
+    //ルームナンバー
     [SerializeField]
     private TextMeshProUGUI roomNumber;
 

@@ -31,7 +31,7 @@ public class DropPlayer : MonoBehaviour {
 
     //自身のフォトンビュー
     PhotonView photonView;
-    private PlayerInput myInput;
+    
     //自身の衝突の強さ
     [SerializeField]
     private float bounceForce;
@@ -52,11 +52,7 @@ public class DropPlayer : MonoBehaviour {
         //自身についているキャンバスの初期化処理を呼び出す
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
 
-        //自身のインプットシステムを取得し、アクションマップを切り替える
-        myInput = GetComponent<PlayerInput>();
-        myInput.SwitchCurrentActionMap(DROPGAME_ACTION_NAME);
-
-        myInput.SwitchCurrentActionMap(DROPGAME_ACTION_NAME);
+        
 
         //始まり
         isEnd = false;
@@ -90,17 +86,13 @@ public class DropPlayer : MonoBehaviour {
 
     }
 
-    //インプットシステムの入力値の受け取り
-    public void OnMove(InputAction.CallbackContext context) {
-        moveInput = context.ReadValue<Vector2>();
-    }
-
+   
     /// <summary>
     /// 移動
     /// </summary>
     private void Move() {
 
-
+        moveInput = GetComponentInParent<PlayerInfomation>().GetLeftStickValue();
         // 入力値の受け取り
         float x = moveInput.x;
         float z = moveInput.y;
@@ -166,4 +158,6 @@ public class DropPlayer : MonoBehaviour {
     public int GetRank() {
         return myRank;
     }
+
+
 }

@@ -70,10 +70,10 @@ public class DropPlayer : MonoBehaviour {
     void FixedUpdate() {
        
         //開始するまで動いてはならない
-        //if (!DropGameManager.instance.isStart) {
-        //    rb.velocity = Vector3.zero;
-        //    return;
-        //}
+        if (!DropGameManager.instance.isStart) {
+            rb.velocity = Vector3.zero;
+            return;
+        }
 
         //移動
         if (photonView.IsMine && !isEnd)
@@ -98,10 +98,10 @@ public class DropPlayer : MonoBehaviour {
         // 入力値の受け取り
         float x = moveInput.x;
         float z = moveInput.y;
-        float y = -1;
+        
 
         // 正規化しないでそのまま適用
-        Vector3 moveDir = new Vector3(x, y, z);
+        Vector3 moveDir = new Vector3(x, 0, z);
         rb.velocity = moveDir * moveSpeed;
     }
 

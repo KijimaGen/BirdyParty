@@ -10,6 +10,8 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using static GameConst;
+using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -47,43 +49,59 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
     
     // 落ちる先のパネルのリスト
-    [SerializeField]
+    
     private List<DropPanel> dropPanelList = new List<DropPanel>();
 
     // 正解のパネルの種類
     private DropGamePanelVariation TrueAnswerPanel;
 
     //ドロップゲームのプレイヤーリスト
-    private List<DropPlayer> dropPlayerList = new List<DropPlayer>(); 
+    private List<DropPlayer> dropPlayerList = new List<DropPlayer>();
 
-    private void Awake() {
+    //登場予定の絵柄のリスト
+    [SerializeField]
+    private List<Sprite> VariationSpriteList = new List<Sprite>();
+    //次に行く先を示す絵
+    [SerializeField]
+    private Image NextVariationImage;
+    //パネルのプレファブ
+    [SerializeField]
+    private DropGameFrame PanelPrefab;
+    private DropGameFrame PanelObject;
+
+    [SerializeField]
+    private List<Material> PanelMaterialList = new List<Material>();
+
+    private async void Awake() {
         instance = this;
+        isStart = false;
 
-        //パネルたちに自分のパネルバリエーション設定処理を呼んでもらってからそれを受け取る
-        for(int i = 0,max = dropPanelList.Count; i < max; i++) {
-            dropPanelList[i].SetMyPanel();
-        }
+        //落ちる先のパネルたちの呼び出しついでに参照の取得
+        PanelObject = Instantiate(PanelPrefab);
+        
+        await UniTask.Delay(3000);
 
-        //答えのパネルを無作為に抽出
-        int randomVal = Random.Range(0,dropPanelList.Count);
-        TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
-        Debug.Log(TrueAnswerPanel + "にとびこめ！");
+        //パネルの答えの抽選
+        LotteryAnswerVariation();
+
+        //ゲームの開始を宣言する！
+        await StartCountDown();
     }
 
     private void Update() {
         // 全員ゴール判定
-        if (droppers.Count == ranking.Count && isStart) {
-            PlayerGoalPosSet();
+        //if (droppers.Count == ranking.Count && isStart) {
+        //    PlayerGoalPosSet();
             
-            // オンライン時はRPCで同期、オフライン時は直接呼び出し
-            if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
-                // オンライン：RPCで全プレイヤーに送信
-                photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
-            } else {
-                // オフライン：直接メソッドを呼び出し
-                RPC_SetGoal();
-            }
-        }
+        //    // オンライン時はRPCで同期、オフライン時は直接呼び出し
+        //    if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
+        //        // オンライン：RPCで全プレイヤーに送信
+        //        photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
+        //    } else {
+        //        // オフライン：直接メソッドを呼び出し
+        //        RPC_SetGoal();
+        //    }
+        //}
     }
 
     // ============================================
@@ -91,8 +109,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     // ============================================
     public override void OnJoinedRoom() {
         Debug.Log($"Room joined! Player count: {PhotonNetwork.CurrentRoom.PlayerCount}");
-
-
     }
 
     // ============================================
@@ -135,7 +151,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
         // スタート！
         isStart = true;
-        
     }
 
     // ============================================
@@ -216,12 +231,27 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
 
         Debug.LogError($"無効なマテリアル名: {materialName}");
-        return DropGamePanelVariation.Apple; // デフォルト値
+        return DropGamePanelVariation.None; // デフォルト値
+    }
+
+    /// <summary>
+    /// バリエーションの名前を受け取って、それに合ったマテリアルを引き渡す
+    /// </summary>
+    /// <param name="materialName"></param>
+    /// <returns></returns>
+    public Material GetMyMaterialFromVariation(DropGamePanelVariation variation) {
+        for(int i = 0,max = PanelMaterialList.Count; i < max; i++) {
+            if (PanelMaterialList[i].name == variation.ToString())
+            return PanelMaterialList[i];
+        }
+
+        Debug.LogError($"無効なバリエーション名: {variation}");
+        return null; // デフォルト値
     }
 
 
     /// <summary>
-    /// 答え合わせ(雑(だがこれでもいい))
+    /// 答え合わせ(雑(だがこれでいい))
     /// </summary>
     /// <param name="AnswerPanel"></param>
     /// <returns></returns>
@@ -238,5 +268,58 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param name="player"></param>
     public void EntryDropPlayer(DropPlayer player) {
         dropPlayerList.Add(player);
+    }
+
+    /// <summary>
+    /// バリエーションを受け取ってそれと同じ名前のスプライトを返す
+    /// </summary>
+    /// <param name="Variation"></param>
+    /// <returns></returns>
+    private Sprite GetSpriteFromVariation(DropGamePanelVariation Variation) {
+        for(int i = 0,max = VariationSpriteList.Count; i < max; i++) {
+            if (VariationSpriteList[i].name == Variation.ToString()) {
+                return VariationSpriteList[i];
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 正解のバリエーションの抽選
+    /// </summary>
+    public void LotteryAnswerVariation() {
+        //ランダムに入れる予定の配列
+        DropGamePanelVariation[] RandomVariationList = new DropGamePanelVariation[4];
+        for(int i= 0 ,max = RandomVariationList.Length; i < max; i++) {
+            //enumの中からランダムに一個もらう
+            RandomVariationList[i] = CommonModule.GetRandomFromEnum<DropGamePanelVariation>();
+            //もらったものをそのまま渡す
+            dropPanelList[i].SetMeshRenderer(GetMyMaterialFromVariation(RandomVariationList[i]));
+        }
+
+
+        //パネルたちに自分のパネルバリエーション設定処理を呼んでもらってからそれを受け取る
+        for (int i = 0, max = dropPanelList.Count; i < max; i++) {
+            dropPanelList[i].SetMyVariation();
+        }
+
+        //答えのパネルを無作為に抽出
+        int randomVal = Random.Range(0, dropPanelList.Count);
+        TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
+
+        //画面上のパネルに答えを表示
+        NextVariationImage.sprite = GetSpriteFromVariation(TrueAnswerPanel);
+
+        //パネルの位置をリセット
+        PanelObject.ResetPos();
+    }
+
+    /// <summary>
+    /// パネルのリストに動的に追加
+    /// </summary>
+    /// <param name="panel"></param>
+    public void AddPanelList(DropPanel panel) {
+        dropPanelList.Add(panel);
     }
 }

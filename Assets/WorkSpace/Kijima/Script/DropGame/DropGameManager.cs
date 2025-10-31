@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using static GameConst;
 
 public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -44,11 +45,29 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         new Vector3 (2.6f, 3, -96f)
     };
 
+    
+    // 落ちる先のパネルのリスト
     [SerializeField]
-    private DropPlayer dropPlayer;
+    private List<DropPanel> dropPanelList = new List<DropPanel>();
+
+    // 正解のパネルの種類
+    private DropGamePanelVariation TrueAnswerPanel;
+
+    //ドロップゲームのプレイヤーリスト
+    private List<DropPlayer> dropPlayerList = new List<DropPlayer>(); 
 
     private void Awake() {
         instance = this;
+
+        //パネルたちに自分のパネルバリエーション設定処理を呼んでもらってからそれを受け取る
+        for(int i = 0,max = dropPanelList.Count; i < max; i++) {
+            dropPanelList[i].SetMyPanel();
+        }
+
+        //答えのパネルを無作為に抽出
+        int randomVal = Random.Range(0,dropPanelList.Count);
+        TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
+        Debug.Log(TrueAnswerPanel + "にとびこめ！");
     }
 
     private void Update() {
@@ -184,5 +203,40 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private void RPC_SetGoal() {
         isEnd = true;
         Debug.Log("ゴールフラグが全員に伝わった！");
+    }
+
+    /// <summary>
+    /// マテリアルの名前を受け取って、それに合ったバリエーションを引き渡す
+    /// </summary>
+    /// <param name="materialName"></param>
+    /// <returns></returns>
+    public DropGamePanelVariation GetMyVariationFromMaterial(string materialName) {
+        if (System.Enum.TryParse(materialName, out DropGamePanelVariation variation)) {
+            return variation;
+        }
+
+        Debug.LogError($"無効なマテリアル名: {materialName}");
+        return DropGamePanelVariation.Apple; // デフォルト値
+    }
+
+
+    /// <summary>
+    /// 答え合わせ(雑(だがこれでもいい))
+    /// </summary>
+    /// <param name="AnswerPanel"></param>
+    /// <returns></returns>
+    public bool CheckingAnswers( DropGamePanelVariation AnswerPanel) {
+        if(AnswerPanel == TrueAnswerPanel) {
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// プレイヤーエントリー
+    /// </summary>
+    /// <param name="player"></param>
+    public void EntryDropPlayer(DropPlayer player) {
+        dropPlayerList.Add(player);
     }
 }

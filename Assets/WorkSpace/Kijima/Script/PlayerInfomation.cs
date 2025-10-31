@@ -66,7 +66,7 @@ public class PlayerInfomation:MonoBehaviour{
 
         //エントリーしましたテキストを作る
         if(GameManager.instance.IsOnline())
-            GameDataManager.instance.GetComponent<PhotonView>().RPC("InstantiateNameBox", RpcTarget.All, myName);
+            GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);

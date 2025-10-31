@@ -22,8 +22,7 @@ public class DropPlayer : MonoBehaviour {
     //終わったかどうか
     private bool isEnd;
 
-    //自身の名前
-    private string playerName;
+    
     //自身の番号
     public int myNumber { get; private set; }
     //自身の順位
@@ -35,6 +34,9 @@ public class DropPlayer : MonoBehaviour {
     //自身の衝突の強さ
     [SerializeField]
     private float bounceForce;
+
+    //マイポイント
+    private int myPoint;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -96,10 +98,10 @@ public class DropPlayer : MonoBehaviour {
         // 入力値の受け取り
         float x = moveInput.x;
         float z = moveInput.y;
-        //float y = -1;
+        float y = -1;
 
         // 正規化しないでそのまま適用
-        Vector3 moveDir = new Vector3(x, 0, z);
+        Vector3 moveDir = new Vector3(x, y, z);
         rb.velocity = moveDir * moveSpeed;
     }
 
@@ -159,5 +161,11 @@ public class DropPlayer : MonoBehaviour {
         return myRank;
     }
 
-
+    /// <summary>
+    /// ポイント加算
+    /// </summary>
+    /// <param name="point"></param>
+    public void AddPoint(int point) {
+        myPoint += point;
+    }
 }

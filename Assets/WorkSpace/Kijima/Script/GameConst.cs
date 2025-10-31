@@ -20,6 +20,16 @@ public static class GameConst {
         Straw   // 麦わらのトリ
     }
 
+    public enum DropGamePanelVariation {
+        None,   //一応何もないも実装
+        Grape,  
+        Banana,
+        Apple,
+        Melon,
+    }
+
+    public static readonly string PLAYER_TAG = "Player";
+
     #region ミニゲームのシーン名一覧
     public static readonly string RACEGAME_SCENE_NAME = "Race"; 
     public static readonly string DROPGAME_SCENE_NAME = "DropBird";

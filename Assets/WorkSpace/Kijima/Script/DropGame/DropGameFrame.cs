@@ -24,7 +24,7 @@ public class DropGameFrame : MonoBehaviour{
             return;
         Move();
 
-        //
+        //ˆÊ’uÄ’²®
         if(transform.position.y > reLotteryY) {
             DropGameManager.instance.LotteryAnswerVariation();
         }
@@ -41,7 +41,7 @@ public class DropGameFrame : MonoBehaviour{
         moveVal.y = 1;
 
         //ˆÚ“®‚Ì”½‰f
-        transform.position += moveVal * moveSpeed;
+        transform.position += moveVal * moveSpeed * Time.deltaTime;
     }
 
     /// <summary>

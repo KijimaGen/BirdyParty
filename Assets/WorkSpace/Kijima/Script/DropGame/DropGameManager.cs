@@ -8,10 +8,11 @@ using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using Photon.Realtime;
 using static GameConst;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using System;
+using System.Linq;
 
 public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -72,20 +73,20 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     [SerializeField]
     private List<Material> PanelMaterialList = new List<Material>();
 
+    //パネルの最大数
+    private const int PANEL_MAX = 4;
+
     private async void Awake() {
         instance = this;
         isStart = false;
 
-        //落ちる先のパネルたちの呼び出しついでに参照の取得
-        PanelObject = Instantiate(PanelPrefab);
         
-        await UniTask.Delay(3000);
-
-        //パネルの答えの抽選
-        LotteryAnswerVariation();
+        
+        await UniTask.Delay(1000);
+        
 
         //ゲームの開始を宣言する！
-        await StartCountDown();
+        //await StartCountDown();
     }
 
     private void Update() {
@@ -130,6 +131,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             Debug.Log("オフライン：カウントダウンを直接開始");
             StartCountDownRPC();
         }
+
+        
     }
 
     [PunRPC]
@@ -151,6 +154,16 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
         // スタート！
         isStart = true;
+
+        //何でか複数回生成されるバグが見受けられたので規制
+        if(PanelObject == null) {
+            //落ちる先のパネルたちの呼び出しついでに参照の取得
+            PanelObject = Instantiate(PanelPrefab);
+            //パネルの答えの抽選
+            LotteryAnswerVariation();
+        }
+
+        
     }
 
     // ============================================
@@ -286,17 +299,32 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
+    /// パネルの再抽選を共有
+    /// </summary>
+    public void TryLotteryPanel() {
+        // オンライン時の処理
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+            if (PhotonNetwork.IsMasterClient) {
+                Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
+                photonView.RPC(nameof(SetPanel), RpcTarget.All, MakePanelList().Select(v => (int) v).ToArray());
+            }
+        }
+        // オフライン時の処理
+        else {
+            Debug.Log("オフライン：パネル再抽選を直接開始");
+            SetPanel(MakePanelList().Select(v => (int) v).ToArray());
+        }
+    }
+
+
+    /// <summary>
     /// 正解のバリエーションの抽選
     /// </summary>
+    
     public void LotteryAnswerVariation() {
-        //ランダムに入れる予定の配列
-        DropGamePanelVariation[] RandomVariationList = new DropGamePanelVariation[4];
-        for(int i= 0 ,max = RandomVariationList.Length; i < max; i++) {
-            //enumの中からランダムに一個もらう
-            RandomVariationList[i] = CommonModule.GetRandomFromEnum<DropGamePanelVariation>();
-            //もらったものをそのまま渡す
-            dropPanelList[i].SetMeshRenderer(GetMyMaterialFromVariation(RandomVariationList[i]));
-        }
+
+        //バリエーションリストをインターネッツで作ってもらう
+        TryLotteryPanel();
 
 
         //パネルたちに自分のパネルバリエーション設定処理を呼んでもらってからそれを受け取る
@@ -304,9 +332,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             dropPanelList[i].SetMyVariation();
         }
 
-        //答えのパネルを無作為に抽出
-        int randomVal = Random.Range(0, dropPanelList.Count);
-        TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
+        //答えのパネルを作ってもらう
+        
 
         //画面上のパネルに答えを表示
         NextVariationImage.sprite = GetSpriteFromVariation(TrueAnswerPanel);
@@ -316,10 +343,69 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
+    /// インターネットに合わせた動作
+    /// </summary>
+    private void TrySetPanel(DropGamePanelVariation answerPanel) {
+        // オンライン時の処理
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+            if (PhotonNetwork.IsMasterClient) {
+                //作ってあるパネルリストから答えを作成
+                int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
+                TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
+
+                Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
+                photonView.RPC(nameof(SetPanel), RpcTarget.All, MakePanelList().Select(v => (int) v).ToArray());
+            }
+        }
+        // オフライン時の処理
+        else {
+            Debug.Log("オフライン：パネル再抽選を直接開始");
+            SetPanel(MakePanelList().Select(v => (int) v).ToArray());
+        }
+    }
+
+    /// <summary>
     /// パネルのリストに動的に追加
     /// </summary>
     /// <param name="panel"></param>
     public void AddPanelList(DropPanel panel) {
         dropPanelList.Add(panel);
+    }
+
+    /// <summary>
+    /// 配列型を受け取ってパネルに反映
+    /// </summary>
+    /// <param name="PanelList"></param>
+    [PunRPC]
+    private void SetPanel(int[] variationInts) {
+        // int配列 → enum配列 に戻す
+        DropGamePanelVariation[] PanelList =
+            variationInts.Select(i => (DropGamePanelVariation) i).ToArray();
+        //先頭から四つ抽出してリストを作成
+        for (int i = 0,max = PANEL_MAX; i < max;i++) {
+            dropPanelList[i].SetMeshRenderer(GetMyMaterialFromVariation(PanelList[i]));
+        }
+    }
+
+    /// <summary>
+    /// ランダムにパネルリストを作成
+    /// </summary>
+    /// <returns></returns>
+    private DropGamePanelVariation[] MakePanelList() {
+        //enumを配列に変換
+        DropGamePanelVariation[] RandomVariationList =
+        Enum.GetValues(typeof(DropGamePanelVariation))
+         .Cast<DropGamePanelVariation>()  // ←ここでCastする！
+         .Where(s => s != DropGamePanelVariation.None) // ←Noneを除外
+         .OrderBy(s => UnityEngine.Random.value)
+         .ToArray();
+
+        //シャッフル
+        RandomVariationList = RandomVariationList.OrderBy(x => UnityEngine.Random.value).ToArray();
+        return RandomVariationList;
+    }
+
+    public void SetAnswerPanel(int AnswerInt) {
+        
     }
 }

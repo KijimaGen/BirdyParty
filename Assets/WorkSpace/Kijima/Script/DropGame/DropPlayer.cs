@@ -39,6 +39,11 @@ public class DropPlayer : MonoBehaviour {
     private int myPoint;
 
     void Start() {
+        //途中参加は認めない
+        if (DropGameManager.instance.isStart)
+            this.gameObject.SetActive(false);
+
+
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -139,7 +144,7 @@ public class DropPlayer : MonoBehaviour {
 
     //プラスボタンを押したときにホストだったらゲーム開始(そのうちなくす予定)
     public void Plus(InputAction.CallbackContext context) {
-        RaceManager_PUN.instance.TryStartCountDown();
+        DropGameManager.instance.TryStartCountDown();
     }
 
     /// <summary>

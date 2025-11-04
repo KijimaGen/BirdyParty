@@ -20,14 +20,21 @@ public static class GameConst {
         Straw   // 麦わらのトリ
     }
 
+    //ドロップゲームのリストのまま入れる(必要性はない)
     public enum DropGamePanelVariation {
         None,   //一応何もないも実装
         Grape,  
         Banana,
         Apple,
         Melon,
+        Momo,
+        Orange,
+        Mango,
+        Pine,
+        Stra
     }
 
+    //プレイヤーのタグ名
     public static readonly string PLAYER_TAG = "Player";
 
     #region ミニゲームのシーン名一覧

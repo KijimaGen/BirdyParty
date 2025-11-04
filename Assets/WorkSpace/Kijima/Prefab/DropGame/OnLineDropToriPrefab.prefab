@@ -482,7 +482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 986559cc9f9c5534e878fe15c629eee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounceForce: 0
+  bounceForce: 1
 --- !u!4 &3310620502822296566 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}

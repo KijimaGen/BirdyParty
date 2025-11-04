@@ -157,6 +157,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 92871114-e17e-402f-a69a-7cee429e01e1
     m_ActionName: DropGame/Move[/XInputControllerWindows/leftStick,/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1180383515387812623}
+        m_TargetAssemblyTypeName: DropPlayer, Assembly-CSharp
+        m_MethodName: Plus
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 59ad56cf-d00c-4f92-b498-afd8d51a3392
+    m_ActionName: DropGame/Plus[/XInputControllerWindows/start,/Keyboard/p]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: RaceGame
@@ -350,6 +366,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
+--- !u!114 &1180383515387812623 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5763507795170930009, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
+  m_PrefabInstance: {fileID: 6889811713931179606}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 986559cc9f9c5534e878fe15c629eee9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &8245009610623708576 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3310620502822296566, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}

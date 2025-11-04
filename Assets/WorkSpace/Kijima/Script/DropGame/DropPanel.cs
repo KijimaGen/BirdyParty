@@ -4,6 +4,7 @@
  * @author Sum1r3
  * @date 2025/10/30
  */
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,7 +29,15 @@ public class DropPanel : MonoBehaviour{
     /// </summary>
     /// <param name="other"></param>
     private void OnTriggerEnter(Collider other) {
+        
+
+
+
         if(other.gameObject.tag == PLAYER_TAG) {
+
+            if (!other.gameObject.GetComponent<PhotonView>().IsMine)
+                return;
+
             if (DropGameManager.instance.CheckingAnswers(myVariation)) {
                 other.GetComponent<DropPlayer>().AddPoint(TO_ADD_SCORE);
                 _ = AudioManager.instance.PlaySE(3);

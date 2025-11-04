@@ -7213,6 +7213,8 @@ GameObject:
   m_Component:
   - component: {fileID: 376833973}
   - component: {fileID: 376833974}
+  - component: {fileID: 376833976}
+  - component: {fileID: 376833975}
   m_Layer: 0
   m_Name: DropGameManager
   m_TagString: Untagged
@@ -7254,6 +7256,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 4af1971fc81bab545a5d20c08cd0f0a0, type: 3}
   - {fileID: 21300000, guid: 31af5b767047c924e907bd5eefdf9f16, type: 3}
   - {fileID: 21300000, guid: a425063894f970a49b482e94a299f98e, type: 3}
+  - {fileID: 21300000, guid: 1f224ff52efd0b04d804cfc801ba76e9, type: 3}
+  - {fileID: 21300000, guid: a6b587c12a90fcf4595ad0d608fe208d, type: 3}
+  - {fileID: 21300000, guid: 2b8f9728f9e46a6469c3445d8767c02a, type: 3}
+  - {fileID: 21300000, guid: 6525b2a7bf06c004595380d8fd1311f7, type: 3}
+  - {fileID: 21300000, guid: 1ef95772d7426bf48952657991699629, type: 3}
   NextVariationImage: {fileID: 2065240535}
   PanelPrefab: {fileID: 5375224576388383760, guid: eb6b75b2f0e7b6640989fca60b59bc24, type: 3}
   PanelMaterialList:
@@ -7261,6 +7268,50 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 328475c210744eb40a0ac7d300cd2a38, type: 2}
   - {fileID: 2100000, guid: c439ae71d4fe4d541ad4f0c0429709cd, type: 2}
   - {fileID: 2100000, guid: 9f14e68c70e413d4fb4407ee78199364, type: 2}
+  - {fileID: 2100000, guid: fbb2ae0e5d89e924aa06739d9444eac6, type: 2}
+  - {fileID: 2100000, guid: daa4a9f315d2f7b41acb5fb49b6dc679, type: 2}
+  - {fileID: 2100000, guid: b292eb0da137c0945b313384d1202f8e, type: 2}
+  - {fileID: 2100000, guid: 35fc01800b51c674792cf0b03cf2edd5, type: 2}
+  - {fileID: 2100000, guid: 62b92102916c24443b1798f9de933009, type: 2}
+--- !u!114 &376833975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376833972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
+--- !u!114 &376833976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376833972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 376833975}
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1001 &387902993
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34244,7 +34295,7 @@ MonoBehaviour:
   zoomLimiter: 50
   minZoom: 40
   maxZoom: 10
-  offset: {x: 0, y: 80, z: 0}
+  offset: {x: 0, y: 120, z: 0}
 --- !u!1001 &1902070216
 PrefabInstance:
   m_ObjectHideFlags: 0

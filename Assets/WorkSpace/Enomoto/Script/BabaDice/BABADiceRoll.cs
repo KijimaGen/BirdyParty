@@ -1,23 +1,17 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
-public class DiceRoll : MonoBehaviour
+public class BABADiceRoll : MonoBehaviour
 {
-    public BABADiceRoll babaDiceRoll;
-
-    [Header("表示するテキスト")]
-    public TextMeshProUGUI textMeshPro;
-    private int diceScore = 0;
-
     private Rigidbody rb;
     public bool isRolling = false;
     private string currentBottomFace = "";
-    private string resultFace = "";
+    private string babaFace = "";
+    public string babaDice = "";
 
-    [Header("表示させるサイコロ画像")]
+    [Header("�\��������T�C�R���摜")]
     [SerializeField] private GameObject dice1;
     [SerializeField] private GameObject dice2;
     [SerializeField] private GameObject dice3;
@@ -25,7 +19,7 @@ public class DiceRoll : MonoBehaviour
     [SerializeField] private GameObject dice5;
     [SerializeField] private GameObject dice6;
 
-    [SerializeField] private GameObject UseDice;
+    [SerializeField] private GameObject UseBABADice;
 
     void Start()
     {
@@ -34,19 +28,15 @@ public class DiceRoll : MonoBehaviour
 
     void Update()
     {
-
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             RollDice();
         }
 
-        if (!isRolling && !string.IsNullOrEmpty(resultFace))
+        if (!isRolling && !string.IsNullOrEmpty(babaFace))
         {
             DiceCheck();
-
-            textMeshPro.text = diceScore.ToString();
-            Debug.Log($"出目は {resultFace} です！");
-            resultFace = "";
+            babaFace = "";
         }
     }
 
@@ -55,9 +45,9 @@ public class DiceRoll : MonoBehaviour
         if (isRolling) return;
         isRolling = true;
         currentBottomFace = "";
-        resultFace = "";
+        babaFace = "";
 
-        transform.position = UseDice.transform.position;
+        transform.position = UseBABADice.transform.position;
         transform.rotation = Random.rotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -75,11 +65,11 @@ public class DiceRoll : MonoBehaviour
         if (rb.velocity.magnitude < 0.1f && rb.angularVelocity.magnitude < 0.1f)
         {
             isRolling = false;
-            // 下を向いてる面から出目を反転（上面の出目を求める）
+            // ���������Ă�ʂ���o�ڂ𔽓]�i��ʂ̏o�ڂ����߂�j
             if (int.TryParse(currentBottomFace.Replace("Face_", ""), out int bottom))
             {
-                int top = 7 - bottom; // 対面の数字
-                resultFace = top.ToString();
+                int top = 7 - bottom; // �Ζʂ̐���
+                babaFace = top.ToString();
             }
         }
         else
@@ -95,8 +85,6 @@ public class DiceRoll : MonoBehaviour
 
     private void DiceCheck()
     {
-        
-
         dice1.SetActive(false);
         dice2.SetActive(false);
         dice3.SetActive(false);
@@ -104,42 +92,31 @@ public class DiceRoll : MonoBehaviour
         dice5.SetActive(false);
         dice6.SetActive(false);
 
-        if (resultFace == "1")
+        if (babaFace == "1")
         {
-            diceScore += 1;
             dice1.SetActive(true);
-            
         }
-        else if (resultFace == "2")
+        else if (babaFace == "2")
         {
-            diceScore += 2;
             dice2.SetActive(true);
         }
-        else if (resultFace == "3")
+        else if (babaFace == "3")
         {
-            diceScore += 3;
             dice3.SetActive(true);
         }
-        else if (resultFace == "4")
+        else if (babaFace == "4")
         {
-            diceScore += 4;
             dice4.SetActive(true);
         }
-        else if (resultFace == "5")
+        else if (babaFace == "5")
         {
-            diceScore += 5;
             dice5.SetActive(true);
         }
-        else if (resultFace == "6")
+        else if (babaFace == "6")
         {
-            diceScore += 6;
             dice6.SetActive(true);
         }
 
-        if (resultFace == babaDiceRoll.babaDice)
-        {
-            Destroy(gameObject);
-            Debug.Log($"{UseDice}はBABAダイスを出してしまった・・・");
-        }
+        babaDice = babaFace;
     }
 }

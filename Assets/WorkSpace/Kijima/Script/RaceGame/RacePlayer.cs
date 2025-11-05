@@ -36,8 +36,6 @@ public class RacePlayer : MonoBehaviour {
     //減速、加速の割合
     private const float SPEED_CHANGE_RATE = 1.5f;
 
-    //自身の名前
-    private string playerName;
     //自身の番号
     public int myNumber { get; private set; }
     //自身の順位
@@ -92,11 +90,6 @@ public class RacePlayer : MonoBehaviour {
             PlayerIsMine.SetActive(true); 
         else 
             PlayerIsMine.SetActive(false);
-
-        // 親のPhotonViewを取得
-        PhotonView parentPV = transform.parent.GetComponent<PhotonView>();
-
-        
 
         //ゲーム開始
         RaceManager_PUN.instance.TryStartCountDown();
@@ -175,7 +168,7 @@ public class RacePlayer : MonoBehaviour {
 
         // 正規化しないでそのまま適用
         Vector3 moveDir = new Vector3(x, 0, z);
-        rb.velocity = moveDir * moveSpeed;
+        rb.velocity = moveDir * moveSpeed * Time.deltaTime;
     }
 
     /// <summary>

@@ -26,6 +26,8 @@ public class DropGameFrame : MonoBehaviour{
 
         //ˆÊ’uÄ’²®
         if(transform.position.y > reLotteryY) {
+            DropGameManager.instance.SetGameCount(DropGameManager.instance.GetGameCount() + 1);
+
             DropGameManager.instance.LotteryAnswerVariation();
         }
     }

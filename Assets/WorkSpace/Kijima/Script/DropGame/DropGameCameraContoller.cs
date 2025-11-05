@@ -31,6 +31,15 @@ public class DropGameCameraContoller : MonoBehaviour {
     }
 
     void LateUpdate() {
+        //舞フレームプレイヤーが破壊されてないかを確認
+        //途中がnullになっているとヤヴァイので逆順ループ
+        for (int i = targets.Count - 1; i >= 0; i--) {
+            if (targets[i] == null) {
+                targets.RemoveAt(i);
+            }
+        }
+
+        //ターゲットがないなら動かない
         if (targets.Count == 0)
             return;
 

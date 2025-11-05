@@ -10,9 +10,9 @@ using UnityEngine;
 using Photon.Pun;
 using static GameConst;
 using UnityEngine.UI;
-using Unity.VisualScripting;
 using System;
 using System.Linq;
+using TMPro;
 
 public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -33,10 +33,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- 各プレイヤーの開始位置 ---(書き換え予定)
     private readonly Vector3[] spawnPositions = new Vector3[]
     {
-        new Vector3(-65f, 1.2f, 1f),
-        new Vector3(-65, 1.2f, -3.2f),
-        new Vector3(-65, 1.2f, -7),
-        new Vector3(-65, 1.2f, -11)
+        new Vector3(-1f, 100f, 1.8f),
+        new Vector3(-10, 100f, -1.8f),
+        new Vector3(-10, 100f, -12),
+        new Vector3(-1f, 100f, -12)
     };
 
     // --- ゴール後の表示位置 ---(書き換え予定)
@@ -70,19 +70,39 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private DropGameFrame PanelPrefab;
     private DropGameFrame PanelObject;
 
+    //パネルのマテリアル一覧
     [SerializeField]
     private List<Material> PanelMaterialList = new List<Material>();
 
     //パネルの最大数
     private const int PANEL_MAX = 4;
 
+    //プレイヤーのポイントを示すUI
+    [SerializeField]
+    private List<GameObject> pointUIList = new List<GameObject>();
+
+    //ゲームを行った回数
+    private int gameCount = 0;
+
+    //定数
+    private const int POINT_TEXT_INDEX = 0;
+    private const int NUMBER_TEXT_INDEX = 1;
+    private const int GAME_END_COUNT = 8;   //ゲームが終わるカウント
+
     private async void Awake() {
         instance = this;
         isStart = false;
+        //カウントの初期化
+        gameCount = 0;
 
-        
-        
+        //ポイントの奴見れないようにするよ～
+        for (int i = 0; i < pointUIList.Count; i++) {
+            pointUIList[i].SetActive(false);
+        }
+
+
         await UniTask.Delay(1000);
+        
         
 
         //ゲームの開始を宣言する！
@@ -91,18 +111,22 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
     private void Update() {
         // 全員ゴール判定
-        //if (droppers.Count == ranking.Count && isStart) {
-        //    PlayerGoalPosSet();
-            
-        //    // オンライン時はRPCで同期、オフライン時は直接呼び出し
-        //    if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
-        //        // オンライン：RPCで全プレイヤーに送信
-        //        photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
-        //    } else {
-        //        // オフライン：直接メソッドを呼び出し
-        //        RPC_SetGoal();
-        //    }
-        //}
+
+        //GAMEENDCOUNT回やったらおしまい
+
+        if (gameCount == GAME_END_COUNT) {
+            PlayerGoalPosSet();
+
+            // オンライン時はRPCで同期、オフライン時は直接呼び出し
+            if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
+                // オンライン：RPCで全プレイヤーに送信
+                photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
+            }
+            else {
+                // オフライン：直接メソッドを呼び出し
+                RPC_SetGoal();
+            }
+        }
     }
 
     // ============================================
@@ -162,15 +186,24 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             //パネルの答えの抽選
             LotteryAnswerVariation();
         }
-
-        
     }
 
     // ============================================
     // ✅ プレイヤーの登録
     // ============================================
-    public void AddRacers(DropPlayer player) {
+    public void AddDropper(DropPlayer player) {
         droppers.Add(player);
+        pointUIList[player.GetMyNumber()].SetActive(true);
+        //名前の反映
+        int PlayerNumber = player.GetMyNumber();
+        TextMeshProUGUI playerText = pointUIList[PlayerNumber].transform.GetChild(NUMBER_TEXT_INDEX).GetComponent<TextMeshProUGUI>();
+        playerText.text = "P" + PlayerNumber.ToString();
+
+
+        //ポイントを反映してもらう
+        SetPointUI(player);
+
+
     }
 
     /// <summary>
@@ -275,14 +308,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         return false;
     }
 
-    /// <summary>
-    /// プレイヤーエントリー
-    /// </summary>
-    /// <param name="player"></param>
-    public void EntryDropPlayer(DropPlayer player) {
-        dropPlayerList.Add(player);
-    }
-
+    
     /// <summary>
     /// バリエーションを受け取ってそれと同じ名前のスプライトを返す
     /// </summary>
@@ -333,7 +359,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
 
         //答えのパネルを作ってもらう
-        
+        TrySetPanel();
 
         //画面上のパネルに答えを表示
         NextVariationImage.sprite = GetSpriteFromVariation(TrueAnswerPanel);
@@ -343,9 +369,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
-    /// インターネットに合わせた動作
+    /// インターネットに合わせたパネルリストからの答えの作成
     /// </summary>
-    private void TrySetPanel(DropGamePanelVariation answerPanel) {
+    private void TrySetPanel() {
         // オンライン時の処理
         if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
             if (PhotonNetwork.IsMasterClient) {
@@ -354,13 +380,13 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
                 TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
 
                 Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
-                photonView.RPC(nameof(SetPanel), RpcTarget.All, MakePanelList().Select(v => (int) v).ToArray());
+                photonView.RPC(nameof(SetAnswerPanel), RpcTarget.All,(int)TrueAnswerPanel);
             }
         }
         // オフライン時の処理
         else {
             Debug.Log("オフライン：パネル再抽選を直接開始");
-            SetPanel(MakePanelList().Select(v => (int) v).ToArray());
+            photonView.RPC(nameof(SetAnswerPanel), RpcTarget.All, (int) TrueAnswerPanel);
         }
     }
 
@@ -381,8 +407,16 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // int配列 → enum配列 に戻す
         DropGamePanelVariation[] PanelList =
             variationInts.Select(i => (DropGamePanelVariation) i).ToArray();
+
+        //数が合わないようだったらもらうよ
+        if(dropPanelList.Count != PANEL_MAX) {
+            //どうやってもらおう…()
+
+        }
+
         //先頭から四つ抽出してリストを作成
-        for (int i = 0,max = PANEL_MAX; i < max;i++) {
+        for (int i = 0,max = dropPanelList.Count; i < max;i++) {
+            
             dropPanelList[i].SetMeshRenderer(GetMyMaterialFromVariation(PanelList[i]));
         }
     }
@@ -399,13 +433,45 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
          .Where(s => s != DropGamePanelVariation.None) // ←Noneを除外
          .OrderBy(s => UnityEngine.Random.value)
          .ToArray();
+        //↑有能なAI君が書いてくれたよ！
 
         //シャッフル
         RandomVariationList = RandomVariationList.OrderBy(x => UnityEngine.Random.value).ToArray();
         return RandomVariationList;
     }
 
-    public void SetAnswerPanel(int AnswerInt) {
-        
+
+    /// <summary>
+    /// 答えのパネルをセット
+    /// </summary>
+    /// <param name="answerInt"></param>
+    [PunRPC]
+    private void SetAnswerPanel(int answerInt) {
+        NextVariationImage.sprite = GetSpriteFromVariation((DropGamePanelVariation) answerInt);
+    }
+
+    /// <summary>
+    /// プレイヤーのポイントをUIに反映
+    /// </summary>
+    /// <param name="player"></param>
+    public void SetPointUI(DropPlayer player) {
+        //プレイヤーのポイントをUIのほうに反映
+        pointUIList[player.GetMyNumber()].transform.GetChild(POINT_TEXT_INDEX).GetComponent<TextMeshProUGUI>().text = player.GetPoint().ToString();
+    }
+
+    /// <summary>
+    /// 何回したかを返す
+    /// </summary>
+    /// <returns></returns>
+    public int GetGameCount() {
+        return gameCount;
+    }
+
+    /// <summary>
+    /// 何回やったかをセット
+    /// </summary>
+    /// <param name="count"></param>
+    public void SetGameCount(int count) {
+        gameCount = count;
     }
 }

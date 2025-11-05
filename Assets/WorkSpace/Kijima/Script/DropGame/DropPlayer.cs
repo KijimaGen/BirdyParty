@@ -12,6 +12,7 @@ using static GameConst;
 [RequireComponent(typeof(Rigidbody))]
 public class DropPlayer : MonoBehaviour {
     //移動速度
+    [SerializeField]
     private float moveSpeed = 8f;
 
     //入力値
@@ -36,7 +37,10 @@ public class DropPlayer : MonoBehaviour {
     private float bounceForce;
 
     //マイポイント
-    private int myPoint;
+    private int myPoint = 0;
+
+    //固定ハイ
+    private const float SET_Y = 100;
 
     void Start() {
         //途中参加は認めない
@@ -55,10 +59,13 @@ public class DropPlayer : MonoBehaviour {
         
         //自身の番号を取得
         myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        //自身の持っているポイントを0にする
+        myPoint = 0;
         
         //自身についているキャンバスの初期化処理を呼び出す
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
-
+        //エントリー
+        DropGameManager.instance.AddDropper(this);
         
 
         //始まり
@@ -66,7 +73,7 @@ public class DropPlayer : MonoBehaviour {
 
         //位置をはるか天空へ
         Vector3 startpos = transform.position;
-        startpos.y = 100;
+        startpos.y = SET_Y;
         transform.position = startpos;
         
     }
@@ -90,6 +97,10 @@ public class DropPlayer : MonoBehaviour {
             transform.eulerAngles = Vector3.zero;
         }
 
+        //位置を天空に固定
+        Vector3 startpos = transform.position;
+        startpos.y = SET_Y;
+        transform.position = startpos;
 
     }
 
@@ -107,7 +118,7 @@ public class DropPlayer : MonoBehaviour {
 
         // 正規化しないでそのまま適用
         Vector3 moveDir = new Vector3(x, 0, z);
-        rb.velocity = moveDir * moveSpeed;
+        rb.velocity = moveDir * moveSpeed * Time.deltaTime;
     }
 
     
@@ -124,22 +135,25 @@ public class DropPlayer : MonoBehaviour {
         
     }
 
-    private void OnCollisionEnter(Collision collision) {
-        if (photonView == null) return;
-        if (!photonView.IsMine) return; //他人のプレイヤーでは処理しない
-        if (!collision.gameObject.CompareTag("Player")) return; //プレイヤー以外にぶつかっても処理しない
+    /// <summary>
+    /// 他のプレイヤーを押し返す
+    /// </summary>
+    /// <param name="col"></param>
+    void OnCollisionEnter(Collision col) {
+        //自分の物かPhotonViewはあるか確認
+        if(photonView == null) return;
+        if (!photonView.IsMine) return;
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        Rigidbody otherRb = collision.rigidbody;
+        if (col.gameObject.CompareTag("Player")) {
+            Vector3 pushDir = (col.transform.position - transform.position).normalized;
+            col.gameObject.GetComponent<PhotonView>()
+                .RPC("ApplyPushBack", RpcTarget.All, pushDir, bounceForce); 
+        }
+    }
 
-        if (otherRb == null) return;
-
-        //相手との方向ベクトルを取得
-        Vector3 dir = (transform.position - collision.transform.position).normalized;
-
-        //自身と相手の両方に跳ね返りを与える
-        rb.AddForce(dir * bounceForce, ForceMode.Impulse);
-        otherRb.AddForce(-dir * bounceForce, ForceMode.Impulse);
+    [PunRPC]
+    void ApplyPushBack(Vector3 dir, float power) {
+        rb.AddForce(dir * power, ForceMode.Impulse);
     }
 
     //プラスボタンを押したときにホストだったらゲーム開始(そのうちなくす予定)
@@ -172,5 +186,15 @@ public class DropPlayer : MonoBehaviour {
     /// <param name="point"></param>
     public void AddPoint(int point) {
         myPoint += point;
+        DropGameManager.instance.SetPointUI(this);
     }
+
+    /// <summary>
+    /// ポイントを上げる
+    /// </summary>
+    /// <returns></returns>
+    public int GetPoint() {
+        return myPoint;
+    }
+
 }

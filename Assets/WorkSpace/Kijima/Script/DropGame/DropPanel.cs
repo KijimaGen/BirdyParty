@@ -30,9 +30,6 @@ public class DropPanel : MonoBehaviour{
     /// <param name="other"></param>
     private void OnTriggerEnter(Collider other) {
         
-
-
-
         if(other.gameObject.tag == PLAYER_TAG) {
 
             if (!other.gameObject.GetComponent<PhotonView>().IsMine)

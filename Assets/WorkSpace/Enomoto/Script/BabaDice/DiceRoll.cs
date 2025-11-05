@@ -25,6 +25,8 @@ public class DiceRoll : MonoBehaviour
     [SerializeField] private GameObject dice5;
     [SerializeField] private GameObject dice6;
 
+    [SerializeField] private GameObject UseDice;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -54,7 +56,7 @@ public class DiceRoll : MonoBehaviour
         currentBottomFace = "";
         resultFace = "";
 
-        transform.position = new Vector3(8.92f, 10, 10.34f);
+        transform.position = UseDice.transform.position;
         transform.rotation = Random.rotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -131,6 +133,6 @@ public class DiceRoll : MonoBehaviour
         }
     }
 
-    public bool IsDiceStopped => !isRolling && !string.IsNullOrEmpty(resultFace);
-    public int ResultValue => int.TryParse(resultFace, out int v) ? v : 0;
+    //public bool IsDiceStopped => !isRolling && !string.IsNullOrEmpty(resultFace);
+    //public int ResultValue => int.TryParse(resultFace, out int v) ? v : 0;
 }

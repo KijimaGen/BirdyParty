@@ -1,154 +1,345 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq; 
 using UnityEngine;
+using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 
+// ゲームの状態を定義
 public enum GameState
 {
-    Start,          // ゲームスタート
-    SetBABA,        // BABAダイスをセット
-    PlayerTurn,     // プレイヤーのターン
-    DiceRoll,       // プレイヤーがダイスを振る
-    CheckResult,    // ダイスチェック
-    Won,            // BABAとかぶらなかったので続行
-    Lost,           // BABAとかぶったので脱落
+    Start,
+    SetBabaDice,      // BABAダイスを振っている
+    PlayerRolling,    // プレイヤーの入力待ち（Spaceキーで同時ロール）
+    PlayersInRoll,    // 全プレイヤーのダイスが転がっている
+    CheckResults,     // 全員のダイスが止まった後の結果判定
+    GameOverCheck,    // ゲームオーバー後の最終順位付け
+    GameFinished      // 結果表示
 }
 
 public class DiceGameManager : MonoBehaviour
 {
+
     public static GameState currentState;
-
     public int currentTurn = 1;
-    public int maxTurns    = 5;
+    public int maxTurns = 5;
 
-    [Header("ダイスの参照")]
+    [Header("ゲーム設定")]
+    public int maxPlayers = 4; // 最大プレイヤー数
+
+    [Header("BABAダイスの参照")]
     public BABADiceRoll babaDiceRoll;
-    public DiceRoll playerDiceRoll;
 
     [Header("UI参照")]
     public TextMeshProUGUI turnText;
     public TextMeshProUGUI babaDiceText;
-    public TextMeshProUGUI playerDiceText;
     public TextMeshProUGUI resultText;
-
+    public Button rollButton; // プレイヤーに振らせるためのボタン（Spaceキーと兼用可）
 
     // ゲームで使う内部変数
     private int currentBabaDiceValue;
-    private int currentPlayerDiceValue;
+    private List<PlayerInfo> players;
+    private Dictionary<PlayerInfo, DiceRoll> playerDices = new Dictionary<PlayerInfo, DiceRoll>();
 
-    private void Start()
+    [Header("プレイヤー用ダイス")]
+    public DiceRoll[] assignedPlayerDices = new DiceRoll[4];
+
+    [Header("プレイヤースコアの設定")]
+    public TextMeshProUGUI[] playerScoreTexts = new TextMeshProUGUI[4];
+
+    void Awake()
+    {
+        // ゲーム開始時にプレイヤーとダイスを準備
+        SetupPlayers();
+    }
+
+    void Start()
     {
         UpdateGameState(GameState.Start);
     }
 
+    // プレイヤーリストとダイスオブジェクトを生成
+    private void SetupPlayers()
+    {
+        players = new List<PlayerInfo>();
+        playerDices.Clear();
+
+        // 設定されたダイスの数を実際の最大プレイヤー数とする
+        if (assignedPlayerDices == null || assignedPlayerDices.Length == 0)
+        {
+            Debug.LogError("プレイヤーダイスがInspectorで設定されていません。assignedPlayerDicesにDiceRollスクリプトを割り当ててください。", this);
+            return;
+        }
+
+        // 実際に設定されたダイスの数をプレイヤー数とする
+        int actualPlayers = 0;
+
+        // プレイヤーとダイスを紐づけて登録
+        for (int i = 0; i < assignedPlayerDices.Length; i++)
+        {
+            DiceRoll currentDiceScript = assignedPlayerDices[i];
+
+            // スロットにダイスが設定されている場合のみ処理を行う
+            if (currentDiceScript != null)
+            {
+                actualPlayers++;
+
+                PlayerInfo newPlayer = new PlayerInfo(actualPlayers, $"Player {actualPlayers}");
+                players.Add(newPlayer);
+
+                // Dictionaryに登録し、GameManagerが参照できるようにする
+                playerDices.Add(newPlayer, currentDiceScript);
+
+                //currentDiceScript.gameObject.SetActive(false);
+            }
+        }
+
+        // プレイヤーが誰もいない場合はエラー
+        if (players.Count == 0)
+        {
+            Debug.LogError("有効なプレイヤーダイスが一つも設定されていません。");
+        }
+
+        UpdateScoreUIs();
+    }
+
+    // ゲーム状態を切り替えるメインの関数
     public void UpdateGameState(GameState newState)
     {
         currentState = newState;
-        Debug.Log("State変更" + newState);
+        Debug.Log("新しい状態: " + newState);
+
+        // ボタン制御 (PlayerRolling状態以外は無効化)
+        if (rollButton != null)
+        {
+            rollButton.interactable = (newState == GameState.PlayerRolling);
+        }
 
         switch (newState)
         {
             case GameState.Start:
-                currentTurn = 1;
-                resultText.text = "ゲーム開始！";
+            currentTurn = 1;
+            resultText.text = "ゲーム開始！";
+            // 最初のBABAダイスを振る
+            UpdateGameState(GameState.SetBabaDice);
+            break;
 
-                // BABAダイスを振る
-                UpdateGameState(GameState.SetBABA);
-                break;
+            case GameState.SetBabaDice:
+            // UI初期化
+            turnText.text = $"ターン {currentTurn} / {maxTurns}";
+            babaDiceText.text = "BABAダイス: ?";
+            resultText.text = "BABAダイスを決めています...";
 
-            case GameState.SetBABA:
-                // UIを初期化する
-                turnText.text = $"ターン {currentTurn} / {maxTurns}";
-                babaDiceText.text = "BABAダイス: ?";
-                playerDiceText.text = "あなたの出目: ?";
-                resultText.text = "BABAダイスを決めています...";
+            // BABAダイスロールを開始。完了したら OnBabaRollComplete を呼ぶ
+            babaDiceRoll.StartRoll(OnBabaRollComplete);
+            break;
 
-                // BABAダイスのダイスロール
-                babaDiceRoll.StartRoll(OnBabaRollComplete);
-                break;
+            case GameState.PlayerRolling:
+            // BABAダイスの結果を表示
+            babaDiceText.text = $"BABAダイス: {currentBabaDiceValue}";
+            resultText.text = "Spaceキーかボタンで全員一斉ロール！";
+            break;
 
-            case GameState.PlayerTurn:
-                // BABAダイスの結果を表示して、プレイヤーのターンへ（Spaceキーの入力待ち）
-                babaDiceText.text = $"BABAダイス: {currentBabaDiceValue}";
-                resultText.text = "あなたの番です。\n(Spaceキーでダイスを振る)";
-                break;
+            case GameState.PlayersInRoll:
+            resultText.text = "全員一斉ロール中...";
+            // ここでStartAllPlayerRolls()が呼ばれる
+            break;
 
-            case GameState.DiceRoll:
-                resultText.text = "ダイスを振っています...";
-                // プレイヤーダイスロールを開始。完了したら OnPlayerRollComplete を呼ぶ
-                playerDiceRoll.StartRoll(OnPlayerRollComplete);
-                break;
+            case GameState.CheckResults:
+            // 全員のダイスが止まった。ここから判定ルーチン開始
+            StartCoroutine(CheckAllResultsRoutine());
+            break;
 
-            case GameState.CheckResult:
-                // プレイヤーの出目を表示
-                playerDiceText.text = $"あなたの出目: {currentPlayerDiceValue}";
+            case GameState.GameOverCheck:
+            // 最終判定
+            DisplayFinalRanking();
+            UpdateGameState(GameState.GameFinished);
+            break;
 
-                // --- ここで脱落判定 ---
-                if (currentPlayerDiceValue == currentBabaDiceValue)
-                {
-                    // 脱落！
-                    resultText.text = $"脱落！ (BABAダイス: {currentBabaDiceValue})";
-                    UpdateGameState(GameState.Lost);
-                }
-                else
-                {
-                    // セーフ！
-                    resultText.text = "セーフ！ 次のターンへ...";
-
-                    if (currentTurn == maxTurns)
-                    {
-                        // 5ターンクリア
-                        UpdateGameState(GameState.Won);
-                    }
-                    else
-                    {
-                        // 次のターンへ
-                        currentTurn++;
-                        StartCoroutine(WaitAndNextTurn());
-                    }
-                }
-                break;
-
-            case GameState.Won:
-                resultText.text = "勝利！ 5ターン生き残った！";
-                break;
-
-            case GameState.Lost:
-                resultText.text = "敗北...";
-                // プレイヤーのダイスを非表示に
-                playerDiceRoll.gameObject.SetActive(false);
-                break;
+            case GameState.GameFinished:
+            // 結果表示完了。リスタートボタンなどを有効化
+            break;
         }
     }
 
-    private void Update()
+    // スコアUIをすべて更新する関数
+    private void UpdateScoreUIs()
     {
-        // プレイヤーのターンの場合のみ入力を受け付ける
-        if (currentState == GameState.PlayerTurn && Input.GetKeyDown(KeyCode.Space))
+        // プレイヤーの数と設定されたUIの数のうち、少ない方までループ
+        int count = Mathf.Min(players.Count, playerScoreTexts.Length);
+
+        for (int i = 0; i < count; i++)
         {
-            UpdateGameState(GameState.DiceRoll);
+            // UI TextがInspectorで割り当てられているか確認
+            if (playerScoreTexts[i] == null) continue;
+
+            PlayerInfo p = players[i];
+
+            // 生存者はスコア、脱落者は「脱落」を表示
+            if (p.IsEliminated)
+            {
+                playerScoreTexts[i].text = $"脱落";
+                playerScoreTexts[i].color = Color.gray;
+            }
+            else
+            {
+                playerScoreTexts[i].text = $"{p.TotalScore}";
+                playerScoreTexts[i].color = Color.black;
+            }
         }
     }
 
+    // GameManagerのUpdateは「入力受付」だけを行う
+    void Update()
+    {
+        // "PlayerRolling" 状態の時だけ Space キーを受け付ける
+        if (currentState == GameState.PlayerRolling && Input.GetKeyDown(KeyCode.Space))
+        {
+            StartAllPlayerRolls();
+        }
+    }
+
+    // UIボタンから呼び出すための関数
+    public void OnRollButtonClicked()
+    {
+        if (currentState == GameState.PlayerRolling)
+        {
+            StartAllPlayerRolls();
+        }
+    }
+
+    // BABAダイスロールが完了したときに呼ばれる
     void OnBabaRollComplete(string babaFace)
     {
         int.TryParse(babaFace, out currentBabaDiceValue);
-        UpdateGameState(GameState.PlayerTurn);
+        // BABAダイスの値が確定したので、プレイヤーの入力待ちへ
+        UpdateGameState(GameState.PlayerRolling);
     }
 
-    // プレイヤーダイスロールが完了したときに呼ばれる
-    void OnPlayerRollComplete(string playerFace)
+    // 全員分のダイスを同時に振る関数
+    private void StartAllPlayerRolls()
     {
-        int.TryParse(playerFace, out currentPlayerDiceValue);
-        // プレイヤーの値が確定したので、結果判定へ
-        UpdateGameState(GameState.CheckResult);
+        UpdateGameState(GameState.PlayersInRoll);
+
+        // 脱落していないプレイヤーのダイスだけを振る
+        var activePlayers = players.Where(p => !p.IsEliminated).ToList();
+
+        if (activePlayers.Count == 0)
+        {
+            UpdateGameState(GameState.GameOverCheck);
+            return;
+        }
+
+        // コールバックが呼ばれた回数を追跡するカウンター
+        int rollsCompleted = 0;
+
+        // 各プレイヤーのダイスを StartRoll
+        foreach (PlayerInfo player in activePlayers)
+        {
+            DiceRoll dice = playerDices[player];
+            dice.gameObject.SetActive(true); // ダイスを表示
+
+            // プレイヤーごとのコールバック
+            dice.StartRoll((resultFace) =>
+            {
+                int diceValue;
+                if (int.TryParse(resultFace, out diceValue))
+                {
+                    // プレイヤー情報に出目を一時保存
+                    player.CurrentDiceResult = diceValue;
+                }
+
+                rollsCompleted++;
+
+                // 全員分のダイスが止まったら、次の状態へ移行
+                if (rollsCompleted >= activePlayers.Count)
+                {
+                    UpdateGameState(GameState.CheckResults);
+                }
+            });
+        }
     }
 
-    // 次のターンに移るまでの「間」
-    IEnumerator WaitAndNextTurn()
+    // 全員のダイスが止まった後の判定ルーチン
+    IEnumerator CheckAllResultsRoutine()
     {
-        yield return new WaitForSeconds(2.0f);  // 2秒待つ
-        UpdateGameState(GameState.SetBABA);     // 次のターンの準備へ
+        yield return new WaitForSeconds(1.0f); // 判定開始前の待ち時間
+
+        // プレイヤーの順番（ID順）に判定
+        foreach (PlayerInfo player in players.OrderBy(p => p.PlayerID))
+        {
+            if (player.IsEliminated) continue;
+
+            DiceRoll dice = playerDices[player];
+
+            // 1. スコア加算
+            player.TotalScore += player.CurrentDiceResult;
+
+            // ★★★ ここでスコアUIを更新 ★★★
+            UpdateScoreUIs();
+
+            // 2. 脱落判定
+            if (player.CurrentDiceResult == currentBabaDiceValue)
+            {
+                // 脱落処理
+                player.IsEliminated = true;
+                player.EliminationTurn = currentTurn;
+                dice.gameObject.SetActive(false);
+
+                resultText.text = $"{player.PlayerName} が脱落！ (出目: {player.CurrentDiceResult} = BABA: {currentBabaDiceValue})";
+
+                // ★★★ 脱落後、UIを再更新して「脱落」表示に切り替え ★★★
+                UpdateScoreUIs();
+
+                yield return new WaitForSeconds(3.0f);
+            }
+            else
+            {
+                // セーフ！
+                resultText.text = $"{player.PlayerName} はセーフ！";
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        // 3. ターン終了チェック
+        int aliveCount = players.Count(p => !p.IsEliminated);
+
+        if (aliveCount <= 1 || currentTurn >= maxTurns)
+        {
+            // 1人以下になった、または5ターン目に到達した
+            UpdateGameState(GameState.GameOverCheck);
+        }
+        else
+        {
+            // 次のターンへ
+            currentTurn++;
+            UpdateGameState(GameState.SetBabaDice);
+        }
+    }
+
+    // 最終順位付けと結果表示
+    void DisplayFinalRanking()
+    {
+        // 順位付けロジック
+        // 1. 生存者優先 (IsEliminated = false)
+        // 2. 脱落者は、脱落ターンが遅い方が上位 (EliminationTurnが大きい方が上位)
+        // 3. スコアが高い方が上位
+        var finalRanking = players
+            .OrderBy(p => p.IsEliminated)
+            .ThenByDescending(p => p.EliminationTurn)
+            .ThenByDescending(p => p.TotalScore)
+            .ToList();
+
+        string rankString = "--- 最終結果 ---\n";
+        for (int i = 0; i < finalRanking.Count; i++)
+        {
+            PlayerInfo p = finalRanking[i];
+            string status = p.IsEliminated
+                            ? $"(脱落: {p.EliminationTurn}T)"
+                            : "(生存)";
+
+            rankString += $"{i + 1}位: {p.PlayerName} | スコア: {p.TotalScore} {status}\n";
+        }
+        resultText.text = rankString;
     }
 }

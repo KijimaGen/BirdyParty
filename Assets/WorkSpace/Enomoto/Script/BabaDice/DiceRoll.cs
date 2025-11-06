@@ -7,19 +7,17 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class DiceRoll : MonoBehaviour
 {
-
-    [Header("表示するテキスト")]
-    public TextMeshProUGUI textMeshPro;
-    private int diceScore = 0;
-
     private Rigidbody rb;
     public bool isRolling = false;
     private string currentBottomFace = "";
     private string resultFace = "";
 
+    // GameManagerに結果を通知するためのコールバック
     private Action<string> onRollComplete;
+    private int lastDiceValue = 0; 
 
     [Header("表示させるサイコロ画像")]
+    // (UI設定は元のコードを維持)
     [SerializeField] private GameObject dice1;
     [SerializeField] private GameObject dice2;
     [SerializeField] private GameObject dice3;
@@ -27,27 +25,35 @@ public class DiceRoll : MonoBehaviour
     [SerializeField] private GameObject dice5;
     [SerializeField] private GameObject dice6;
 
+    // 出現位置のGameObject（Inspectorで設定が必要）
     [SerializeField] private GameObject UseDice;
 
-    void Start()
+    // Rigidbodyの取得はAwakeで行い、初期化を保証
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("DiceRoll: Rigidbody コンポーネントが見つかりません。", this);
+        }
     }
 
+    // GameManagerからこの関数が呼ばれる
     public void StartRoll(Action<string> callback)
     {
-        if (isRolling) return;
+        if (isRolling || rb == null) return;
 
         onRollComplete = callback;
         isRolling = true;
         currentBottomFace = "";
         resultFace = "";
+        lastDiceValue = 0; // ロール開始時にリセット
 
-        transform.position = UseDice.transform.position;
         transform.rotation = UnityEngine.Random.rotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
+        // ランダムな力とトルクを加えて振る
         Vector3 force = new Vector3(UnityEngine.Random.Range(-2f, 2f), 6f, UnityEngine.Random.Range(-2f, 2f));
         Vector3 torque = new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f));
         rb.AddForce(force, ForceMode.Impulse);
@@ -58,19 +64,20 @@ public class DiceRoll : MonoBehaviour
 
     void CheckIfStopped()
     {
+        if (rb == null) return;
+
         if (rb.velocity.magnitude < 0.1f && rb.angularVelocity.magnitude < 0.1f)
         {
             isRolling = false;
-            // 下を向いてる面から出目を反転（上面の出目を求める）
             if (int.TryParse(currentBottomFace.Replace("Face_", ""), out int bottom))
             {
-                int top = 7 - bottom; // 対面の数字
+                int top = 7 - bottom;
                 resultFace = top.ToString();
-
-                DiceCheck();
-
-                onRollComplete?.Invoke(resultFace);
+                lastDiceValue = top; 
             }
+
+            DiceCheck(); // 画像の更新
+            onRollComplete?.Invoke(resultFace); // GameManagerに結果を通知
         }
         else
         {
@@ -85,43 +92,19 @@ public class DiceRoll : MonoBehaviour
 
     private void DiceCheck()
     {
-        dice1.SetActive(false);
-        dice2.SetActive(false);
-        dice3.SetActive(false);
-        dice4.SetActive(false);
-        dice5.SetActive(false);
-        dice6.SetActive(false);
+        // ... (元のコードの画像切り替え処理を維持) ...
+        GameObject[] dices = { dice1, dice2, dice3, dice4, dice5, dice6 };
+        foreach (var d in dices) d.SetActive(false);
 
-        if (resultFace == "1")
+        if (int.TryParse(resultFace, out int result) && result >= 1 && result <= 6)
         {
-            diceScore += 1;
-            dice1.SetActive(true);
-            
+            dices[result - 1].SetActive(true);
         }
-        else if (resultFace == "2")
-        {
-            diceScore += 2;
-            dice2.SetActive(true);
-        }
-        else if (resultFace == "3")
-        {
-            diceScore += 3;
-            dice3.SetActive(true);
-        }
-        else if (resultFace == "4")
-        {
-            diceScore += 4;
-            dice4.SetActive(true);
-        }
-        else if (resultFace == "5")
-        {
-            diceScore += 5;
-            dice5.SetActive(true);
-        }
-        else if (resultFace == "6")
-        {
-            diceScore += 6;
-            dice6.SetActive(true);
-        }
+    }
+
+    // ★ 外部から出目を読み取るための関数
+    public int GetCurrentResult()
+    {
+        return lastDiceValue;
     }
 }

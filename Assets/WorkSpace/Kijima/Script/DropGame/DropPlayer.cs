@@ -37,7 +37,8 @@ public class DropPlayer : MonoBehaviour {
     private float bounceForce;
 
     //マイポイント
-    private int myPoint = 0;
+
+    public int myPoint { get; private set; } = 0;
 
     //固定ハイ
     private const float SET_Y = 100;
@@ -97,10 +98,7 @@ public class DropPlayer : MonoBehaviour {
             transform.eulerAngles = Vector3.zero;
         }
 
-        //位置を天空に固定
-        Vector3 startpos = transform.position;
-        startpos.y = SET_Y;
-        transform.position = startpos;
+        
 
     }
 
@@ -140,19 +138,29 @@ public class DropPlayer : MonoBehaviour {
     /// </summary>
     /// <param name="col"></param>
     void OnCollisionEnter(Collision col) {
+        if (GameManager.instance.IsOnline()) {
+            
+        }
+
         //自分の物かPhotonViewはあるか確認
         if(photonView == null) return;
         if (!photonView.IsMine) return;
 
-        if (col.gameObject.CompareTag("Player")) {
+        //プレイヤーに当たったら跳ね返るよん
+        if (col.gameObject.CompareTag(PLAYER_TAG)) {
             Vector3 pushDir = (col.transform.position - transform.position).normalized;
             col.gameObject.GetComponent<PhotonView>()
-                .RPC("ApplyPushBack", RpcTarget.All, pushDir, bounceForce); 
+                .RPC(nameof(ApplyPushBack), RpcTarget.All, pushDir, bounceForce); 
         }
     }
 
     [PunRPC]
     void ApplyPushBack(Vector3 dir, float power) {
+        if (rb == null) {
+            rb = GetComponent<Rigidbody>();
+        }
+
+        if (rb != null)
         rb.AddForce(dir * power, ForceMode.Impulse);
     }
 
@@ -176,8 +184,19 @@ public class DropPlayer : MonoBehaviour {
         transform.position = pos;
     }
 
+    /// <summary>
+    /// ランキングをセット
+    /// </summary>
+    /// <returns></returns>
     public int GetRank() {
         return myRank;
+    }
+    /// <summary>
+    /// 順位をセット
+    /// </summary>
+    /// <param name="rank"></param>
+    public void SetRank(int rank) {
+        myRank = rank;
     }
 
     /// <summary>
@@ -187,6 +206,15 @@ public class DropPlayer : MonoBehaviour {
     public void AddPoint(int point) {
         myPoint += point;
         DropGameManager.instance.SetPointUI(this);
+    }
+
+    /// <summary>
+    /// ポイントセット(Addと分けなくてよかったじゃん)
+    /// </summary>
+    /// <param name="point"></param>
+    public void SetPoint(int point) {
+        myPoint = point;
+        DropGameManager.instance.SetPoint(this);
     }
 
     /// <summary>

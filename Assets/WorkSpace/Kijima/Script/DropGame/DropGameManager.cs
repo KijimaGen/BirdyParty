@@ -34,7 +34,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private readonly Vector3[] spawnPositions = new Vector3[]
     {
         new Vector3(-1f, 100f, 1.8f),
-        new Vector3(-10, 100f, -1.8f),
+        new Vector3(-10, 100f, 1.8f),
         new Vector3(-10, 100f, -12),
         new Vector3(-1f, 100f, -12)
     };
@@ -57,7 +57,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private DropGamePanelVariation TrueAnswerPanel;
 
     //ドロップゲームのプレイヤーリスト
-    private List<DropPlayer> dropPlayerList = new List<DropPlayer>();
+    
 
     //登場予定の絵柄のリスト
     [SerializeField]
@@ -110,11 +110,22 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     private void Update() {
+
+        //始まる前に行いたい処理
+        if(!isStart) {
+            //全員のポジションを設定
+            for (int i = 0, max = droppers.Count; i < max; i++) {
+                if (droppers[i] == null) continue;
+                droppers[i].SetPosition(spawnPositions[i]);
+            }
+        }
+
         // 全員ゴール判定
-
-        //GAMEENDCOUNT回やったらおしまい
-
+        //GAME_END_COUNT回やったらおしまい
         if (gameCount == GAME_END_COUNT) {
+            //プレイヤーをポイント順でランキングに入れる
+            MakeRanking();
+            //プレイヤーをランキング順で並べる
             PlayerGoalPosSet();
 
             // オンライン時はRPCで同期、オフライン時は直接呼び出し
@@ -237,17 +248,24 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
-    /// ランキングに加える
+    /// ランキングを作る
     /// </summary>
     /// <param myName="player"></param>
-    public void AddRanking(DropPlayer player) {
-        //一応ここでランキングが重複しないかチェック
-        for (int i = 0, max = ranking.Count; i < max; i++) {
-            if (ranking[i] == player)
-                return;
+    public void MakeRanking() {
+        //ランキングにプレイヤーのリストを代入
+        ranking = droppers;
+        //ランキングの中身をPoint順にソート
+        ranking.Sort((p1,p2) => p1.myPoint.CompareTo(p2.myPoint));
+        //ランキングをプレイヤーに渡す
+        for(int i = 0,max = droppers.Count; i < max; i++) {
+            for(int j = 0; j < ranking.Count; j++) {
+                //i番目とj番目が違ったら続行
+                if (droppers[i] != ranking[j]) continue;
+                //プレイヤーにランキングを渡す
+                droppers[i].SetRank(GetRankingCount(droppers[i]));
+            }
         }
 
-        ranking.Add(player);
     }
 
     /// <summary>
@@ -362,7 +380,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         TrySetPanel();
 
         //画面上のパネルに答えを表示
-        NextVariationImage.sprite = GetSpriteFromVariation(TrueAnswerPanel);
+        //NextVariationImage.sprite = GetSpriteFromVariation(TrueAnswerPanel);
 
         //パネルの位置をリセット
         PanelObject.ResetPos();
@@ -474,4 +492,19 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     public void SetGameCount(int count) {
         gameCount = count;
     }
+
+    /// <summary>
+    /// プレイヤーのポイント数をセット(全体に共有するアイテムなのでよろしい)
+    /// </summary>
+    /// <param name="player"></param>
+    public void SetPoint(DropPlayer player) {
+        for(int i = 0; i < droppers.Count; i++) {
+            if (droppers[i] != player) continue;
+            droppers[i].SetPoint(player.GetPoint());
+            //UIにもセットする
+            SetPointUI(droppers[i]);
+
+        }
+    }
+
 }

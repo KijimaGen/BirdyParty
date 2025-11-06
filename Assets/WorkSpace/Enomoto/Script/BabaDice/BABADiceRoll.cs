@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,7 +10,8 @@ public class BABADiceRoll : MonoBehaviour
     public bool isRolling = false;
     private string currentBottomFace = "";
     private string babaFace = "";
-    public string babaDice = "";
+
+    private Action<string> onRollComplete;
 
     [Header("表示させるサイコロ画像")]
     [SerializeField] private GameObject dice1;
@@ -21,39 +23,39 @@ public class BABADiceRoll : MonoBehaviour
 
     [SerializeField] private GameObject UseBABADice;
 
+    void Awake()
+    {
+        // Start() よりも確実に早く実行される Awake() で初期化
+        rb = GetComponent<Rigidbody>();
+
+        // rbがnullならエラーメッセージを出して気づきやすくする
+        if (rb == null)
+        {
+            Debug.LogError("BABADiceRoll: Rigidbody コンポーネントが見つかりません。ダイス本体に Rigidbody がアタッチされているか確認してください。", this);
+        }
+    }
+
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            RollDice();
-        }
-
-        if (!isRolling && !string.IsNullOrEmpty(babaFace))
-        {
-            DiceCheck();
-            babaFace = "";
-        }
-    }
-
-    public void RollDice()
+    public void StartRoll(Action<string> callback)
     {
         if (isRolling) return;
+
+        onRollComplete = callback;
         isRolling = true;
         currentBottomFace = "";
         babaFace = "";
 
         transform.position = UseBABADice.transform.position;
-        transform.rotation = Random.rotation;
+        transform.rotation = UnityEngine.Random.rotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        Vector3 force = new Vector3(Random.Range(-2f, 2f), 6f, Random.Range(-2f, 2f));
-        Vector3 torque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+        Vector3 force = new Vector3(UnityEngine.Random.Range(-2f, 2f), 6f, UnityEngine.Random.Range(-2f, 2f));
+        Vector3 torque = new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f));
         rb.AddForce(force, ForceMode.Impulse);
         rb.AddTorque(torque, ForceMode.Impulse);
 
@@ -70,6 +72,10 @@ public class BABADiceRoll : MonoBehaviour
             {
                 int top = 7 - bottom; // 対面の数字
                 babaFace = top.ToString();
+
+                DiceCheck();
+
+                onRollComplete?.Invoke(babaFace);
             }
         }
         else
@@ -116,7 +122,5 @@ public class BABADiceRoll : MonoBehaviour
         {
             dice6.SetActive(true);
         }
-
-        babaDice = babaFace;
     }
 }

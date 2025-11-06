@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,7 +7,6 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class DiceRoll : MonoBehaviour
 {
-    public BABADiceRoll babaDiceRoll;
 
     [Header("表示するテキスト")]
     public TextMeshProUGUI textMeshPro;
@@ -16,6 +16,8 @@ public class DiceRoll : MonoBehaviour
     public bool isRolling = false;
     private string currentBottomFace = "";
     private string resultFace = "";
+
+    private Action<string> onRollComplete;
 
     [Header("表示させるサイコロ画像")]
     [SerializeField] private GameObject dice1;
@@ -32,38 +34,22 @@ public class DiceRoll : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
-    {
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            RollDice();
-        }
-
-        if (!isRolling && !string.IsNullOrEmpty(resultFace))
-        {
-            DiceCheck();
-
-            textMeshPro.text = diceScore.ToString();
-            Debug.Log($"出目は {resultFace} です！");
-            resultFace = "";
-        }
-    }
-
-    public void RollDice()
+    public void StartRoll(Action<string> callback)
     {
         if (isRolling) return;
+
+        onRollComplete = callback;
         isRolling = true;
         currentBottomFace = "";
         resultFace = "";
 
         transform.position = UseDice.transform.position;
-        transform.rotation = Random.rotation;
+        transform.rotation = UnityEngine.Random.rotation;
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        Vector3 force = new Vector3(Random.Range(-2f, 2f), 6f, Random.Range(-2f, 2f));
-        Vector3 torque = new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+        Vector3 force = new Vector3(UnityEngine.Random.Range(-2f, 2f), 6f, UnityEngine.Random.Range(-2f, 2f));
+        Vector3 torque = new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f));
         rb.AddForce(force, ForceMode.Impulse);
         rb.AddTorque(torque, ForceMode.Impulse);
 
@@ -80,6 +66,10 @@ public class DiceRoll : MonoBehaviour
             {
                 int top = 7 - bottom; // 対面の数字
                 resultFace = top.ToString();
+
+                DiceCheck();
+
+                onRollComplete?.Invoke(resultFace);
             }
         }
         else
@@ -95,8 +85,6 @@ public class DiceRoll : MonoBehaviour
 
     private void DiceCheck()
     {
-        
-
         dice1.SetActive(false);
         dice2.SetActive(false);
         dice3.SetActive(false);
@@ -134,12 +122,6 @@ public class DiceRoll : MonoBehaviour
         {
             diceScore += 6;
             dice6.SetActive(true);
-        }
-
-        if (resultFace == babaDiceRoll.babaDice)
-        {
-            Destroy(gameObject);
-            Debug.Log($"{UseDice}はBABAダイスを出してしまった・・・");
         }
     }
 }

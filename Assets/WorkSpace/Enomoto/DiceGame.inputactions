@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "name": "DiceGame",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "37eaadc6-d27f-4c4d-8ecf-e19877afe2ed",
+            "actions": [
+                {
+                    "name": "DiceRoll",
+                    "type": "Button",
+                    "id": "e78c026f-5e0a-4117-b0a2-905eac694f8e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ea709333-1911-47f6-bbf4-ad4296567b05",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DiceRoll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

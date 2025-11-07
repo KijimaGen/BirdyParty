@@ -9,8 +9,8 @@ public class DiceFace : MonoBehaviour
     {
         if (other.CompareTag("Ground"))
         {
-            transform.root.GetComponent<DiceRoll>()?.SetBottomFace(faceName);
-            transform.root.GetComponent<BABADiceRoll>()?.SetBottomFace(faceName);
+            transform.GetComponentInParent<DiceRoll>()?.SetBottomFace(faceName);
+            transform.GetComponentInParent<BABADiceRoll>()?.SetBottomFace(faceName);
         }
     }
 }

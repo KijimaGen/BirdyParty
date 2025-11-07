@@ -39,10 +39,14 @@ public class DiceGameManager : MonoBehaviour
     // ゲームで使う内部変数
     private int currentBabaDiceValue;
     private List<PlayerInfo> players;
+    private List<PlayerInfo> playerWaitingForRoll;
     private Dictionary<PlayerInfo, DiceRoll> playerDices = new Dictionary<PlayerInfo, DiceRoll>();
 
     [Header("プレイヤー用ダイス")]
-    public DiceRoll[] assignedPlayerDices = new DiceRoll[4];
+    public GameObject[] assignedDicePrefabs = new GameObject[4];
+
+    [Header("プレイヤー用ダイスの出現位置設定")]
+    public Transform[] playerSpawnPoints = new Transform[4];
 
     [Header("プレイヤースコアの設定")]
     public TextMeshProUGUI[] playerScoreTexts = new TextMeshProUGUI[4];
@@ -62,39 +66,76 @@ public class DiceGameManager : MonoBehaviour
     private void SetupPlayers()
     {
         players = new List<PlayerInfo>();
+
+        if (playerDices.Count > 0)
+        {
+            foreach (var dice in playerDices.Values)
+            {
+                if (dice != null && dice.gameObject != null)
+                {
+                    Destroy(dice.gameObject);
+                }
+            }
+        }
         playerDices.Clear();
 
-        // 設定されたダイスの数を実際の最大プレイヤー数とする
-        if (assignedPlayerDices == null || assignedPlayerDices.Length == 0)
+        if (assignedDicePrefabs == null || assignedDicePrefabs.Length == 0)
         {
-            Debug.LogError("プレイヤーダイスがInspectorで設定されていません。assignedPlayerDicesにDiceRollスクリプトを割り当ててください。", this);
+            Debug.LogError("プレイヤーダイスのPrefabがInspectorで設定されていません。");
             return;
         }
 
-        // 実際に設定されたダイスの数をプレイヤー数とする
         int actualPlayers = 0;
 
         // プレイヤーとダイスを紐づけて登録
-        for (int i = 0; i < assignedPlayerDices.Length; i++)
+        for (int i = 0; i < assignedDicePrefabs.Length; i++)
         {
-            DiceRoll currentDiceScript = assignedPlayerDices[i];
+            GameObject dicePrefab = assignedDicePrefabs[i];
 
-            // スロットにダイスが設定されている場合のみ処理を行う
-            if (currentDiceScript != null)
+            if (dicePrefab != null)
             {
-                actualPlayers++;
+                Vector3 spawnPosition = Vector3.zero;
+                Quaternion spawnRotation = Quaternion.identity;
 
-                PlayerInfo newPlayer = new PlayerInfo(actualPlayers, $"Player {actualPlayers}");
-                players.Add(newPlayer);
+                if (i < playerSpawnPoints.Length && playerSpawnPoints[i] != null)
+                {
+                    spawnPosition = playerSpawnPoints[i].position;
+                    spawnRotation = playerSpawnPoints[i].rotation;
+                }
+                else
+                {
+                    // 出現位置に関しての設定がない場合は以下の位置に出現
+                    spawnPosition = new Vector3(i * 0.1f, 10f, 5f);
+                }
 
-                // Dictionaryに登録し、GameManagerが参照できるようにする
-                playerDices.Add(newPlayer, currentDiceScript);
+                // GameManagerの子要素として生成 (Scene整理のため)
+                GameObject diceObj = Instantiate(dicePrefab, spawnPosition, spawnRotation, this.transform);
 
-                //currentDiceScript.gameObject.SetActive(false);
+                DiceRoll currentDiceScript = diceObj.GetComponent<DiceRoll>();
+
+                
+
+                if (currentDiceScript != null)
+                {
+                    actualPlayers++;
+
+                    PlayerInfo newPlayer = new PlayerInfo(actualPlayers, $"Player {actualPlayers}");
+                    players.Add(newPlayer);
+
+                    playerDices.Add(newPlayer, currentDiceScript);
+
+                    PlayerInputHandler handler = diceObj.AddComponent<PlayerInputHandler>();
+                    handler.PlayerData = newPlayer;
+                    handler.GameManager = this;
+                }
+                else
+                {
+                    Debug.LogError($"Prefab: {dicePrefab.name} に DiceRoll コンポーネントが見つかりません。");
+                    Destroy(diceObj); // 生成したオブジェクトを破棄
+                }
             }
         }
 
-        // プレイヤーが誰もいない場合はエラー
         if (players.Count == 0)
         {
             Debug.LogError("有効なプレイヤーダイスが一つも設定されていません。");
@@ -275,7 +316,7 @@ public class DiceGameManager : MonoBehaviour
             // 1. スコア加算
             player.TotalScore += player.CurrentDiceResult;
 
-            // ★★★ ここでスコアUIを更新 ★★★
+            // ここでスコアUIを更新
             UpdateScoreUIs();
 
             // 2. 脱落判定
@@ -288,7 +329,7 @@ public class DiceGameManager : MonoBehaviour
 
                 resultText.text = $"{player.PlayerName} が脱落！ (出目: {player.CurrentDiceResult} = BABA: {currentBabaDiceValue})";
 
-                // ★★★ 脱落後、UIを再更新して「脱落」表示に切り替え ★★★
+                // 脱落したらUIを再更新して「脱落」表示に切り替え
                 UpdateScoreUIs();
 
                 yield return new WaitForSeconds(3.0f);
@@ -341,5 +382,11 @@ public class DiceGameManager : MonoBehaviour
             rankString += $"{i + 1}位: {p.PlayerName} | スコア: {p.TotalScore} {status}\n";
         }
         resultText.text = rankString;
+    }
+
+    // PlayerInputHandlerより呼びだされる
+    public void HandlePlayerRollInput(PlayerInfo player)
+    {
+        //if (currentState == GameState.PlayerRolling && playerWaitingForRoll.)
     }
 }

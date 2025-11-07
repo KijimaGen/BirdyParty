@@ -36,6 +36,8 @@ public static class GameConst {
 
     //プレイヤーのタグ名
     public static readonly string PLAYER_TAG = "Player";
+    //ドロップゲームのポイントのキーの名前
+    public static readonly string KEY_NAME_POINT = "Point";
 
     #region ミニゲームのシーン名一覧
     public static readonly string RACEGAME_SCENE_NAME = "Race"; 

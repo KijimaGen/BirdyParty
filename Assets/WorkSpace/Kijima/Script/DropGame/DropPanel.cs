@@ -36,7 +36,7 @@ public class DropPanel : MonoBehaviour{
                 return;
 
             if (DropGameManager.instance.CheckingAnswers(myVariation)) {
-                other.GetComponent<DropPlayer>().AddPoint(TO_ADD_SCORE);
+                other.GetComponent<DropPlayer>().SetPoint(other.GetComponent<DropPlayer>().GetPoint() +TO_ADD_SCORE);
                 _ = AudioManager.instance.PlaySE(3);
             }
             else {

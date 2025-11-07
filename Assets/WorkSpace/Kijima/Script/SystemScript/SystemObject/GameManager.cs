@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : SystemObject{
     //ƒIƒ“ƒ‰ƒCƒ“‚©‚Ç‚¤‚©
+    [SerializeField]
     private bool isOnline;
     //
     public static GameManager instance;
@@ -22,10 +23,10 @@ public class GameManager : SystemObject{
     private GameObject OfflineManager;
 
     public override async UniTask Initialize() {
-        isOnline = false;
+        isOnline = true;
         instance = this;
 
-        OfflineManager.SetActive(true);
+        SetIsOnline(true);
 
         await UniTask.CompletedTask;
     }

@@ -1,6 +1,6 @@
 /**
  * @file DropPlayer.cs
- * @brief �h���b�v�Q�[���̃v���C���[
+ * @brief ドロップゲームのプレイヤー
  * @author Sum1r3
  * @date 2025/10/16
  */
@@ -8,91 +8,107 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static GameConst;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 
 [RequireComponent(typeof(Rigidbody))]
-public class DropPlayer : MonoBehaviour {
-    //�ړ����x
+public class DropPlayer : MonoBehaviourPunCallbacks {
+    // 移動速度
     [SerializeField]
     private float moveSpeed = 8f;
 
-    //���͒l
+    // 入力値
     private Vector2 moveInput;
-    //�肬���ǃ{�f�B�̓���
+    // 剛体リジッドボディの参照
     private Rigidbody rb;
 
-    //�I��������ǂ���
+    // 終了したかどうか
     private bool isEnd;
 
     
-    //���g�̔ԍ�
+    // 自分の番号
     public int myNumber { get; private set; }
-    //���g�̏���
+    // 自分の順位
     public int myRank { get; private set; }
 
-    //���g�̃t�H�g���r���[
-    PhotonView photonView;
+    // 自分のフォトンビュー
+    PhotonView PV;
     
-    //���g�̏Փ˂̋���
+    // 自分の衝突の強さ
     [SerializeField]
     private float bounceForce;
 
-    //�}�C�|�C���g
+    // マイポイント
 
     public int myPoint { get; private set; } = 0;
 
-    //�Œ�n�C
+    // 固定ハイ
     private const float SET_Y = 100;
 
+    // プレイヤーのスコア(所有権用)
+
+    // プレイヤーのニックネーム
+    public string myName;
+
     void Start() {
-        //�r���Q���͔F�߂Ȃ�
+        // 途中参加は認めない
         if (DropGameManager.instance.isStart)
             this.gameObject.SetActive(false);
 
-
+        // rbの取得と設定
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-        //���g�̃t�H�g���r���[�擾
-        photonView = GetComponent<PhotonView>();
-        //�J�����̎Q�ƂɎ��g������
+        // 自分のフォトンビュー取得
+        PV = GetComponent<PhotonView>();
+        // カメラの参照に自分を追加
         Camera.main.gameObject.GetComponent<DropGameCameraContoller>().AddTarget(this.transform);
         
         
-        //���g�̔ԍ����擾
+        // 自分の番号を取得
         myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
-        //���g�̎����Ă���|�C���g��0�ɂ���
+        // 自分の持っているポイントを0にする
         myPoint = 0;
         
-        //���g�ɂ��Ă���L�����o�X�̏������������Ăяo��
+        // 自分についているキャンバスの初期化処理を呼び出す
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
-        //�G���g���[
+        // 名前を適用(一時的にカス)
+        PlayerInfomation myInfo = GetComponentInParent<PlayerInfomation>();
+        myName = 'P' + myInfo.myNumber.ToString();
+        // エントリー
         DropGameManager.instance.AddDropper(this);
         
 
-        //�n�܂�
+        // 始まり
         isEnd = false;
 
-        //�ʒu���͂邩�V���
+        // 位置を張るかシラ
         Vector3 startpos = transform.position;
         startpos.y = SET_Y;
         transform.position = startpos;
         
+
+
     }
 
-    //�A�b�v�f�[�g
+    // アップデート
     void FixedUpdate() {
        
-        //�J�n����܂œ����Ă͂Ȃ�Ȃ�
+        // 開始するまで動いてはならない
         if (!DropGameManager.instance.isStart) {
             rb.velocity = Vector3.zero;
             return;
         }
 
-        //�ړ�
-        if (photonView.IsMine && !isEnd)
+        // 移動
+        // オンラインで、自分のキャラのみ動かす
+        if (PV.IsMine && !isEnd)
+            Move();
+        // 移動(オフライン時も動かす)
+        if (!GameManager.instance.IsOnline() && !isEnd)
             Move();
 
-        //�S�[�����Ă���̂ɓ����Ă͂Ȃ�Ȃ�
+        // ゴールしているのに動いてはならない
         if (isEnd) {
             rb.velocity = Vector3.zero;
             transform.eulerAngles = Vector3.zero;
@@ -104,17 +120,18 @@ public class DropPlayer : MonoBehaviour {
 
    
     /// <summary>
-    /// �ړ�
+    /// 移動
     /// </summary>
     private void Move() {
 
         moveInput = GetComponentInParent<PlayerInfomation>().GetLeftStickValue();
-        // ���͒l�̎󂯎��
+        // 入力値の受け取り
         float x = moveInput.x;
         float z = moveInput.y;
+
         
 
-        // ���K�����Ȃ��ł��̂܂ܓK�p
+        // 正規化しないでそのまま適用
         Vector3 moveDir = new Vector3(x, 0, z);
         rb.velocity = moveDir * moveSpeed * Time.deltaTime;
     }
@@ -122,19 +139,39 @@ public class DropPlayer : MonoBehaviour {
     
 
     /// <summary>
-    /// �S�[�����܂���
+    /// ゴールしました
     /// </summary>
     public void End() {
         isEnd = true;
     }
 
 
+    /// <summary>
+    /// トリガーに入った時の処理 正解パネルに飛び込んだらスコア追加
+    /// </summary>
     private void OnTriggerEnter(Collider other) {
+        // 自分のプレイヤーのみ処理
+        if (PV != null && !PV.IsMine) return;
         
+        // 正解パネルに飛び込んだ場合
+        if (other.CompareTag("CorrectPanel")) {
+            // オンラインの場合はDropGameManagerのスコア管理システムを使用
+            if (GameManager.instance.IsOnline()) {
+                Player myPlayer = PV.Owner;
+                DropGameManager.instance.AddPlayerScore(myPlayer, 100);
+                Debug.Log("正解パネルに飛び込みました スコア100点追加");
+            } 
+            // オフラインの場合は直接myPointを更新
+            else {
+                myPoint += 100;
+                DropGameManager.instance.SetPointUI(this);
+                Debug.Log("オフライン 正解パネルに飛び込みました スコア100点追加");
+            }
+        }
     }
 
     /// <summary>
-    /// ���̃v���C���[�������Ԃ�
+    /// 他のプレイヤーと当たり返す
     /// </summary>
     /// <param name="col"></param>
     void OnCollisionEnter(Collision col) {
@@ -142,18 +179,22 @@ public class DropPlayer : MonoBehaviour {
             
         }
 
-        //�����̕���PhotonView�͂��邩�m�F
-        if(photonView == null) return;
-        if (!photonView.IsMine) return;
+        // 念のためPhotonViewはあるか確認
+        if(PV == null) return;
+        if (!PV.IsMine) return;
 
-        //�v���C���[�ɓ��������璵�˕Ԃ���
+        // プレイヤーに当たったら跳ね返す
         if (col.gameObject.CompareTag(PLAYER_TAG)) {
             Vector3 pushDir = (col.transform.position - transform.position).normalized;
             col.gameObject.GetComponent<PhotonView>()
                 .RPC(nameof(ApplyPushBack), RpcTarget.All, pushDir, bounceForce); 
         }
     }
-
+    /// <summary>
+    /// オンラインで跳ね返す
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="power"></param>
     [PunRPC]
     void ApplyPushBack(Vector3 dir, float power) {
         if (rb == null) {
@@ -164,65 +205,124 @@ public class DropPlayer : MonoBehaviour {
         rb.AddForce(dir * power, ForceMode.Impulse);
     }
 
-    //�v���X�{�^�����������Ƃ��Ƀz�X�g��������Q�[���J�n(���̂����Ȃ����\��)
+    // プラスボタンが押されたときにホストがゲーム開始(今のところない可能性)
     public void Plus(InputAction.CallbackContext context) {
         DropGameManager.instance.TryStartCountDown();
     }
 
+
+    #region 各ゲッターセッター
     /// <summary>
-    /// �}�C�i���o�[�������n��
+    /// マイナンバーを渡す
     /// </summary>
     /// <returns></returns>
     public int GetMyNumber() {
-        return photonView.Owner.ActorNumber - 1;
+        // オフライン対応
+        if (!GameManager.instance.IsOnline()) { return 0; }
+        return PV.Owner.ActorNumber - 1;
     }
 
     /// <summary>
-    /// �ʒu�ړ�
+    /// 位置移動
     /// </summary>
     public void SetPosition(Vector3 pos) {
         transform.position = pos;
     }
 
     /// <summary>
-    /// �����L���O���Z�b�g
+    /// ランキングをセット
     /// </summary>
     /// <returns></returns>
     public int GetRank() {
         return myRank;
     }
     /// <summary>
-    /// ���ʂ��Z�b�g
+    /// 順位をセット
     /// </summary>
     /// <param name="rank"></param>
     public void SetRank(int rank) {
         myRank = rank;
     }
 
-    /// <summary>
-    /// �|�C���g���Z
-    /// </summary>
-    /// <param name="point"></param>
-    public void AddPoint(int point) {
-        myPoint += point;
-        DropGameManager.instance.SetPointUI(this);
-    }
+    
 
     /// <summary>
-    /// �|�C���g�Z�b�g(Add�ƕ����Ȃ��Ă悩���������)
+    /// ポイントセット(Addと別にしてよかったかもしれない)
     /// </summary>
     /// <param name="point"></param>
     public void SetPoint(int point) {
         myPoint = point;
         DropGameManager.instance.SetPoint(this);
+        // インターネットで加算
+        AddScoreToOnline();
+        DropGameManager.instance.SetPointUI(this);
     }
 
     /// <summary>
-    /// �|�C���g���グ��
+    /// ポイントを渡す
     /// </summary>
     /// <returns></returns>
     public int GetPoint() {
         return myPoint;
     }
 
+    #endregion
+
+    
+
+    /// <summary>
+    /// 自分のスコアをPhotonのCustomProoertiesに反映する
+    /// </summary>
+    private void AddScoreToOnline() {
+        // 一時的なHashtableを作成
+        // このhashtableはPhoton用で、System.Collections.Hashtableとは別物
+        Hashtable props = new Hashtable();
+
+        // キー名を"Point" + NickNameにして値を格納
+        props[KEY_NAME_POINT + PhotonNetwork.LocalPlayer.NickName] = myPoint;
+
+        // Player(自分)のCustomPropertiesを更新(これで全員に同期される)
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+    }
+
+    /// <summary>
+    /// 誰かがスコア更新を行ったときに呼ばれる処理
+    /// </summary>
+    /// <param name="targetPlayer"></param>
+    /// <param name="changedProps"></param>
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps) {
+        // "Point"が含まれていたら実行
+        if (changedProps.ContainsKey(KEY_NAME_POINT + targetPlayer.NickName)) {
+            int updateScore = (int) changedProps[KEY_NAME_POINT + targetPlayer.NickName];
+            Debug.Log($"[PlayerScore] {targetPlayer.NickName} のスコアが {updateScore} に更新されました");
+
+            if (PhotonNetwork.IsMasterClient) {
+                DropGameManager.instance.UpdateAllScore();
+            }
+        }
+    }
+
+    /// <summary>
+    /// このオブジェクト用のユニークキーを生成する
+    /// </summary>
+    /// <returns>生成したキー</returns>
+    public string GetUniqueKey() {
+        // PhotonViewの所有者を取得
+        Player owner = photonView.Owner;
+
+        if (owner == null) {
+            // 所有者がまだいない場合は警告を出す
+            Debug.LogWarning("PhotonViewに所有者がまだ割り当てられていません");
+            return null;
+        }
+
+        // NickName と UserId を組み合わせてキーを生成
+        // こうすることで、同じ名前のプレイヤーがいても衝突しない
+        string uniqueKey = $"score_{owner.NickName}_{owner.UserId}";
+
+        //  デバッグ表示
+        Debug.Log($"ユニークキー生成: {uniqueKey}");
+
+        return uniqueKey;
+    }
 }

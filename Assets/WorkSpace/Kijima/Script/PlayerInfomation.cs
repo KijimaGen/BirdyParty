@@ -65,7 +65,7 @@ public class PlayerInfomation:MonoBehaviour{
         }
 
         //エントリーしましたテキストを作る
-        if(GameManager.instance.IsOnline())
+        if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
             GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
 
         //自身が消えないようにする
@@ -148,7 +148,7 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <param name="context"></param>
     public void SetLeftStickValue(InputAction.CallbackContext context) {
-        if(GetComponent<PhotonView>().IsMine)
+        if(GetComponent<PhotonView>().IsMine || !GameManager.instance.IsOnline())
             myInputLeftStickValue = context.ReadValue<Vector2>();
     }
 
@@ -157,6 +157,7 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <returns></returns>
     public Vector2 GetLeftStickValue() {
+        
         return myInputLeftStickValue;
     }
 

@@ -49,5 +49,9 @@ public class DebagScript : MonoBehaviourPunCallbacks {
         else {
             roomInfoText.text = "ルーム情報が取得できません。";
         }
+
+        if (PhotonNetwork.IsMasterClient) {
+            roomInfoText.text += "\n貴方がマスターです";
+        }
     }
 }

@@ -13,6 +13,8 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using TMPro;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 
 public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -27,10 +29,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     public bool isStart { get; private set; } = false;
     public bool isEnd { get; private set; } = false;
 
-    //オンラインか否か
-    public bool isOnline;
-
-    // --- 各プレイヤーの開始位置 ---(書き換え予定)
+    // --- 各プレイヤーの開始位置
     private readonly Vector3[] spawnPositions = new Vector3[]
     {
         new Vector3(-1f, 100f, 1.8f),
@@ -47,7 +46,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         new Vector3 (0.6f, 4, -96f),
         new Vector3 (2.6f, 3, -96f)
     };
-
     
     // 落ちる先のパネルのリスト
     
@@ -55,9 +53,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
     // 正解のパネルの種類
     private DropGamePanelVariation TrueAnswerPanel;
-
-    //ドロップゲームのプレイヤーリスト
-    
 
     //登場予定の絵柄のリスト
     [SerializeField]
@@ -84,10 +79,14 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     //ゲームを行った回数
     private int gameCount = 0;
 
+    //プレイヤーのポイントをオンラインで管理する奴
+    private Dictionary<Player,int> playerPoints = new Dictionary<Player,int>();
+
     //定数
     private const int POINT_TEXT_INDEX = 0;
     private const int NUMBER_TEXT_INDEX = 1;
     private const int GAME_END_COUNT = 8;   //ゲームが終わるカウント
+    private const string KEY_NAME_POINT = "PlayerScore";
 
     private async void Awake() {
         instance = this;
@@ -100,6 +99,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             pointUIList[i].SetActive(false);
         }
 
+        //初期スコアを全員分登録
+        foreach (var player in PhotonNetwork.PlayerList) {
+            playerPoints[player] = 0;
+        }
 
         await UniTask.Delay(1000);
         
@@ -140,19 +143,19 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
     }
 
-    // ============================================
-    // ✅ 初期化
-    // ============================================
+    /// <summary>
+    /// 初期化
+    /// </summary>
     public override void OnJoinedRoom() {
         Debug.Log($"Room joined! Player count: {PhotonNetwork.CurrentRoom.PlayerCount}");
     }
 
-    // ============================================
-    // ✅ 全員にカウントダウン合図を送る（オンライン/オフライン対応）
-    // ============================================
+    /// <summary>
+    /// 全員にカウントダウン合図を送る（オンライン/オフライン対応）
+    /// </summary>
     public void TryStartCountDown() {
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
             if (PhotonNetwork.IsMasterClient) {
                 if (isStart) return;
 
@@ -170,6 +173,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         
     }
 
+    /// <summary>
+    /// カウントダウンをRPCで始める
+    /// </summary>
     [PunRPC]
     private async void StartCountDownRPC() {
         if (isStart) return;
@@ -177,9 +183,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         await StartCountDown();
     }
 
-    // ============================================
-    // ✅ カウントダウン
-    // ============================================
+    /// <summary>
+    /// カウントダウン
+    /// </summary>
+    /// <returns></returns>
     private async UniTask StartCountDown() {
         // プレイヤーをスタート位置に置く
         PlayerStartPosSet();
@@ -199,16 +206,17 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
     }
 
-    // ============================================
-    // ✅ プレイヤーの登録
-    // ============================================
+    /// <summary>
+    /// プレイヤーの登録
+    /// </summary>
+    /// <param name="player"></param>
     public void AddDropper(DropPlayer player) {
         droppers.Add(player);
         pointUIList[player.GetMyNumber()].SetActive(true);
         //名前の反映
         int PlayerNumber = player.GetMyNumber();
         TextMeshProUGUI playerText = pointUIList[PlayerNumber].transform.GetChild(NUMBER_TEXT_INDEX).GetComponent<TextMeshProUGUI>();
-        playerText.text = "P" + PlayerNumber.ToString();
+        playerText.text = player.myName;
 
 
         //ポイントを反映してもらう
@@ -226,9 +234,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         return droppers.IndexOf(player);
     }
 
-    // ============================================
-    // ✅ プレイヤーの初期位置・ゴール処理
-    // ============================================
+    /// <summary>
+    /// プレイヤーの初期位置・ゴール処理
+    /// </summary>
     public void PlayerStartPosSet() {
         for (int i = 0; i < droppers.Count; i++) {
             if (droppers[i] == null) continue;
@@ -277,11 +285,13 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         return ranking.IndexOf(player);
     }
 
-    // 🔥 RPCで全員に同期する処理
+    /// <summary>
+    /// RPCで全員に同期する処理
+    /// </summary>
     [PunRPC]
     private void RPC_SetGoal() {
         isEnd = true;
-        Debug.Log("ゴールフラグが全員に伝わった！");
+        
     }
 
     /// <summary>
@@ -347,15 +357,13 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     public void TryLotteryPanel() {
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
             if (PhotonNetwork.IsMasterClient) {
-                Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
                 photonView.RPC(nameof(SetPanel), RpcTarget.All, MakePanelList().Select(v => (int) v).ToArray());
             }
         }
         // オフライン時の処理
         else {
-            Debug.Log("オフライン：パネル再抽選を直接開始");
             SetPanel(MakePanelList().Select(v => (int) v).ToArray());
         }
     }
@@ -379,9 +387,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         //答えのパネルを作ってもらう
         TrySetPanel();
 
-        //画面上のパネルに答えを表示
-        //NextVariationImage.sprite = GetSpriteFromVariation(TrueAnswerPanel);
-
         //パネルの位置をリセット
         PanelObject.ResetPos();
     }
@@ -390,12 +395,15 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// インターネットに合わせたパネルリストからの答えの作成
     /// </summary>
     private void TrySetPanel() {
+
+        //先に作ってあるパネルリストから答えを作成
+        int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
+        TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
+
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
             if (PhotonNetwork.IsMasterClient) {
-                //作ってあるパネルリストから答えを作成
-                int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
-                TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
+                
 
                 Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
                 photonView.RPC(nameof(SetAnswerPanel), RpcTarget.All,(int)TrueAnswerPanel);
@@ -404,7 +412,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // オフライン時の処理
         else {
             Debug.Log("オフライン：パネル再抽選を直接開始");
-            photonView.RPC(nameof(SetAnswerPanel), RpcTarget.All, (int) TrueAnswerPanel);
+            SetAnswerPanel((int) TrueAnswerPanel);
         }
     }
 
@@ -425,12 +433,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // int配列 → enum配列 に戻す
         DropGamePanelVariation[] PanelList =
             variationInts.Select(i => (DropGamePanelVariation) i).ToArray();
-
-        //数が合わないようだったらもらうよ
-        if(dropPanelList.Count != PANEL_MAX) {
-            //どうやってもらおう…()
-
-        }
 
         //先頭から四つ抽出してリストを作成
         for (int i = 0,max = dropPanelList.Count; i < max;i++) {
@@ -500,11 +502,167 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     public void SetPoint(DropPlayer player) {
         for(int i = 0; i < droppers.Count; i++) {
             if (droppers[i] != player) continue;
-            droppers[i].SetPoint(player.GetPoint());
+            
             //UIにもセットする
             SetPointUI(droppers[i]);
 
         }
+    }
+
+    /// <summary>
+    /// 各プレイヤーのカストムプロパティからスコアを再集計
+    /// </summary>
+    public void UpdateAllScore() {
+        //一回リセット
+        playerPoints.Clear();
+        foreach(var player in PhotonNetwork.PlayerList) {
+            //customPropertiesからスコアを取り出す
+            if(player.CustomProperties.TryGetValue(KEY_NAME_POINT,out object scoreObj)) {
+                int point = (int)scoreObj;
+                playerPoints[player] = point;
+            }
+            else {
+                //未設定なら0点
+                playerPoints[player] = 0;
+            }
+        }
+
+        Debug.Log("[DropGameManager]スコア集計完了");
+
+        //集計結果をルーム全体のCustomPropertiesに書き込む
+        if (PhotonNetwork.IsMasterClient) {
+            SyncScoreToRoom();
+        }
+    }
+
+    /// <summary>
+    /// ルーム全体のカスタムプロパティに反映
+    /// </summary>
+    private void SyncScoreToRoom() {
+        Hashtable roomProps = new Hashtable();
+
+        //Hashtalbeは「キー:値」で格納する。プレイヤー名をキーにしてスコアを格納
+        foreach(var kv in playerPoints) {
+            roomProps[kv.Key.NickName] = kv.Value;
+        }
+
+        //カスタムプロパティに反映
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
+
+        Debug.Log("[DropGameManager] スコアをルームに同期レました");
+    }
+
+    /// <summary>
+    /// 誰かが入室したときに呼ばれる
+    /// </summary>
+    /// <param name="newPlayer"></param>
+    public override void OnPlayerEnteredRoom(Player newPlayer) {
+        Debug.Log($"[DropGameManager]{newPlayer.NickName}が入室しました");
+
+        //新規プレイヤーを登録
+        playerPoints[newPlayer] = 0;
+
+        //MasterClientなら全スコアを再送
+        if(PhotonNetwork.IsMasterClient) {
+            SyncScoreToRoom();
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーが退室したときに呼ばれる
+    /// </summary>
+    /// <param name="otherPlayer"></param>
+    public override void OnPlayerLeftRoom(Player otherPlayer) {
+        if(playerPoints.ContainsKey(otherPlayer)) 
+            playerPoints.Remove(otherPlayer);
+
+        //マスタークライアントなら動機
+        if (PhotonNetwork.IsMasterClient)
+            SyncScoreToRoom();
+    }
+
+    /// <summary>
+    /// プレイヤーのスコアを追加（オンライン対応）
+    /// </summary>
+    public void AddPlayerScore(Player player, int score) {
+        if (player == null) return;
+        
+        // オンラインの場合
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+            if (PhotonNetwork.IsMasterClient) {
+                // マスタークライアントがスコアを管理
+                if (!playerPoints.ContainsKey(player)) {
+                    playerPoints[player] = 0;
+                }
+                
+                playerPoints[player] += score;
+                
+                // CustomPropertiesに保存
+                Hashtable props = new Hashtable();
+                props[KEY_NAME_POINT] = playerPoints[player];
+                player.SetCustomProperties(props);
+                
+                // 全員に同期
+                photonView.RPC("SyncPlayerScore", RpcTarget.All, player.ActorNumber, playerPoints[player]);
+                
+                Debug.Log($"{player.NickName}のスコア: {playerPoints[player]}");
+            } else {
+                // マスタークライアントに依頼
+                photonView.RPC("RequestAddScore", RpcTarget.MasterClient, player.ActorNumber, score);
+            }
+        } 
+        // オフラインの場合
+        else {
+            if (!playerPoints.ContainsKey(player)) {
+                playerPoints[player] = 0;
+            }
+            playerPoints[player] += score;
+            Debug.Log($"オフライン - {player.NickName}のスコア: {playerPoints[player]}");
+        }
+    }
+
+    [PunRPC]
+    void RequestAddScore(int playerActorNumber, int score) {
+        Player player = PhotonNetwork.CurrentRoom.GetPlayer(playerActorNumber);
+        if (player != null) {
+            AddPlayerScore(player, score);
+        }
+    }
+
+    [PunRPC]
+    void SyncPlayerScore(int playerActorNumber, int newScore) {
+        Player player = PhotonNetwork.CurrentRoom.GetPlayer(playerActorNumber);
+        if (player != null) {
+            playerPoints[player] = newScore;
+            Debug.Log($"スコア同期: {player.NickName} = {newScore}");
+            
+            // 対応するDropPlayerのUIを更新
+            UpdateDropPlayerUI(playerActorNumber, newScore);
+        }
+    }
+
+    /// <summary>
+    /// DropPlayerのUIを更新 スコアが変更されたらUIに反映する
+    /// </summary>
+    void UpdateDropPlayerUI(int actorNumber, int score) {
+        foreach (var dropper in droppers) {
+            if (dropper != null && dropper.GetComponent<PhotonView>().Owner.ActorNumber == actorNumber) {
+                // DropPlayerのSetPointメソッドは使わずにUIだけ更新する
+                // myPointはprivate setなので直接変更できないため、UIのみ更新
+                SetPointUI(dropper);
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーのスコアを取得
+    /// </summary>
+    public int GetPlayerScore(Player player) {
+        if (playerPoints.ContainsKey(player)) {
+            return playerPoints[player];
+        }
+        return 0;
     }
 
 }

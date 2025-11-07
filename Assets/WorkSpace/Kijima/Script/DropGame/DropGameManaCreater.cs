@@ -19,8 +19,8 @@ public class DropGameManaCreater : MonoBehaviourPunCallbacks {
             return;
 
         if (!GameManager.instance.IsOnline()) {
-            //Instantiate(DropGameManager);
-            //Destroy(this.gameObject);
+            Instantiate(DropGameManager);
+            Destroy(this.gameObject);
         }
     }
 }

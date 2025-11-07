@@ -706,7 +706,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db6a7f73606c57b459f7b88b83526bfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isOnline: 0
   VariationSpriteList:
   - {fileID: 21300000, guid: 9a28032bf3cbe2344ba533f3ebd16230, type: 3}
   - {fileID: 21300000, guid: 4af1971fc81bab545a5d20c08cd0f0a0, type: 3}

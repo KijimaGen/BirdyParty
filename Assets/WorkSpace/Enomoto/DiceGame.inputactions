@@ -3,11 +3,11 @@
     "name": "DiceGame",
     "maps": [
         {
-            "name": "Player",
+            "name": "DiceGame",
             "id": "37eaadc6-d27f-4c4d-8ecf-e19877afe2ed",
             "actions": [
                 {
-                    "name": "DiceRoll",
+                    "name": "Roll",
                     "type": "Button",
                     "id": "e78c026f-5e0a-4117-b0a2-905eac694f8e",
                     "expectedControlType": "",
@@ -24,7 +24,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "DiceRoll",
+                    "action": "Roll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "88e4cde9-72e3-4ab7-85ce-1d496054acc3",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

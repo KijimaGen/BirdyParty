@@ -749,6 +749,82 @@ Transform:
   - {fileID: 1385068636}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &507070830
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 507070832}
+  - component: {fileID: 507070833}
+  m_Layer: 0
+  m_Name: PlayerInputManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &507070832
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507070830}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 15.343942, y: 13.291747, z: 17.029509}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &507070833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 507070830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_NotificationBehavior: 3
+  m_MaxPlayerCount: 4
+  m_AllowJoining: 1
+  m_JoinBehavior: 1
+  m_PlayerJoinedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_PlayerLeftEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_JoinAction:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Join
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: d7a72935-dcbf-418b-8e08-5056b0523d5f
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: -3053661573630643050, guid: 944043d5e189c2d4d82ff215bfe315ee, type: 3}
+  m_PlayerPrefab: {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+  m_SplitScreen: 0
+  m_MaintainAspectRatioInSplitScreen: 0
+  m_FixedNumberOfSplitScreens: -1
+  m_SplitScreenRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &570826101
 GameObject:
   m_ObjectHideFlags: 0
@@ -2026,11 +2102,6 @@ MonoBehaviour:
   currentTurn: 1
   maxTurns: 5
   maxPlayers: 4
-  babaDiceRoll: {fileID: 1691061798}
-  turnText: {fileID: 1732020262972836007}
-  babaDiceText: {fileID: 3465465471386236959}
-  resultText: {fileID: 5877244418568808817}
-  rollButton: {fileID: 0}
   assignedDicePrefabs:
   - {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
   - {fileID: 8114783578644269639, guid: b7300fd350308b14397a31fdab443cd8, type: 3}
@@ -2041,6 +2112,12 @@ MonoBehaviour:
   - {fileID: 367879513}
   - {fileID: 2035925062}
   - {fileID: 1052052322}
+  inputActionAsset: {fileID: -944628639613478452, guid: 944043d5e189c2d4d82ff215bfe315ee, type: 3}
+  babaDiceRoll: {fileID: 1691061798}
+  turnText: {fileID: 1732020262972836007}
+  babaDiceText: {fileID: 3465465471386236959}
+  resultText: {fileID: 5877244418568808817}
+  rollButton: {fileID: 0}
   playerScoreTexts:
   - {fileID: 5707024913233336853}
   - {fileID: 880581028452445464}
@@ -2604,7 +2681,6 @@ MonoBehaviour:
   dice4: {fileID: 3292689128099696751}
   dice5: {fileID: 953833180443697172}
   dice6: {fileID: 2619717781627927932}
-  UseBABADice: {fileID: 1691061791}
 --- !u!1 &1697580891
 GameObject:
   m_ObjectHideFlags: 0
@@ -5732,3 +5808,4 @@ SceneRoots:
   - {fileID: 367879513}
   - {fileID: 2035925062}
   - {fileID: 1052052322}
+  - {fileID: 507070832}

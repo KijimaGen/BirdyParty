@@ -102,7 +102,6 @@ public class DiceRoll : MonoBehaviour
         }
     }
 
-    // ★ 外部から出目を読み取るための関数
     public int GetCurrentResult()
     {
         return lastDiceValue;

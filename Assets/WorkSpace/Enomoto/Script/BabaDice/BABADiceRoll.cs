@@ -23,9 +23,6 @@ public class BABADiceRoll : MonoBehaviour
     [SerializeField] private GameObject dice5;
     [SerializeField] private GameObject dice6;
 
-    // 出現位置のGameObject（Inspectorで設定が必要）
-    [SerializeField] private GameObject UseBABADice;
-
     // Rigidbodyの取得はAwakeで行い、初期化を保証
     void Awake()
     {
@@ -45,17 +42,6 @@ public class BABADiceRoll : MonoBehaviour
         isRolling = true;
         currentBottomFace = "";
         babaFace = "";
-
-        // UseBABADiceがnullでないことを確認
-        if (UseBABADice != null)
-        {
-            transform.position = UseBABADice.transform.position;
-        }
-        else
-        {
-            // Nullの場合、安全のために原点より少し高い位置に配置
-            transform.position = new Vector3(0, 5, 0);
-        }
 
         transform.rotation = UnityEngine.Random.rotation;
         rb.velocity = Vector3.zero;

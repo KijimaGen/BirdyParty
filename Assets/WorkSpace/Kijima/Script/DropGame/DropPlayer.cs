@@ -39,7 +39,6 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     private float bounceForce;
 
     // マイポイント
-
     public int myPoint { get; private set; } = 0;
 
     // 固定ハイ
@@ -54,6 +53,8 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         // 途中参加は認めない
         if (DropGameManager.instance.isStart)
             this.gameObject.SetActive(false);
+
+        
 
         // rbの取得と設定
         rb = GetComponent<Rigidbody>();
@@ -86,8 +87,8 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         Vector3 startpos = transform.position;
         startpos.y = SET_Y;
         transform.position = startpos;
-        
 
+        
 
     }
 
@@ -145,38 +146,16 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         isEnd = true;
     }
 
-
-    /// <summary>
-    /// トリガーに入った時の処理 正解パネルに飛び込んだらスコア追加
-    /// </summary>
-    private void OnTriggerEnter(Collider other) {
-        // 自分のプレイヤーのみ処理
-        if (PV != null && !PV.IsMine) return;
-        
-        // 正解パネルに飛び込んだ場合
-        if (other.CompareTag("CorrectPanel")) {
-            // オンラインの場合はDropGameManagerのスコア管理システムを使用
-            if (GameManager.instance.IsOnline()) {
-                Player myPlayer = PV.Owner;
-                DropGameManager.instance.AddPlayerScore(myPlayer, 100);
-                Debug.Log("正解パネルに飛び込みました スコア100点追加");
-            } 
-            // オフラインの場合は直接myPointを更新
-            else {
-                myPoint += 100;
-                DropGameManager.instance.SetPointUI(this);
-                Debug.Log("オフライン 正解パネルに飛び込みました スコア100点追加");
-            }
-        }
-    }
-
     /// <summary>
     /// 他のプレイヤーと当たり返す
     /// </summary>
     /// <param name="col"></param>
     void OnCollisionEnter(Collision col) {
-        if (GameManager.instance.IsOnline()) {
-            
+        //オフラインだったらこっち
+        if (!GameManager.instance.IsOnline()) {
+            Vector3 pushDir = (col.transform.position - transform.position).normalized;
+            ApplyPushBack(pushDir, bounceForce);
+            return;
         }
 
         // 念のためPhotonViewはあるか確認
@@ -253,9 +232,6 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     public void SetPoint(int point) {
         myPoint = point;
         DropGameManager.instance.SetPoint(this);
-        // インターネットで加算
-        AddScoreToOnline();
-        DropGameManager.instance.SetPointUI(this);
     }
 
     /// <summary>
@@ -270,59 +246,4 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
 
     
 
-    /// <summary>
-    /// 自分のスコアをPhotonのCustomProoertiesに反映する
-    /// </summary>
-    private void AddScoreToOnline() {
-        // 一時的なHashtableを作成
-        // このhashtableはPhoton用で、System.Collections.Hashtableとは別物
-        Hashtable props = new Hashtable();
-
-        // キー名を"Point" + NickNameにして値を格納
-        props[KEY_NAME_POINT + PhotonNetwork.LocalPlayer.NickName] = myPoint;
-
-        // Player(自分)のCustomPropertiesを更新(これで全員に同期される)
-        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
-    }
-
-    /// <summary>
-    /// 誰かがスコア更新を行ったときに呼ばれる処理
-    /// </summary>
-    /// <param name="targetPlayer"></param>
-    /// <param name="changedProps"></param>
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps) {
-        // "Point"が含まれていたら実行
-        if (changedProps.ContainsKey(KEY_NAME_POINT + targetPlayer.NickName)) {
-            int updateScore = (int) changedProps[KEY_NAME_POINT + targetPlayer.NickName];
-            Debug.Log($"[PlayerScore] {targetPlayer.NickName} のスコアが {updateScore} に更新されました");
-
-            if (PhotonNetwork.IsMasterClient) {
-                DropGameManager.instance.UpdateAllScore();
-            }
-        }
-    }
-
-    /// <summary>
-    /// このオブジェクト用のユニークキーを生成する
-    /// </summary>
-    /// <returns>生成したキー</returns>
-    public string GetUniqueKey() {
-        // PhotonViewの所有者を取得
-        Player owner = photonView.Owner;
-
-        if (owner == null) {
-            // 所有者がまだいない場合は警告を出す
-            Debug.LogWarning("PhotonViewに所有者がまだ割り当てられていません");
-            return null;
-        }
-
-        // NickName と UserId を組み合わせてキーを生成
-        // こうすることで、同じ名前のプレイヤーがいても衝突しない
-        string uniqueKey = $"score_{owner.NickName}_{owner.UserId}";
-
-        //  デバッグ表示
-        Debug.Log($"ユニークキー生成: {uniqueKey}");
-
-        return uniqueKey;
-    }
 }

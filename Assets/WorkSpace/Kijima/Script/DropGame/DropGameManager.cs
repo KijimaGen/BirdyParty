@@ -21,7 +21,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     public static DropGameManager instance;
 
     // --- 各種管理 ---
-    private List<DropPlayer> droppers = new List<DropPlayer>();
+    private List<DropPlayer> dropperList = new List<DropPlayer>();
     private List<DropPlayer> ranking = new List<DropPlayer>();
 
     //準備完了かどうか
@@ -79,8 +79,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     //ゲームを行った回数
     private int gameCount = 0;
 
-    //プレイヤーのポイントをオンラインで管理する奴
-    private Dictionary<Player,int> playerPoints = new Dictionary<Player,int>();
+    
 
     //定数
     private const int POINT_TEXT_INDEX = 0;
@@ -99,10 +98,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             pointUIList[i].SetActive(false);
         }
 
-        //初期スコアを全員分登録
-        foreach (var player in PhotonNetwork.PlayerList) {
-            playerPoints[player] = 0;
-        }
+        
 
         await UniTask.Delay(1000);
         
@@ -117,9 +113,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         //始まる前に行いたい処理
         if(!isStart) {
             //全員のポジションを設定
-            for (int i = 0, max = droppers.Count; i < max; i++) {
-                if (droppers[i] == null) continue;
-                droppers[i].SetPosition(spawnPositions[i]);
+            for (int i = 0, max = dropperList.Count; i < max; i++) {
+                if (dropperList[i] == null) continue;
+                dropperList[i].SetPosition(spawnPositions[i]);
             }
         }
 
@@ -211,7 +207,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param name="player"></param>
     public void AddDropper(DropPlayer player) {
-        droppers.Add(player);
+        dropperList.Add(player);
         pointUIList[player.GetMyNumber()].SetActive(true);
         //名前の反映
         int PlayerNumber = player.GetMyNumber();
@@ -231,17 +227,17 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param myName="player"></param>
     /// <returns></returns>
     public int GetPlayerNumber(DropPlayer player) {
-        return droppers.IndexOf(player);
+        return dropperList.IndexOf(player);
     }
 
     /// <summary>
     /// プレイヤーの初期位置・ゴール処理
     /// </summary>
     public void PlayerStartPosSet() {
-        for (int i = 0; i < droppers.Count; i++) {
-            if (droppers[i] == null) continue;
-            int num = droppers[i].GetMyNumber();
-            droppers[i].SetPosition(spawnPositions[num]);
+        for (int i = 0; i < dropperList.Count; i++) {
+            if (dropperList[i] == null) continue;
+            int num = dropperList[i].GetMyNumber();
+            dropperList[i].SetPosition(spawnPositions[num]);
         }
     }
 
@@ -249,9 +245,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// 全員がゴールした後に、表彰台に並べる
     /// </summary>
     public void PlayerGoalPosSet() {
-        for (int i = 0; i < droppers.Count; i++) {
-            if (droppers[i] == null) continue;
-            droppers[i].SetPosition(rankingPositions[droppers[i].myRank]);
+        for (int i = 0; i < dropperList.Count; i++) {
+            if (dropperList[i] == null) continue;
+            dropperList[i].SetPosition(rankingPositions[dropperList[i].myRank]);
         }
     }
 
@@ -261,16 +257,16 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param myName="player"></param>
     public void MakeRanking() {
         //ランキングにプレイヤーのリストを代入
-        ranking = droppers;
+        ranking = dropperList;
         //ランキングの中身をPoint順にソート
         ranking.Sort((p1,p2) => p1.myPoint.CompareTo(p2.myPoint));
         //ランキングをプレイヤーに渡す
-        for(int i = 0,max = droppers.Count; i < max; i++) {
+        for(int i = 0,max = dropperList.Count; i < max; i++) {
             for(int j = 0; j < ranking.Count; j++) {
                 //i番目とj番目が違ったら続行
-                if (droppers[i] != ranking[j]) continue;
+                if (dropperList[i] != ranking[j]) continue;
                 //プレイヤーにランキングを渡す
-                droppers[i].SetRank(GetRankingCount(droppers[i]));
+                dropperList[i].SetRank(GetRankingCount(dropperList[i]));
             }
         }
 
@@ -476,7 +472,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param name="player"></param>
     public void SetPointUI(DropPlayer player) {
         //プレイヤーのポイントをUIのほうに反映
-        pointUIList[player.GetMyNumber()].transform.GetChild(POINT_TEXT_INDEX).GetComponent<TextMeshProUGUI>().text = player.GetPoint().ToString();
+        //pointUIList[player.GetMyNumber()].transform.GetChild(POINT_TEXT_INDEX).GetComponent<TextMeshProUGUI>().text = player.GetPoint().ToString();
     }
 
     /// <summary>
@@ -500,11 +496,11 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param name="player"></param>
     public void SetPoint(DropPlayer player) {
-        for(int i = 0; i < droppers.Count; i++) {
-            if (droppers[i] != player) continue;
+        for(int i = 0; i < dropperList.Count; i++) {
+            if (dropperList[i] != player) continue;
             
             //UIにもセットする
-            SetPointUI(droppers[i]);
+            SetPointUI(dropperList[i]);
 
         }
     }
@@ -513,19 +509,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// 各プレイヤーのカストムプロパティからスコアを再集計
     /// </summary>
     public void UpdateAllScore() {
-        //一回リセット
-        playerPoints.Clear();
-        foreach(var player in PhotonNetwork.PlayerList) {
-            //customPropertiesからスコアを取り出す
-            if(player.CustomProperties.TryGetValue(KEY_NAME_POINT,out object scoreObj)) {
-                int point = (int)scoreObj;
-                playerPoints[player] = point;
-            }
-            else {
-                //未設定なら0点
-                playerPoints[player] = 0;
-            }
-        }
+        
 
         Debug.Log("[DropGameManager]スコア集計完了");
 
@@ -541,11 +525,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private void SyncScoreToRoom() {
         Hashtable roomProps = new Hashtable();
 
-        //Hashtalbeは「キー:値」で格納する。プレイヤー名をキーにしてスコアを格納
-        foreach(var kv in playerPoints) {
-            roomProps[kv.Key.NickName] = kv.Value;
-        }
-
+       
         //カスタムプロパティに反映
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
@@ -559,9 +539,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     public override void OnPlayerEnteredRoom(Player newPlayer) {
         Debug.Log($"[DropGameManager]{newPlayer.NickName}が入室しました");
 
-        //新規プレイヤーを登録
-        playerPoints[newPlayer] = 0;
-
+        
         //MasterClientなら全スコアを再送
         if(PhotonNetwork.IsMasterClient) {
             SyncScoreToRoom();
@@ -573,79 +551,20 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param name="otherPlayer"></param>
     public override void OnPlayerLeftRoom(Player otherPlayer) {
-        if(playerPoints.ContainsKey(otherPlayer)) 
-            playerPoints.Remove(otherPlayer);
-
+        
         //マスタークライアントなら動機
         if (PhotonNetwork.IsMasterClient)
             SyncScoreToRoom();
     }
 
-    /// <summary>
-    /// プレイヤーのスコアを追加（オンライン対応）
-    /// </summary>
-    public void AddPlayerScore(Player player, int score) {
-        if (player == null) return;
-        
-        // オンラインの場合
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
-            if (PhotonNetwork.IsMasterClient) {
-                // マスタークライアントがスコアを管理
-                if (!playerPoints.ContainsKey(player)) {
-                    playerPoints[player] = 0;
-                }
-                
-                playerPoints[player] += score;
-                
-                // CustomPropertiesに保存
-                Hashtable props = new Hashtable();
-                props[KEY_NAME_POINT] = playerPoints[player];
-                player.SetCustomProperties(props);
-                
-                // 全員に同期
-                photonView.RPC("SyncPlayerScore", RpcTarget.All, player.ActorNumber, playerPoints[player]);
-                
-                Debug.Log($"{player.NickName}のスコア: {playerPoints[player]}");
-            } else {
-                // マスタークライアントに依頼
-                photonView.RPC("RequestAddScore", RpcTarget.MasterClient, player.ActorNumber, score);
-            }
-        } 
-        // オフラインの場合
-        else {
-            if (!playerPoints.ContainsKey(player)) {
-                playerPoints[player] = 0;
-            }
-            playerPoints[player] += score;
-            Debug.Log($"オフライン - {player.NickName}のスコア: {playerPoints[player]}");
-        }
-    }
+    
 
-    [PunRPC]
-    void RequestAddScore(int playerActorNumber, int score) {
-        Player player = PhotonNetwork.CurrentRoom.GetPlayer(playerActorNumber);
-        if (player != null) {
-            AddPlayerScore(player, score);
-        }
-    }
-
-    [PunRPC]
-    void SyncPlayerScore(int playerActorNumber, int newScore) {
-        Player player = PhotonNetwork.CurrentRoom.GetPlayer(playerActorNumber);
-        if (player != null) {
-            playerPoints[player] = newScore;
-            Debug.Log($"スコア同期: {player.NickName} = {newScore}");
-            
-            // 対応するDropPlayerのUIを更新
-            UpdateDropPlayerUI(playerActorNumber, newScore);
-        }
-    }
 
     /// <summary>
     /// DropPlayerのUIを更新 スコアが変更されたらUIに反映する
     /// </summary>
     void UpdateDropPlayerUI(int actorNumber, int score) {
-        foreach (var dropper in droppers) {
+        foreach (var dropper in dropperList) {
             if (dropper != null && dropper.GetComponent<PhotonView>().Owner.ActorNumber == actorNumber) {
                 // DropPlayerのSetPointメソッドは使わずにUIだけ更新する
                 // myPointはprivate setなので直接変更できないため、UIのみ更新
@@ -655,14 +574,21 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
     }
 
+    
     /// <summary>
-    /// プレイヤーのスコアを取得
+    /// ユーザー本人のドロッププレイヤーを渡す
     /// </summary>
-    public int GetPlayerScore(Player player) {
-        if (playerPoints.ContainsKey(player)) {
-            return playerPoints[player];
+    /// <returns></returns>
+    public DropPlayer GetMyPlayer() {
+        DropPlayer dropPlayer = null;
+        if (dropperList.Count == 0)
+            return null;
+        for (int i = 0; i < dropperList.Count; i++) {
+            if (dropperList[i].GetComponent<PhotonView>().IsMine)
+                dropPlayer = dropperList[i];
         }
-        return 0;
+
+        return dropPlayer;
     }
 
 }

@@ -30,15 +30,18 @@ public class DropPanel : MonoBehaviour{
     /// <param name="other"></param>
     private void OnTriggerEnter(Collider other) {
         
+        //プレイヤーだったら加算
         if(other.gameObject.tag == PLAYER_TAG) {
 
+            //自身のプレイヤーのみ加算
             if (!other.gameObject.GetComponent<PhotonView>().IsMine)
                 return;
-
+            //正解だったら加算
             if (DropGameManager.instance.CheckingAnswers(myVariation)) {
-                other.GetComponent<DropPlayer>().SetPoint(other.GetComponent<DropPlayer>().GetPoint() +TO_ADD_SCORE);
+                other.GetComponent<DropGameScoreManager>().AddScore(TO_ADD_SCORE);
                 _ = AudioManager.instance.PlaySE(3);
             }
+            //不正解だったら効果音だけ
             else {
                 _=AudioManager.instance.PlaySE(4);
             }

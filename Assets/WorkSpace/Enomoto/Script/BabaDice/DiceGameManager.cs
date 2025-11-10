@@ -97,6 +97,13 @@ public class DiceGameManager : MonoBehaviour
         {
             input.actions = inputActionAsset;
             input.defaultActionMap = "DiceGame";
+
+            InputActionMap map = input.actions.FindActionMap(input.defaultActionMap);
+            if (map != null)
+            {
+                map.Enable();
+                Debug.Log($"Action Map '{input.defaultActionMap}'を有効化しました。");
+            }
         }
 
         // 4. ダイスの出現位置を設定

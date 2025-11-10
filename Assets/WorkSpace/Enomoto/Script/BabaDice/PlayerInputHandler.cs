@@ -4,8 +4,9 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     // GameManagerからPlayerInfoとManagerの参照を設定される
-    public PlayerInfo PlayerData { get; set; }
-    public DiceGameManager GameManager { get; set; }
+
+    public PlayerInfo PlayerData; //{ get; set; }
+    public DiceGameManager GameManager; //{ get; set; }
 
     private PlayerInput playerInput;
     private DiceRoll diceRoll;
@@ -40,6 +41,14 @@ public class PlayerInputHandler : MonoBehaviour
             Debug.Log($"入力検知: {PlayerData.PlayerName} がロールを試行。");
 
             GameManager?.HandlePlayerRollInput(PlayerData);
+        }
+    }
+
+    public void OnTest(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            Debug.Log("【緊急テスト】: OnTestが呼ばれました！");
         }
     }
 }

@@ -190,7 +190,7 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: DiceGame
+  m_DefaultActionMap: 37eaadc6-d27f-4c4d-8ecf-e19877afe2ed
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &6665081733045173341
@@ -205,6 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 130c4de8c0d96ff408f074cfc49eac62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameManager: {fileID: 0}
 --- !u!1 &2418113870696635013
 GameObject:
   m_ObjectHideFlags: 0

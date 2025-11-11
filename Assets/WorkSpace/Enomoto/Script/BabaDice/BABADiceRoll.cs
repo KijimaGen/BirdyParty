@@ -11,6 +11,8 @@ public class BABADiceRoll : MonoBehaviour
     private string currentBottomFace = "";
     private string babaFace = "";
 
+    public int LastDiceValue { get; private set; } = 0;
+
     // GameManagerに結果を通知するためのコールバック
     private Action<string> onRollComplete;
 
@@ -61,7 +63,6 @@ public class BABADiceRoll : MonoBehaviour
     {
         if (rb == null) return;
 
-        // ほぼ停止したら
         if (rb.velocity.magnitude < 0.1f && rb.angularVelocity.magnitude < 0.1f)
         {
             isRolling = false;
@@ -69,14 +70,17 @@ public class BABADiceRoll : MonoBehaviour
             {
                 int top = 7 - bottom;
                 babaFace = top.ToString();
+
+                LastDiceValue = top;
             }
 
-            DiceCheck(); // 画像の更新
-            onRollComplete?.Invoke(babaFace); // GameManagerに結果を通知
+            DiceCheck();
+            onRollComplete?.Invoke(babaFace);
+
+            onRollComplete = null;
         }
         else
         {
-            // 停止していなければ0.5秒後に再チェック
             Invoke(nameof(CheckIfStopped), 0.5f);
         }
     }

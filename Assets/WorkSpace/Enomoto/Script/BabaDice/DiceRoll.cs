@@ -73,11 +73,12 @@ public class DiceRoll : MonoBehaviour
             {
                 int top = 7 - bottom;
                 resultFace = top.ToString();
-                lastDiceValue = top; 
             }
 
-            DiceCheck(); 
-            onRollComplete?.Invoke(resultFace); 
+            DiceCheck();
+            onRollComplete?.Invoke(resultFace);
+
+            onRollComplete = null;
         }
         else
         {
@@ -92,7 +93,6 @@ public class DiceRoll : MonoBehaviour
 
     private void DiceCheck()
     {
-        // ... (元のコードの画像切り替え処理を維持) ...
         GameObject[] dices = { dice1, dice2, dice3, dice4, dice5, dice6 };
         foreach (var d in dices) d.SetActive(false);
 

@@ -41,11 +41,4 @@ public class PlayerInputHandler : MonoBehaviour
             GameManager?.HandlePlayerRollInput(PlayerData);
         
     }
-
-    public void OnTest()
-    {
-        
-            Debug.Log("y‹Ù‹}ƒeƒXƒgz: OnTest‚ªŒÄ‚Î‚ê‚Ü‚µ‚½I");
-        
-    }
 }

@@ -231,7 +231,6 @@ public class DiceGameManager : MonoBehaviour
     {
         int.TryParse(babaFace, out currentBabaDiceValue);
 
-        // 脱落していないプレイヤー全員を今回のロール待ちリストに入れる
         playersWaitingForRoll = players.Where(p => !p.IsEliminated).ToList();
 
         Debug.Log($"OnBabaRollComplete: 待機リストに {playersWaitingForRoll.Count} 人のプレイヤーを追加しました。");
@@ -251,7 +250,11 @@ public class DiceGameManager : MonoBehaviour
 
         DiceRoll dice = playerDices[player];
 
-        resultText.text = $"{player.PlayerName} がサイコロを振ります！";
+        Transform parentTransform = dice.transform.parent;
+        dice.transform.position = parentTransform.position;
+        dice.transform.rotation = parentTransform.rotation;
+
+        resultText.text = $"{player.PlayerName} のダイスロール！";
 
         playersWaitingForRoll.Remove(player);
 
@@ -261,11 +264,14 @@ public class DiceGameManager : MonoBehaviour
             if (int.TryParse(resultFace, out diceValue))
             {
                 player.CurrentDiceResult = diceValue;
+                player.TotalScore += diceValue;
             }
+
+            UpdateScoreUIs();
 
             if (playersWaitingForRoll.Count == 0)
             {
-                UpdateGameState(GameState.CheckResults);
+                HandleResults();
             }
             else
             {
@@ -365,5 +371,46 @@ public class DiceGameManager : MonoBehaviour
             rankString += $"{i + 1}位: {p.PlayerName} | スコア: {p.TotalScore} {status}\n";
         }
         resultText.text = rankString;
+    }
+
+    void HandleResults()
+    {
+        // 状態遷移ガード。既に結果処理に入っていたら多重実行を防ぐ
+        if (currentState == GameState.CheckResults ||
+            currentState == GameState.GameOverCheck ||
+            currentState == GameState.GameFinished)
+        {
+            return;
+        }
+
+        UpdateGameState(GameState.CheckResults); // 状態を CheckResults に設定
+
+        int babaValue = babaDiceRoll.LastDiceValue;
+
+        if (babaValue > 0)
+        {
+            // ... (BABAダイス判定ロジックは維持) ...
+            foreach (var p in players.Where(p => !p.IsEliminated && p.CurrentDiceResult == babaValue))
+            {
+                if (!p.IsEliminated)
+                {
+                    p.IsEliminated = true;
+                    p.EliminationTurn = currentTurn;
+                    p.TotalScore = 0;
+                }
+            }
+        }
+
+        UpdateScoreUIs();
+
+        if (players.Count(p => !p.IsEliminated) <= 1 || currentTurn >= maxTurns)
+        {
+            UpdateGameState(GameState.GameOverCheck);
+        }
+        else
+        {
+            currentTurn++;
+            UpdateGameState(GameState.SetBabaDice);
+        }
     }
 }

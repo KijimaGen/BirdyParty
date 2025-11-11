@@ -375,7 +375,6 @@ public class DiceGameManager : MonoBehaviour
 
     void HandleResults()
     {
-        // 状態遷移ガード。既に結果処理に入っていたら多重実行を防ぐ
         if (currentState == GameState.CheckResults ||
             currentState == GameState.GameOverCheck ||
             currentState == GameState.GameFinished)
@@ -383,13 +382,12 @@ public class DiceGameManager : MonoBehaviour
             return;
         }
 
-        UpdateGameState(GameState.CheckResults); // 状態を CheckResults に設定
+        UpdateGameState(GameState.CheckResults);
 
         int babaValue = babaDiceRoll.LastDiceValue;
 
         if (babaValue > 0)
         {
-            // ... (BABAダイス判定ロジックは維持) ...
             foreach (var p in players.Where(p => !p.IsEliminated && p.CurrentDiceResult == babaValue))
             {
                 if (!p.IsEliminated)

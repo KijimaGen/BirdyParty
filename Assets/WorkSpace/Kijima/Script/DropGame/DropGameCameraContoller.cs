@@ -23,6 +23,10 @@ public class DropGameCameraContoller : MonoBehaviour {
     [Header("カメラの高さとオフセット")]
     public Vector3 offset = new Vector3(0, 20f, -20f);
 
+    //終わった後に行く場所
+    [SerializeField]
+    private readonly Vector3 endPos = new Vector3(-12.5f,3.5f,-18f);
+
     private Vector3 velocity;
     private Camera cam;
 
@@ -43,8 +47,17 @@ public class DropGameCameraContoller : MonoBehaviour {
         if (targets.Count == 0)
             return;
 
-        Move();
-        Zoom();
+        //ゲーム中
+        if (!DropGameManager.instance.isEnd) {
+            Move();
+            Zoom();
+        }
+        //ゲームが終わっているときの処理
+        else {
+            transform.position = endPos;
+            transform.eulerAngles = Vector3.zero;
+        }
+        
     }
 
     void Move() {

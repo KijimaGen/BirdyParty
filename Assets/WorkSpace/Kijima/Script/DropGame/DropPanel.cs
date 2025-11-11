@@ -32,13 +32,30 @@ public class DropPanel : MonoBehaviour{
         
         //プレイヤーだったら加算
         if(other.gameObject.tag == PLAYER_TAG) {
-
             //自身のプレイヤーのみ加算
-            if (!other.gameObject.GetComponent<PhotonView>().IsMine)
+            if (!other.gameObject.GetComponent<PhotonView>().IsMine && GameManager.instance.IsOnline())
                 return;
+
+            
+            
+            
+
             //正解だったら加算
             if (DropGameManager.instance.CheckingAnswers(myVariation)) {
-                other.GetComponent<DropGameScoreManager>().AddScore(TO_ADD_SCORE);
+                //オンラインだった時
+                if (GameManager.instance.IsOnline()) {
+                    Debug.Log("クライアント側で正解処理をパネルが呼び出したよ");
+                    //キャッシュ
+                    var player = other.GetComponent<DropGameScoreManager>();
+                    player.AddScore(TO_ADD_SCORE);
+                }
+                //オフラインだった時
+                else {
+                    //キャッシュ
+                    var player = other.GetComponent<DropPlayer>();
+                    player.SetPoint(player.GetPoint() + TO_ADD_SCORE);
+                }
+                
                 _ = AudioManager.instance.PlaySE(3);
             }
             //不正解だったら効果音だけ

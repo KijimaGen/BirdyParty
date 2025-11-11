@@ -23,10 +23,10 @@ public class GameManager : SystemObject{
     private GameObject OfflineManager;
 
     public override async UniTask Initialize() {
-        isOnline = true;
+        
         instance = this;
 
-        SetIsOnline(true);
+        SetIsOnline(isOnline);
 
         await UniTask.CompletedTask;
     }

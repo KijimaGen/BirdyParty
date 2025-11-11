@@ -27,7 +27,7 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
 
     
     // 自分の番号
-    public int myNumber { get; private set; }
+    public int myPhotonNumber { get; private set; }
     // 自分の順位
     public int myRank { get; private set; }
 
@@ -52,7 +52,7 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     void Start() {
         // 途中参加は認めない
         if (DropGameManager.instance.isStart)
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
 
         
 
@@ -67,7 +67,7 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         
         
         // 自分の番号を取得
-        myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        myPhotonNumber = PhotonNetwork.LocalPlayer.ActorNumber;
         // 自分の持っているポイントを0にする
         myPoint = 0;
         
@@ -78,7 +78,9 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         myName = 'P' + myInfo.myNumber.ToString();
         // エントリー
         DropGameManager.instance.AddDropper(this);
-        
+
+        //マネージャーにポイントを反映してもらう
+        DropGameManager.instance.SetPoint(this);
 
         // 始まり
         isEnd = false;
@@ -110,12 +112,10 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
             Move();
 
         // ゴールしているのに動いてはならない
-        if (isEnd) {
+        if (DropGameManager.instance.isEnd) {
             rb.velocity = Vector3.zero;
             transform.eulerAngles = Vector3.zero;
         }
-
-        
 
     }
 
@@ -196,9 +196,8 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <returns></returns>
     public int GetMyNumber() {
-        // オフライン対応
-        if (!GameManager.instance.IsOnline()) { return 0; }
-        return PV.Owner.ActorNumber - 1;
+        
+        return DropGameManager.instance.GetPlayerNumber(this);
     }
 
     /// <summary>
@@ -241,6 +240,7 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     public int GetPoint() {
         return myPoint;
     }
+
 
     #endregion
 

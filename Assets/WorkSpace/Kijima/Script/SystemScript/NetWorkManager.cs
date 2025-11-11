@@ -454,4 +454,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     public string GetName() {
         return playerName;
     }
+
+    /// <summary>
+    /// ゲームを落とす時に部屋から抜ける
+    /// </summary>
+    private void OnApplicationQuit() {
+        // アプリケーションが終了するとき（ビルド実行時）
+        PhotonNetwork.LeaveRoom();
+    }
 }

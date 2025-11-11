@@ -33,22 +33,21 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private readonly Vector3[] spawnPositions = new Vector3[]
     {
         new Vector3(-1f, 100f, 1.8f),
-        new Vector3(-10, 100f, 1.8f),
-        new Vector3(-10, 100f, -12),
+        new Vector3(10, 100f, 1.8f),
+        new Vector3(10, 100f, -12),
         new Vector3(-1f, 100f, -12)
     };
 
     // --- ゴール後の表示位置 ---(書き換え予定)
     private readonly Vector3[] rankingPositions = new Vector3[]
     {
-        new Vector3 (-3.6f, 6, -96f),
-        new Vector3 (-1.6f, 5, -96f),
-        new Vector3 (0.6f, 4, -96f),
-        new Vector3 (2.6f, 3, -96f)
+        new Vector3 (-14f, 4.7f, 11f),
+        new Vector3 (-12.7f, 4.05f,11f),
+        new Vector3 (-11.35f, 3.4f, 11f),
+        new Vector3 (-10.1f, 2.75f, 11f)
     };
     
     // 落ちる先のパネルのリスト
-    
     private List<DropPanel> dropPanelList = new List<DropPanel>();
 
     // 正解のパネルの種類
@@ -78,8 +77,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
     //ゲームを行った回数
     private int gameCount = 0;
-
-    
 
     //定数
     private const int POINT_TEXT_INDEX = 0;
@@ -136,6 +133,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
                 // オフライン：直接メソッドを呼び出し
                 RPC_SetGoal();
             }
+        }
+        //デバッグだよ
+        if(Input.GetKeyDown(KeyCode.E)) {
+            gameCount++;
         }
     }
 
@@ -282,7 +283,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
-    /// RPCで全員に同期する処理
+    /// RPCで全員に同期するゲームエンド
     /// </summary>
     [PunRPC]
     private void RPC_SetGoal() {
@@ -355,7 +356,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // オンライン時の処理
         if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
             if (PhotonNetwork.IsMasterClient) {
-                photonView.RPC(nameof(SetPanel), RpcTarget.All, MakePanelList().Select(v => (int) v).ToArray());
+                //パネルリストをホストだけ作成
+                var panelList = MakePanelList();
+
+                photonView.RPC(nameof(SetPanel), RpcTarget.All, panelList.Select(v => (int) v).ToArray());
             }
         }
         // オフライン時の処理
@@ -391,15 +395,13 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// インターネットに合わせたパネルリストからの答えの作成
     /// </summary>
     private void TrySetPanel() {
-
-        //先に作ってあるパネルリストから答えを作成
-        int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
-        TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
-
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
+            //部屋のホストだったら抽選を行う
             if (PhotonNetwork.IsMasterClient) {
-                
+                //先に作ってあるパネルリストから答えを作成
+                int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
+                TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
 
                 Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
                 photonView.RPC(nameof(SetAnswerPanel), RpcTarget.All,(int)TrueAnswerPanel);
@@ -407,6 +409,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
         // オフライン時の処理
         else {
+            //先に作ってあるパネルリストから答えを作成
+            int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
+            TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
             Debug.Log("オフライン：パネル再抽選を直接開始");
             SetAnswerPanel((int) TrueAnswerPanel);
         }
@@ -463,6 +468,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param name="answerInt"></param>
     [PunRPC]
     private void SetAnswerPanel(int answerInt) {
+        //答えの設定
+        TrueAnswerPanel = (DropGamePanelVariation) answerInt;
+        //UIに表示
         NextVariationImage.sprite = GetSpriteFromVariation((DropGamePanelVariation) answerInt);
     }
 
@@ -472,7 +480,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param name="player"></param>
     public void SetPointUI(DropPlayer player) {
         //プレイヤーのポイントをUIのほうに反映
-        //pointUIList[player.GetMyNumber()].transform.GetChild(POINT_TEXT_INDEX).GetComponent<TextMeshProUGUI>().text = player.GetPoint().ToString();
+        if(!GameManager.instance.IsOnline())
+            pointUIList[player.GetMyNumber()].transform.GetChild(POINT_TEXT_INDEX).GetComponent<TextMeshProUGUI>().text = player.GetPoint().ToString();
     }
 
     /// <summary>
@@ -509,8 +518,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// 各プレイヤーのカストムプロパティからスコアを再集計
     /// </summary>
     public void UpdateAllScore() {
-        
-
         Debug.Log("[DropGameManager]スコア集計完了");
 
         //集計結果をルーム全体のCustomPropertiesに書き込む
@@ -556,9 +563,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         if (PhotonNetwork.IsMasterClient)
             SyncScoreToRoom();
     }
-
-    
-
 
     /// <summary>
     /// DropPlayerのUIを更新 スコアが変更されたらUIに反映する

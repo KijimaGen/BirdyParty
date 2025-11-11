@@ -47,8 +47,7 @@ public class DropGameScoreManager : MonoBehaviourPunCallbacks {
         // スコアが更新された時だけ処理
         if (changedProps.ContainsKey("score")) {
             int updatedScore = (int) changedProps["score"];
-            Debug.Log($"[PlayerScoreManager] {targetPlayer.NickName} のスコアが {updatedScore} に更新されました");
-
+            
             // スコアボード更新
             DropgameScoreboardUI.Instance?.RefreshUI();
         }

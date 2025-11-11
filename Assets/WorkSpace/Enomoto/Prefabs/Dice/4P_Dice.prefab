@@ -349,8 +349,6 @@ GameObject:
   - component: {fileID: 1455925853623716186}
   - component: {fileID: 5794883655419320835}
   - component: {fileID: 6059927626064569745}
-  - component: {fileID: 2366359763391153339}
-  - component: {fileID: 60230270208515391}
   m_Layer: 0
   m_Name: 4P_Dice
   m_TagString: Untagged
@@ -498,48 +496,6 @@ MonoBehaviour:
   dice5: {fileID: 1459104735343886930}
   dice6: {fileID: 9131741539361675614}
   UseDice: {fileID: 8813499932898797297}
---- !u!114 &2366359763391153339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8813499932898797297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 944043d5e189c2d4d82ff215bfe315ee, type: 3}
-  m_NotificationBehavior: 3
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: DiceGame
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
---- !u!114 &60230270208515391
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8813499932898797297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 130c4de8c0d96ff408f074cfc49eac62, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &9064148667661071195
 GameObject:
   m_ObjectHideFlags: 0

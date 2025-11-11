@@ -15,40 +15,37 @@ public class PlayerInputHandler : MonoBehaviour
     {
         // 1. 必要なコンポーネントを取得
         playerInput = GetComponent<PlayerInput>();
-        diceRoll = GetComponent<DiceRoll>();
+        diceRoll = GetComponent<DiceRoll>(); 
 
         // 2. シーン上の唯一のDiceGameManagerを探す
-        // FindObjectOfTypeはAwake()内で安全に実行できます。
         DiceGameManager manager = FindObjectOfType<DiceGameManager>();
 
-        if (manager != null && playerInput != null && diceRoll != null)
+        if (manager != null && playerInput != null)
         {
-            // 3. Managerに新しいプレイヤーとして自身を登録
-            // この呼び出しにより、PlayerInfoやGameManagerの参照がこのハンドラーに設定される
-            manager.RegisterNewPlayerDice(playerInput, diceRoll, this);
+            // DiceRollはnullの可能性があるが、そのまま渡す
+            manager.TryRegisterNewPlayer(playerInput, diceRoll, this);
         }
         else
         {
-            Debug.LogError("PlayerInputHandler: 必要なコンポーネントまたはDiceGameManagerが見つかりません。Prefabの設定を確認してください。", this);
+            // エラーログを修正: DiceRollがなくてもエラーにしない
+            Debug.LogError("PlayerInputHandler: 必要なコンポーネント(DiceGameManagerまたはPlayerInput)が見つかりません。Prefabの設定を確認してください。", this);
         }
     }
 
     // Input Action Assetで定義したアクション名 'Roll' に対応する関数
-    public void OnRoll(InputValue value)
+    public void OnRoll()
     {
-        if (value.isPressed)
-        {
+        
             Debug.Log($"入力検知: {PlayerData.PlayerName} がロールを試行。");
 
             GameManager?.HandlePlayerRollInput(PlayerData);
-        }
+        
     }
 
-    public void OnTest(InputValue value)
+    public void OnTest()
     {
-        if (value.isPressed)
-        {
+        
             Debug.Log("【緊急テスト】: OnTestが呼ばれました！");
-        }
+        
     }
 }

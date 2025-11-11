@@ -793,7 +793,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NotificationBehavior: 3
+  m_NotificationBehavior: 2
   m_MaxPlayerCount: 4
   m_AllowJoining: 1
   m_JoinBehavior: 1
@@ -814,8 +814,8 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: -3053661573630643050, guid: 944043d5e189c2d4d82ff215bfe315ee, type: 3}
-  m_PlayerPrefab: {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    m_Reference: {fileID: -4965786397888824928, guid: 68e444f9dd426d44395b462a7ef2390c, type: 3}
+  m_PlayerPrefab: {fileID: 9105682438997921561, guid: 59edf5be7d2004c49b9fee29634c2d34, type: 3}
   m_SplitScreen: 0
   m_MaintainAspectRatioInSplitScreen: 0
   m_FixedNumberOfSplitScreens: -1
@@ -2112,7 +2112,7 @@ MonoBehaviour:
   - {fileID: 367879513}
   - {fileID: 2035925062}
   - {fileID: 1052052322}
-  inputActionAsset: {fileID: -944628639613478452, guid: 944043d5e189c2d4d82ff215bfe315ee, type: 3}
+  inputActionAsset: {fileID: -944628639613478452, guid: 68e444f9dd426d44395b462a7ef2390c, type: 3}
   babaDiceRoll: {fileID: 1691061798}
   turnText: {fileID: 1732020262972836007}
   babaDiceText: {fileID: 3465465471386236959}

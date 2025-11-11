@@ -28,16 +28,13 @@ public class DiceGameManager : MonoBehaviour
     [Header("ゲーム設定")]
     public int maxPlayers = 4;
 
-    [Header("プレイヤーダイス (Prefab手動設定)")]
-    // Player Input ManagerがPrefabを使用するため、Inspectorでの設定は必須ではありませんが、
-    // 互換性のため残します。
+    [Header("プレイヤーダイスのPrefab")]
     public GameObject[] assignedDicePrefabs;
 
     [Header("ダイス出現位置 (手動設定)")]
     public Transform[] playerSpawnPoints = new Transform[4];
 
     [Header("Input System 設定")]
-    // Inspectorで.inputactionsファイルを割り当てる
     public InputActionAsset inputActionAsset;
 
     [Header("BABAダイスへの参照")]
@@ -50,7 +47,6 @@ public class DiceGameManager : MonoBehaviour
     public Button rollButton;
 
     [Header("スコア表示UI")]
-    // TextMeshProUGUIを使用
     public TextMeshProUGUI[] playerScoreTexts = new TextMeshProUGUI[4];
 
     private int currentBabaDiceValue;
@@ -70,57 +66,71 @@ public class DiceGameManager : MonoBehaviour
     }
 
     // PlayerInputHandlerから呼ばれる、プレイヤーの登録処理
-    public void RegisterNewPlayerDice(PlayerInput input, DiceRoll diceScript, PlayerInputHandler handler)
+    public void TryRegisterNewPlayer(PlayerInput input, DiceRoll diceScript, PlayerInputHandler handler)
     {
         // 最大プレイヤー数を超えていたら登録しない
         if (players.Count >= maxPlayers)
         {
             Debug.LogWarning("最大プレイヤー数に達しました。");
+            Destroy(input.gameObject); 
             return;
         }
 
-        // プレイヤー数を元に新しいIDを割り当てる
         int newPlayerId = players.Count + 1;
+        int prefabIndex = newPlayerId - 1;
         string newPlayerName = $"Player {newPlayerId}";
 
-        // 1. PlayerInfoを作成し、リストに追加
-        PlayerInfo newPlayer = new PlayerInfo(newPlayerId, newPlayerName);
-        players.Add(newPlayer);
-        playerDices.Add(newPlayer, diceScript);
+        // 1. 新しいダイスとして使用するPrefab (実体) を取得
+        if (prefabIndex >= assignedDicePrefabs.Length || assignedDicePrefabs[prefabIndex] == null)
+        {
+            Debug.LogError($"プレイヤー {newPlayerId} のダイスPrefabが設定されていません (Index: {prefabIndex})。");
+            Destroy(input.gameObject);
+            return;
+        }
+        GameObject actualDicePrefab = assignedDicePrefabs[prefabIndex];
 
-        // 2. PlayerInputHandlerにPlayerInfoとManagerの参照を設定
+        // PlayerInputHandlerはOnRollイベント受付に必要なので残す
+        if (diceScript != null) Destroy(diceScript);
+
+        // コンテナ（親）の名前を設定
+        input.gameObject.name = $"{newPlayerName}_Container";
+
+        // 2. 割り当てられたPrefab (実体) をコンテナの子として生成
+        GameObject actualDiceObject = Instantiate(actualDicePrefab, input.transform);
+        actualDiceObject.name = $"{newPlayerName}_Dice_Actual";
+
+        actualDiceObject.transform.position = input.transform.position;
+        actualDiceObject.transform.rotation = input.transform.rotation;
+
+        // 3. 生成したダイスオブジェクトからDiceRollを取得
+        DiceRoll actualDiceScript = actualDiceObject.GetComponent<DiceRoll>();
+
+        if (actualDiceScript == null)
+        {
+            Debug.LogError($"【致命的エラー】生成されたPrefab '{actualDicePrefab.name}' に DiceRoll コンポーネントがありません。", actualDiceObject);
+            Destroy(input.gameObject);
+            return;
+        }
+
+        // 4. PlayerInfoを作成し、Handlerに設定
+        PlayerInfo newPlayer = new PlayerInfo(newPlayerId, newPlayerName);
         handler.PlayerData = newPlayer;
         handler.GameManager = this;
 
-        // 3. PlayerInputの初期設定
-        if (inputActionAsset != null)
-        {
-            input.actions = inputActionAsset;
-            input.defaultActionMap = "DiceGame";
+        players.Add(newPlayer);
+        playerDices.Add(newPlayer, actualDiceScript);
 
-            InputActionMap map = input.actions.FindActionMap(input.defaultActionMap);
-            if (map != null)
-            {
-                map.Enable();
-                Debug.Log($"Action Map '{input.defaultActionMap}'を有効化しました。");
-            }
-        }
-
-        // 4. ダイスの出現位置を設定
+        // 5. 出現位置設定 (コンテナ（親）を移動させる)
         if (newPlayerId - 1 < playerSpawnPoints.Length && playerSpawnPoints[newPlayerId - 1] != null)
         {
-            diceScript.transform.position = playerSpawnPoints[newPlayerId - 1].position;
-            diceScript.transform.rotation = playerSpawnPoints[newPlayerId - 1].rotation;
+            input.transform.position = playerSpawnPoints[newPlayerId - 1].position;
+            input.transform.rotation = playerSpawnPoints[newPlayerId - 1].rotation;
         }
-
-        // 5. 生成直後はダイスを非表示にしておく 
-        diceScript.gameObject.SetActive(false);
 
         UpdateScoreUIs();
 
-        Debug.Log($"[Input System] 新しいプレイヤーが参加しました: {newPlayerName}");
+        Debug.Log($"[カスタム生成成功] {newPlayerName} が参加しました。");
 
-        // 6. 最初のプレイヤーが参加したらゲームの最初のターンに進む
         if (currentState == GameState.WaitingForPlayers && players.Count >= 1)
         {
             UpdateGameState(GameState.SetBabaDice);
@@ -215,7 +225,6 @@ public class DiceGameManager : MonoBehaviour
 
             StartSinglePlayerRoll(player);
         }
-        // WaitingForPlayers中に押された場合は、RegisterNewPlayerDiceで処理されているためここでは無視
     }
 
     void OnBabaRollComplete(string babaFace)
@@ -241,7 +250,6 @@ public class DiceGameManager : MonoBehaviour
         if (player.IsEliminated) return;
 
         DiceRoll dice = playerDices[player];
-        dice.gameObject.SetActive(true);
 
         resultText.text = $"{player.PlayerName} がサイコロを振ります！";
 
@@ -254,9 +262,6 @@ public class DiceGameManager : MonoBehaviour
             {
                 player.CurrentDiceResult = diceValue;
             }
-
-            // ロールが完了したら、サイコロを非表示に戻す
-            dice.gameObject.SetActive(false);
 
             if (playersWaitingForRoll.Count == 0)
             {
@@ -290,7 +295,7 @@ public class DiceGameManager : MonoBehaviour
             {
                 player.IsEliminated = true;
                 player.EliminationTurn = currentTurn;
-                // dice.gameObject.SetActive(false); // Roll完了時に非表示済み
+                dice.gameObject.SetActive(false);
 
                 resultText.text = $"{player.PlayerName} が脱落！ (出目: {player.CurrentDiceResult} = BABA: {currentBabaDiceValue})";
                 UpdateScoreUIs();

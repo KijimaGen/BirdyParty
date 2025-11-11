@@ -47,7 +47,7 @@ public class DiceRoll : MonoBehaviour
         isRolling = true;
         currentBottomFace = "";
         resultFace = "";
-        lastDiceValue = 0; // ロール開始時にリセット
+        lastDiceValue = 0;
 
         transform.rotation = UnityEngine.Random.rotation;
         rb.velocity = Vector3.zero;
@@ -76,8 +76,8 @@ public class DiceRoll : MonoBehaviour
                 lastDiceValue = top; 
             }
 
-            DiceCheck(); // 画像の更新
-            onRollComplete?.Invoke(resultFace); // GameManagerに結果を通知
+            DiceCheck(); 
+            onRollComplete?.Invoke(resultFace); 
         }
         else
         {

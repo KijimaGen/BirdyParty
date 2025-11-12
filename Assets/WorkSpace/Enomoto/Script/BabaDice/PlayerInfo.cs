@@ -9,11 +9,9 @@ public class PlayerInfo
     public int PlayerID { get; private set; }
     public string PlayerName { get; private set; } 
     public int TotalScore { get; set; } = 0;
-    public bool IsEliminated { get; set; } = false; // 脱落したかどうか
-    public int EliminationTurn { get; set; } = 0;   // 何ターン目に脱落したか
+    public bool IsEliminated { get; set; } = false;
+    public int EliminationTurn { get; set; } = 0;
 
-
-    // １ターン中に出した出目（判定のために一時的に保存）
     public int CurrentDiceResult { get; set; } = 0;
 
     public PlayerInfo(int id, string name)
@@ -24,9 +22,13 @@ public class PlayerInfo
 
     public void Reset()
     { 
-        TotalScore = 0;
         IsEliminated = false;
         EliminationTurn = 0;
+        CurrentDiceResult = 0;
+    }
+
+    public void ResetTurnResult()
+    {
         CurrentDiceResult = 0;
     }
 }

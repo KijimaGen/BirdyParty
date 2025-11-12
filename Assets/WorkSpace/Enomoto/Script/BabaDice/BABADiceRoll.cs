@@ -44,6 +44,7 @@ public class BABADiceRoll : MonoBehaviour
         isRolling = true;
         currentBottomFace = "";
         babaFace = "";
+        LastDiceValue = 0;
 
         transform.rotation = UnityEngine.Random.rotation;
         rb.velocity = Vector3.zero;
@@ -70,13 +71,12 @@ public class BABADiceRoll : MonoBehaviour
             {
                 int top = 7 - bottom;
                 babaFace = top.ToString();
-
                 LastDiceValue = top;
             }
 
             DiceCheck();
-            onRollComplete?.Invoke(babaFace);
 
+            onRollComplete?.Invoke(babaFace);
             onRollComplete = null;
         }
         else

@@ -4,7 +4,8 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using TMPro; 
+using TMPro;
+using Microsoft.Win32.SafeHandles;
 
 // ゲームの状態を定義
 public enum GameState
@@ -54,6 +55,8 @@ public class DiceGameManager : MonoBehaviour
     private Dictionary<PlayerInfo, DiceRoll> playerDices;
     private List<PlayerInfo> playersWaitingForRoll;
 
+    private int playersFinishedRoll = 0;
+    private Coroutine handleResultsRoutine;
 
     void Awake()
     {
@@ -156,6 +159,31 @@ public class DiceGameManager : MonoBehaviour
         UpdateScoreUIs();
     }
 
+    private void StartPlayerTurn()
+    {
+        playersWaitingForRoll.Clear();
+
+        foreach (var p in players.Where(p => !p.IsEliminated))
+        {
+            playersWaitingForRoll.Add(p);
+            p.CurrentDiceResult = 0;
+        }
+
+        playersFinishedRoll = 0;
+
+        UpdateScoreUIs();
+        
+        if (playersWaitingForRoll.Count > 0)
+        {
+            PlayerInfo firstPlayer = playersWaitingForRoll.First();
+            resultText.text = $"ターン {currentTurn} 開始! {firstPlayer.PlayerName} の操作待ちです。";
+        }
+        else
+        {
+            UpdateGameState(GameState.GameOverCheck);
+        }
+    }
+
     public void UpdateGameState(GameState newState)
     {
         currentState = newState;
@@ -197,6 +225,7 @@ public class DiceGameManager : MonoBehaviour
             case GameState.PlayerRolling:
             babaDiceText.text = $"BABAダイス: {currentBabaDiceValue}";
             resultText.text = "各プレイヤーは対応する操作ボタンを押してサイコロを振ってください。";
+            StartPlayerTurn();
             break;
 
             case GameState.CheckResults:
@@ -219,12 +248,17 @@ public class DiceGameManager : MonoBehaviour
     {
         Debug.Log($"ロール試行: {player.PlayerName} | 現在の状態: {currentState} | 待機リストに含まれるか: {playersWaitingForRoll.Contains(player)}");
 
-        if (currentState == GameState.PlayerRolling && playersWaitingForRoll.Contains(player))
-        {
-            Debug.Log($"【ロール開始】: {player.PlayerName}");
+        if (currentState != GameState.PlayerRolling) return;
 
-            StartSinglePlayerRoll(player);
+        if (!playersWaitingForRoll.Contains(player))
+        {
+            resultText.text = $"{player.PlayerName} は既にロール済みか、脱落しています。";
+            return;
         }
+
+        Debug.Log($"【ロール開始】: {player.PlayerName}");
+
+        StartSinglePlayerRoll(player);
     }
 
     void OnBabaRollComplete(string babaFace)
@@ -264,17 +298,31 @@ public class DiceGameManager : MonoBehaviour
             if (int.TryParse(resultFace, out diceValue))
             {
                 player.CurrentDiceResult = diceValue;
-                player.TotalScore += diceValue;
             }
 
             UpdateScoreUIs();
 
-            if (playersWaitingForRoll.Count == 0)
+            playersFinishedRoll++;
+
+            int totalActivePlayers = players.Count(p => !p.IsEliminated);
+
+            if (playersFinishedRoll >= totalActivePlayers)
             {
-                HandleResults();
+                if (handleResultsRoutine == null)
+                {
+                    Debug.Log($"[Turn Manager] 全員完了 ({playersFinishedRoll}/{totalActivePlayers})。コルーチンを起動。");
+                    // 処理を次のフレームまで遅延させるコルーチンを開始
+                    handleResultsRoutine = StartCoroutine(HandleResultsCoroutine());
+                }
+                else
+                {
+                    Debug.LogWarning("[Turn Manager] 既にコルーチン起動済み。多重呼び出しを阻止。");
+                }
             }
             else
             {
+                Debug.Log($"[Turn Manager] ロール完了: {playersFinishedRoll}/{totalActivePlayers}");
+                PlayerInfo nextPlayer = playersWaitingForRoll.First();
                 resultText.text = $"待機中... 次のプレイヤーの操作を待っています。";
             }
         });
@@ -323,7 +371,6 @@ public class DiceGameManager : MonoBehaviour
         }
         else
         {
-            currentTurn++;
             UpdateGameState(GameState.SetBabaDice);
         }
     }
@@ -353,7 +400,6 @@ public class DiceGameManager : MonoBehaviour
 
     void DisplayFinalRanking()
     {
-        // ... (省略: 順位付けロジックは変更なし) ...
         var finalRanking = players
             .OrderBy(p => p.IsEliminated)
             .ThenByDescending(p => p.EliminationTurn)
@@ -373,42 +419,68 @@ public class DiceGameManager : MonoBehaviour
         resultText.text = rankString;
     }
 
-    void HandleResults()
+    private IEnumerator HandleResultsCoroutine()
     {
-        if (currentState == GameState.CheckResults ||
-            currentState == GameState.GameOverCheck ||
-            currentState == GameState.GameFinished)
-        {
-            return;
-        }
+        // 処理を次のフレームまで待機 (多重起動の阻止)
+        yield return null;
 
-        UpdateGameState(GameState.CheckResults);
+        Debug.Log($"[Turn Manager] コルーチン実行開始 (Turn: {currentTurn})");
 
+        // スコア加算とBABA判定
         int babaValue = babaDiceRoll.LastDiceValue;
 
+        // スコア加算
+        foreach (var p in players.Where(p => !p.IsEliminated))
+        {
+            if (p.CurrentDiceResult > 0)
+            {
+                p.TotalScore += p.CurrentDiceResult;
+            }
+        }
+
+        // BABA判定
         if (babaValue > 0)
         {
+            List<PlayerInfo> eliminatedPlayers = new List<PlayerInfo>();
+
             foreach (var p in players.Where(p => !p.IsEliminated && p.CurrentDiceResult == babaValue))
             {
-                if (!p.IsEliminated)
+                p.IsEliminated = true;
+                p.EliminationTurn = currentTurn;
+                p.TotalScore = 0;
+
+                eliminatedPlayers.Add(p);
+            }
+
+            foreach (var p in eliminatedPlayers)
+            {
+                if (playerDices.ContainsKey(p) && playerDices[p] != null)
                 {
-                    p.IsEliminated = true;
-                    p.EliminationTurn = currentTurn;
-                    p.TotalScore = 0;
+                    playerDices[p].gameObject.SetActive(false);
+                    Debug.Log($"[Elimination] {p.PlayerName} が脱落しました。ダイスを非表示にしました。");
                 }
             }
         }
 
         UpdateScoreUIs();
 
-        if (players.Count(p => !p.IsEliminated) <= 1 || currentTurn >= maxTurns)
+        // ターン進行とリザルトチェック
+        bool gameOver = players.Count(p => !p.IsEliminated) <= 1 || currentTurn >= maxTurns;
+
+        if (gameOver)
         {
             UpdateGameState(GameState.GameOverCheck);
         }
         else
         {
             currentTurn++;
+            Debug.Log($"[Turn Manager] 次のターンへ移行: {currentTurn}T");
+
             UpdateGameState(GameState.SetBabaDice);
         }
+
+        // コルーチン参照をクリアしてロックを解除
+        handleResultsRoutine = null;
+        Debug.Log($"[Turn Manager] コルーチン実行終了。ロック解除 (Next Turn: {currentTurn})");
     }
 }

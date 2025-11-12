@@ -35,10 +35,10 @@ public class PlayerInputHandler : MonoBehaviour
     // Input Action Assetで定義したアクション名 'Roll' に対応する関数
     public void OnRoll()
     {
-        
-            Debug.Log($"入力検知: {PlayerData.PlayerName} がロールを試行。");
+          if (diceRoll != null && diceRoll.isRolling) return;
 
-            GameManager?.HandlePlayerRollInput(PlayerData);
-        
+          Debug.Log($"入力検知: {PlayerData.PlayerName} がロールを試行。");
+
+          GameManager?.HandlePlayerRollInput(PlayerData);
     }
 }

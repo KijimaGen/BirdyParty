@@ -62,6 +62,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     //パネルのプレファブ
     [SerializeField]
     private DropGameFrame PanelPrefab;
+    //パネルの参照
     private DropGameFrame PanelObject;
 
     //パネルのマテリアル一覧
@@ -78,6 +79,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     //ゲームを行った回数
     private int gameCount = 0;
 
+    //フレームごと画面上のUI
+    [SerializeField]
+    private GameObject NextVariationUI;
+
     //定数
     private const int POINT_TEXT_INDEX = 0;
     private const int NUMBER_TEXT_INDEX = 1;
@@ -90,16 +95,14 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         //カウントの初期化
         gameCount = 0;
 
-        //ポイントの奴見れないようにするよ～
-        for (int i = 0; i < pointUIList.Count; i++) {
-            pointUIList[i].SetActive(false);
-        }
-
-        
-
+        //ポイントの見た目を切る
+        ToInvisibleScore();
         await UniTask.Delay(1000);
-        
-        
+
+        //パネルを作る
+        PanelObject = Instantiate(PanelPrefab);
+        //パネルの見た目を切る
+        PanelObject.gameObject.SetActive(false);
 
         //ゲームの開始を宣言する！
         //await StartCountDown();
@@ -119,24 +122,20 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // 全員ゴール判定
         //GAME_END_COUNT回やったらおしまい
         if (gameCount == GAME_END_COUNT) {
-            //プレイヤーをポイント順でランキングに入れる
-            MakeRanking();
-            //プレイヤーをランキング順で並べる
-            PlayerGoalPosSet();
-
-            // オンライン時はRPCで同期、オフライン時は直接呼び出し
-            if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
-                // オンライン：RPCで全プレイヤーに送信
-                photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
-            }
-            else {
-                // オフライン：直接メソッドを呼び出し
-                RPC_SetGoal();
-            }
+            GameEnd();
         }
         //デバッグだよ
         if(Input.GetKeyDown(KeyCode.E)) {
             gameCount++;
+        }
+
+        //なんかドロップゲームのパネルリストにフレームが入ってたので抜く
+        // 後ろから削除する
+        for (int i = dropPanelList.Count - 1; i >= 0; i--) {
+            if (dropPanelList[i].gameObject.GetComponent<MeshRenderer>() == null) {
+                Debug.Log($"MeshRendererがないので削除: {dropPanelList[i].gameObject.name}");
+                dropPanelList.RemoveAt(i);
+            }
         }
     }
 
@@ -152,7 +151,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     public void TryStartCountDown() {
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
             if (PhotonNetwork.IsMasterClient) {
                 if (isStart) return;
 
@@ -194,13 +193,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // スタート！
         isStart = true;
 
-        //何でか複数回生成されるバグが見受けられたので規制
-        if(PanelObject == null) {
-            //落ちる先のパネルたちの呼び出しついでに参照の取得
-            PanelObject = Instantiate(PanelPrefab);
-            //パネルの答えの抽選
-            LotteryAnswerVariation();
-        }
+        //パネルの見た目をつける
+        PanelObject.gameObject.SetActive(true);
+        //パネルの答えの抽選
+        LotteryAnswerVariation();
     }
 
     /// <summary>
@@ -211,15 +207,12 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         dropperList.Add(player);
         pointUIList[player.GetMyNumber()].SetActive(true);
         //名前の反映
-        int PlayerNumber = player.GetMyNumber();
-        TextMeshProUGUI playerText = pointUIList[PlayerNumber].transform.GetChild(NUMBER_TEXT_INDEX).GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI playerText = pointUIList[GetPlayerNumber(player)].transform.GetChild(NUMBER_TEXT_INDEX).GetComponent<TextMeshProUGUI>();
+        player.SetName('P' + GetPlayerNumber(player).ToString());
         playerText.text = player.myName;
-
 
         //ポイントを反映してもらう
         SetPointUI(player);
-
-
     }
 
     /// <summary>
@@ -288,7 +281,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     [PunRPC]
     private void RPC_SetGoal() {
         isEnd = true;
-        
     }
 
     /// <summary>
@@ -297,7 +289,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <param name="materialName"></param>
     /// <returns></returns>
     public DropGamePanelVariation GetMyVariationFromMaterial(string materialName) {
-        if (System.Enum.TryParse(materialName, out DropGamePanelVariation variation)) {
+        if (Enum.TryParse(materialName, out DropGamePanelVariation variation)) {
             return variation;
         }
 
@@ -354,17 +346,17 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     public void TryLotteryPanel() {
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom /*&& GameManager.instance.IsOnline()*/) {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
             if (PhotonNetwork.IsMasterClient) {
                 //パネルリストをホストだけ作成
-                var panelList = MakePanelList();
+                var panelList = MakeRandomPanelList();
 
                 photonView.RPC(nameof(SetPanel), RpcTarget.All, panelList.Select(v => (int) v).ToArray());
             }
         }
         // オフライン時の処理
         else {
-            SetPanel(MakePanelList().Select(v => (int) v).ToArray());
+            SetPanel(MakeRandomPanelList().Select(v => (int) v).ToArray());
         }
     }
 
@@ -372,12 +364,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <summary>
     /// 正解のバリエーションの抽選
     /// </summary>
-    
+    [PunRPC]
     public void LotteryAnswerVariation() {
-
         //バリエーションリストをインターネッツで作ってもらう
         TryLotteryPanel();
-
 
         //パネルたちに自分のパネルバリエーション設定処理を呼んでもらってからそれを受け取る
         for (int i = 0, max = dropPanelList.Count; i < max; i++) {
@@ -403,7 +393,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
                 int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
                 TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
 
-                Debug.Log("オンライン：MasterClientがパネル再抽選を開始");
                 photonView.RPC(nameof(SetAnswerPanel), RpcTarget.All,(int)TrueAnswerPanel);
             }
         }
@@ -412,7 +401,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             //先に作ってあるパネルリストから答えを作成
             int randomVal = UnityEngine.Random.Range(0, dropPanelList.Count);
             TrueAnswerPanel = dropPanelList[randomVal].GetPanelVariation();
-            Debug.Log("オフライン：パネル再抽選を直接開始");
             SetAnswerPanel((int) TrueAnswerPanel);
         }
     }
@@ -446,7 +434,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// ランダムにパネルリストを作成
     /// </summary>
     /// <returns></returns>
-    private DropGamePanelVariation[] MakePanelList() {
+    private DropGamePanelVariation[] MakeRandomPanelList() {
         //enumを配列に変換
         DropGamePanelVariation[] RandomVariationList =
         Enum.GetValues(typeof(DropGamePanelVariation))
@@ -567,7 +555,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// <summary>
     /// DropPlayerのUIを更新 スコアが変更されたらUIに反映する
     /// </summary>
-    void UpdateDropPlayerUI(int actorNumber, int score) {
+    public void UpdateDropPlayerUI(int actorNumber, int score) {
         foreach (var dropper in dropperList) {
             if (dropper != null && dropper.GetComponent<PhotonView>().Owner.ActorNumber == actorNumber) {
                 // DropPlayerのSetPointメソッドは使わずにUIだけ更新する
@@ -578,7 +566,6 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
     }
 
-    
     /// <summary>
     /// ユーザー本人のドロッププレイヤーを渡す
     /// </summary>
@@ -593,6 +580,40 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
 
         return dropPlayer;
+    }
+
+    /// <summary>
+    /// ゲーム終了処理まとめ
+    /// </summary>
+    private void GameEnd() {
+        //プレイヤーをポイント順でランキングに入れる
+        MakeRanking();
+        //プレイヤーをランキング順で並べる
+        PlayerGoalPosSet();
+        //ポイントの見た目を切る
+        ToInvisibleScore();
+        //答えの表示も切る
+        NextVariationUI.SetActive(false);
+
+        // オンライン時はRPCで同期、オフライン時は直接呼び出し
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {
+            // オンライン：RPCで全プレイヤーに送信
+            photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
+        }
+        else {
+            // オフライン：直接メソッドを呼び出し
+            RPC_SetGoal();
+        }
+    }
+
+    /// <summary>
+    /// ポイントのボードを見れないようにする処理
+    /// </summary>
+    private void ToInvisibleScore() {
+        //ポイントの奴見れないようにするよ～
+        for (int i = 0; i < pointUIList.Count; i++) {
+            pointUIList[i].SetActive(false);
+        }
     }
 
 }

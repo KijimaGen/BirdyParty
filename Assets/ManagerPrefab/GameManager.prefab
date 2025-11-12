@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3205fac0d17410d4e9bf3d1609dd8278, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isOnline: 0
+  isOnline: 1
   OnlineManager: {fileID: 5247120803235311398}
   OfflineManager: {fileID: 4606853147049938078}
 --- !u!1 &1179723900200895514

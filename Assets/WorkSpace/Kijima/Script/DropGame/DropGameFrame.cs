@@ -5,6 +5,7 @@
  * @date 2025/10/20
  */
 
+using Photon.Pun;
 using UnityEngine;
 
 public class DropGameFrame : MonoBehaviour{
@@ -28,7 +29,15 @@ public class DropGameFrame : MonoBehaviour{
         if(transform.position.y > reLotteryY) {
             DropGameManager.instance.SetGameCount(DropGameManager.instance.GetGameCount() + 1);
 
-            DropGameManager.instance.LotteryAnswerVariation();
+            //オンラインだったら全体に行ってもらう
+            if (GameManager.instance.IsOnline()) {
+                DropGameManager.instance.photonView.RPC("LotteryAnswerVariation", RpcTarget.All);
+            }
+            else {
+                //オフラインだったら個人で行う
+                DropGameManager.instance.LotteryAnswerVariation();
+
+            }
         }
     }
 

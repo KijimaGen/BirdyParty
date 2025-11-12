@@ -24,27 +24,29 @@ public class DropPanel : MonoBehaviour{
         myMeshRendrer = GetComponent<MeshRenderer>();
     }
 
+    private void Update() {
+        //常に自身のバリエーションを反映
+        SetMyVariation();
+    }
+
     /// <summary>
     /// 正解不正解の判定
     /// </summary>
     /// <param name="other"></param>
     private void OnTriggerEnter(Collider other) {
-        
         //プレイヤーだったら加算
         if(other.gameObject.tag == PLAYER_TAG) {
+
             //自身のプレイヤーのみ加算
             if (!other.gameObject.GetComponent<PhotonView>().IsMine && GameManager.instance.IsOnline())
                 return;
 
-            
-            
-            
+            Debug.Log($"自分のバリエーション({myVariation})");
 
             //正解だったら加算
             if (DropGameManager.instance.CheckingAnswers(myVariation)) {
                 //オンラインだった時
                 if (GameManager.instance.IsOnline()) {
-                    Debug.Log("クライアント側で正解処理をパネルが呼び出したよ");
                     //キャッシュ
                     var player = other.GetComponent<DropGameScoreManager>();
                     player.AddScore(TO_ADD_SCORE);
@@ -93,6 +95,10 @@ public class DropPanel : MonoBehaviour{
     /// </summary>
     /// <param name="newMat"></param>
     public void SetMeshRenderer(Material newMat) {
+        //一応nullチェック
+        if(myMeshRendrer == null) {
+            myMeshRendrer = GetComponent<MeshRenderer>();
+        }
         myMeshRendrer.material = newMat;
     }
 }

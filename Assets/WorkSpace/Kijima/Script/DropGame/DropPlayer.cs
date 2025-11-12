@@ -54,8 +54,6 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         if (DropGameManager.instance.isStart)
             gameObject.SetActive(false);
 
-        
-
         // rbの取得と設定
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -64,20 +62,18 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         PV = GetComponent<PhotonView>();
         // カメラの参照に自分を追加
         Camera.main.gameObject.GetComponent<DropGameCameraContoller>().AddTarget(this.transform);
-        
-        
+        // エントリー
+        DropGameManager.instance.AddDropper(this);
+
         // 自分の番号を取得
         myPhotonNumber = PhotonNetwork.LocalPlayer.ActorNumber;
         // 自分の持っているポイントを0にする
         myPoint = 0;
         
+        
+        
         // 自分についているキャンバスの初期化処理を呼び出す
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
-        // 名前を適用(一時的にカス)
-        PlayerInfomation myInfo = GetComponentInParent<PlayerInfomation>();
-        myName = 'P' + myInfo.myNumber.ToString();
-        // エントリー
-        DropGameManager.instance.AddDropper(this);
 
         //マネージャーにポイントを反映してもらう
         DropGameManager.instance.SetPoint(this);
@@ -89,9 +85,6 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         Vector3 startpos = transform.position;
         startpos.y = SET_Y;
         transform.position = startpos;
-
-        
-
     }
 
     // アップデート
@@ -116,6 +109,9 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
             rb.velocity = Vector3.zero;
             transform.eulerAngles = Vector3.zero;
         }
+        // 終わってたらキネマティックを切る也
+        if (DropGameManager.instance.isEnd)
+            rb.isKinematic = false;
 
     }
 
@@ -124,13 +120,10 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     /// 移動
     /// </summary>
     private void Move() {
-
         moveInput = GetComponentInParent<PlayerInfomation>().GetLeftStickValue();
         // 入力値の受け取り
         float x = moveInput.x;
         float z = moveInput.y;
-
-        
 
         // 正規化しないでそのまま適用
         Vector3 moveDir = new Vector3(x, 0, z);
@@ -151,6 +144,10 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param name="col"></param>
     void OnCollisionEnter(Collision col) {
+        //プレイヤーでなかったら、終わってたら処理しない
+        if (col.gameObject.tag == PLAYER_TAG || isEnd)
+            return;
+       
         //オフラインだったらこっち
         if (!GameManager.instance.IsOnline()) {
             Vector3 pushDir = (col.transform.position - transform.position).normalized;
@@ -159,14 +156,14 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         }
 
         // 念のためPhotonViewはあるか確認
-        if(PV == null) return;
+        if (PV == null) return;
         if (!PV.IsMine) return;
 
         // プレイヤーに当たったら跳ね返す
         if (col.gameObject.CompareTag(PLAYER_TAG)) {
             Vector3 pushDir = (col.transform.position - transform.position).normalized;
             col.gameObject.GetComponent<PhotonView>()
-                .RPC(nameof(ApplyPushBack), RpcTarget.All, pushDir, bounceForce); 
+                .RPC(nameof(ApplyPushBack), RpcTarget.All, pushDir, bounceForce);
         }
     }
     /// <summary>
@@ -176,11 +173,10 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     /// <param name="power"></param>
     [PunRPC]
     void ApplyPushBack(Vector3 dir, float power) {
-        if (rb == null) {
+        if (rb == null) 
             rb = GetComponent<Rigidbody>();
-        }
 
-        if (rb != null)
+        //力を加えるよん
         rb.AddForce(dir * power, ForceMode.Impulse);
     }
 
@@ -196,7 +192,6 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <returns></returns>
     public int GetMyNumber() {
-        
         return DropGameManager.instance.GetPlayerNumber(this);
     }
 
@@ -241,9 +236,14 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         return myPoint;
     }
 
+    /// <summary>
+    /// 名前の設定
+    /// </summary>
+    public void SetName(string newName) {
+        // 名前を適用(一時的にカス)
+        myName = newName;
+    }
 
     #endregion
-
-    
 
 }

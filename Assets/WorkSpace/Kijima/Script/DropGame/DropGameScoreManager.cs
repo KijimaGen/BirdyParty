@@ -26,6 +26,7 @@ public class DropGameScoreManager : MonoBehaviourPunCallbacks {
     public void AddScore(int amount) {
         if (!photonView.IsMine) return; // 自分以外のプレイヤーは操作禁止
 
+
         int newScore = myScore + amount;
         SetScore(newScore);
     }
@@ -39,7 +40,6 @@ public class DropGameScoreManager : MonoBehaviourPunCallbacks {
         hash["score"] = myScore;
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
-        Debug.Log($"[PlayerScoreManager] {PhotonNetwork.LocalPlayer.NickName} のスコア更新: {myScore}");
     }
 
     // PlayerのCustomPropertiesが変わった時に呼ばれるコールバック
@@ -47,7 +47,8 @@ public class DropGameScoreManager : MonoBehaviourPunCallbacks {
         // スコアが更新された時だけ処理
         if (changedProps.ContainsKey("score")) {
             int updatedScore = (int) changedProps["score"];
-            
+            //スコアボードにも更新してもらう
+            DropGameManager.instance.UpdateDropPlayerUI(gameObject.GetComponent<PhotonView>().Owner.ActorNumber,updatedScore);
             // スコアボード更新
             DropgameScoreboardUI.Instance?.RefreshUI();
         }

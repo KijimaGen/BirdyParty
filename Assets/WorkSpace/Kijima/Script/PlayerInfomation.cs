@@ -32,6 +32,11 @@ public class PlayerInfomation:MonoBehaviour{
     //レースゲームのプレイヤー
     [SerializeField]
     private GameObject racePlayerPrefab;
+
+    // ダイスのプレイヤー
+    [SerializeField]
+    private GameObject dicePlayerPrefab;
+
     //エントリ～したかどうか
     [SerializeField]
     private bool isEntry = false;
@@ -103,6 +108,11 @@ public class PlayerInfomation:MonoBehaviour{
         if (scene.name == DROPGAME_SCENE_NAME) {
             LoadDropGameScene();
         }
+
+        if (scene.name == DICE_SCENE_NAME)
+        {
+            LoadDiceGameScene();
+        }
     }
     
     /// <summary>
@@ -127,6 +137,11 @@ public class PlayerInfomation:MonoBehaviour{
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
 
+    }
+
+    private void LoadDiceGameScene()
+    {
+        dicePlayerPrefab.SetActive(true);
     }
 
     //タイトル画面でエントリーしたい

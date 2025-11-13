@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 [System.Serializable]
-public class PlayerInfo
+public class PlayerInfo : MonoBehaviour
 {
     public int PlayerID { get; private set; }
     public string PlayerName { get; private set; } 

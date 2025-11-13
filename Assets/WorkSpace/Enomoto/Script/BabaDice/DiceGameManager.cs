@@ -341,8 +341,16 @@ public class DiceGameManager : MonoBehaviour
             DiceRoll dice = playerDices[player];
 
             // 1. ƒXƒRƒA‰ÁŽZ
-            player.TotalScore += player.CurrentDiceResult;
-            UpdateScoreUIs();
+            if (GameManager.instance.IsOnline())
+            {
+                assignedDicePrefabs[player.PlayerID].GetComponent<DiceScoreManager>().AddScore(player.CurrentDiceResult);
+                UpdateScoreUIs();
+            }
+            else
+            {
+                player.TotalScore += player.CurrentDiceResult;
+                UpdateScoreUIs();
+            }
 
             // 2. ’E—Ž”»’è
             if (player.CurrentDiceResult == currentBabaDiceValue)

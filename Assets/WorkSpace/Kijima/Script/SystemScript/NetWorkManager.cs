@@ -76,6 +76,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             //インプットフィールド取得
             nameInputField = GameObject.Find("MakeNameInput");
         }
+           
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyUp(KeyCode.Space)){
+            JoinRoomWithCode(debugRoomCode);
+            Debug.Log("エディターで操作中");
+        }
+        
     }
 
     /// <summary>

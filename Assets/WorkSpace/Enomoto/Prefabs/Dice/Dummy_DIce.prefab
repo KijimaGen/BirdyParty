@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1465903862124816400}
   - component: {fileID: 4132143373243201210}
   - component: {fileID: 5838135295969083703}
+  - component: {fileID: 7886612366820967000}
   m_Layer: 0
   m_Name: Dummy_DIce
   m_TagString: Untagged
@@ -90,6 +91,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 9174aa53-d4f6-402d-adb4-f8de797f7cc8
     m_ActionName: DiceGame/Roll[/Keyboard/space,/XInputControllerWindows/buttonEast]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 59ad56cf-d00c-4f92-b498-afd8d51a3392
+    m_ActionName: DropGame/Plus[/Keyboard/p]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: DiceGame
@@ -108,6 +113,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameManager: {fileID: 0}
+--- !u!114 &7886612366820967000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105682438997921561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a39751f870aad43838e348e3e815de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2637732850230718146
 PrefabInstance:
   m_ObjectHideFlags: 0

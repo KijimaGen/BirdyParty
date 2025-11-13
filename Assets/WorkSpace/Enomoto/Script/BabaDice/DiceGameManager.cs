@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
 using Microsoft.Win32.SafeHandles;
+using Photon.Realtime;
 
 // ƒQ[ƒ€‚Ìó‘Ô‚ğ’è‹`
 public enum GameState

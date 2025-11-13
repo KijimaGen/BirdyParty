@@ -82,8 +82,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     private void Update()
     {
         if(Input.GetKeyUp(KeyCode.Space)){
+            if (PhotonNetwork.InRoom) {
+                return;
+            }
             JoinRoomWithCode(debugRoomCode);
-            Debug.Log("エディターで操作中");
         }
         
     }

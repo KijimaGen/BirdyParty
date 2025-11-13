@@ -47,6 +47,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     //自身のインスタンスを作成
     private void Awake() {
         instance = this;
+        AudioManager.instance.PlayBGM(1);
     }
 
     private void Update() {

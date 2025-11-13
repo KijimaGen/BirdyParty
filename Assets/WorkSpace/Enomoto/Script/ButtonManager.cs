@@ -137,6 +137,9 @@ public class ButtonManager : MonoBehaviour
             photonView.RPC("StartGame", RpcTarget.All, sceneName);
             Debug.Log("マスタークライアントなので全員におくりますた");
         }
+
+        if (!GameManager.instance.IsOnline())
+            StartGame(sceneName);
     }
 
     [PunRPC]
@@ -151,7 +154,7 @@ public class ButtonManager : MonoBehaviour
             GameDataManager.instance.comeBackFromGame = true;
         }
 
-        SceneManager.LoadScene(sceneName);
+        PhotonNetwork.LoadLevel(sceneName);
     }
 
     public void OnExit() {

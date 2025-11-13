@@ -1,6 +1,6 @@
 /**
  * @file DropPlayer.cs
- * @brief ƒhƒƒbƒvƒQ[ƒ€‚ÌƒvƒŒƒCƒ„[
+ * @brief ãƒ‰ãƒ­ãƒƒãƒ—ã‚²ãƒ¼ãƒ ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
  * @author Sum1r3
  * @date 2025/10/16
  */
@@ -8,162 +8,242 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static GameConst;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 
 [RequireComponent(typeof(Rigidbody))]
-public class DropPlayer : MonoBehaviour {
-    //ˆÚ“®‘¬“x
+public class DropPlayer : MonoBehaviourPunCallbacks {
+    // ç§»å‹•é€Ÿåº¦
+    [SerializeField]
     private float moveSpeed = 8f;
 
-    //“ü—Í’l
+    // å…¥åŠ›å€¤
     private Vector2 moveInput;
-    //‚è‚¬‚Á‚Çƒ{ƒfƒB‚Ì“üè
+    // å‰›ä½“ãƒªã‚¸ãƒƒãƒ‰ãƒœãƒ‡ã‚£ã®å‚ç…§
     private Rigidbody rb;
 
-    //I‚í‚Á‚½‚©‚Ç‚¤‚©
+    // çµ‚äº†ã—ãŸã‹ã©ã†ã‹
     private bool isEnd;
 
-    //©g‚Ì–¼‘O
-    private string playerName;
-    //©g‚Ì”Ô†
-    public int myNumber { get; private set; }
-    //©g‚Ì‡ˆÊ
+    
+    // è‡ªåˆ†ã®ç•ªå·
+    public int myPhotonNumber { get; private set; }
+    // è‡ªåˆ†ã®é †ä½
     public int myRank { get; private set; }
 
-    //©g‚ÌƒtƒHƒgƒ“ƒrƒ…[
-    PhotonView photonView;
-    private PlayerInput myInput;
-    //©g‚ÌÕ“Ë‚Ì‹­‚³
+    // è‡ªåˆ†ã®ãƒ•ã‚©ãƒˆãƒ³ãƒ“ãƒ¥ãƒ¼
+    PhotonView PV;
+    
+    // è‡ªåˆ†ã®è¡çªã®å¼·ã•
     [SerializeField]
     private float bounceForce;
 
+    // ãƒã‚¤ãƒã‚¤ãƒ³ãƒˆ
+    public int myPoint { get; private set; } = 0;
+
+    // å›ºå®šãƒã‚¤
+    private const float SET_Y = 100;
+
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ã‚³ã‚¢(æ‰€æœ‰æ¨©ç”¨)
+
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒ‹ãƒƒã‚¯ãƒãƒ¼ãƒ 
+    public string myName;
+
     void Start() {
+        // é€”ä¸­å‚åŠ ã¯èªã‚ãªã„
+        if (DropGameManager.instance.isStart)
+            gameObject.SetActive(false);
+
+        // rbã®å–å¾—ã¨è¨­å®š
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-        //©g‚ÌƒtƒHƒgƒ“ƒrƒ…[æ“¾
-        photonView = GetComponent<PhotonView>();
-        //ƒJƒƒ‰‚ÌQÆ‚É©g‚ğ“ü‚ê‚é
+        // è‡ªåˆ†ã®ãƒ•ã‚©ãƒˆãƒ³ãƒ“ãƒ¥ãƒ¼å–å¾—
+        PV = GetComponent<PhotonView>();
+        // ã‚«ãƒ¡ãƒ©ã®å‚ç…§ã«è‡ªåˆ†ã‚’è¿½åŠ 
         Camera.main.gameObject.GetComponent<DropGameCameraContoller>().AddTarget(this.transform);
+        // ã‚¨ãƒ³ãƒˆãƒªãƒ¼
+        DropGameManager.instance.AddDropper(this);
+
+        // è‡ªåˆ†ã®ç•ªå·ã‚’å–å¾—
+        myPhotonNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        // è‡ªåˆ†ã®æŒã£ã¦ã„ã‚‹ãƒã‚¤ãƒ³ãƒˆã‚’0ã«ã™ã‚‹
+        myPoint = 0;
         
         
-        //©g‚Ì”Ô†‚ğæ“¾
-        myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
         
-        //©g‚É‚Â‚¢‚Ä‚¢‚éƒLƒƒƒ“ƒoƒX‚Ì‰Šú‰»ˆ—‚ğŒÄ‚Ño‚·
+        // è‡ªåˆ†ã«ã¤ã„ã¦ã„ã‚‹ã‚­ãƒ£ãƒ³ãƒã‚¹ã®åˆæœŸåŒ–å‡¦ç†ã‚’å‘¼ã³å‡ºã™
         GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
 
-        //©g‚ÌƒCƒ“ƒvƒbƒgƒVƒXƒeƒ€‚ğæ“¾‚µAƒAƒNƒVƒ‡ƒ“ƒ}ƒbƒv‚ğØ‚è‘Ö‚¦‚é
-        myInput = GetComponent<PlayerInput>();
-        myInput.SwitchCurrentActionMap(DROPGAME_ACTION_NAME);
+        //ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã«ãƒã‚¤ãƒ³ãƒˆã‚’åæ˜ ã—ã¦ã‚‚ã‚‰ã†
+        DropGameManager.instance.SetPoint(this);
 
-        myInput.SwitchCurrentActionMap(DROPGAME_ACTION_NAME);
-
-        //n‚Ü‚è
+        // å§‹ã¾ã‚Š
         isEnd = false;
 
-        //ˆÊ’u‚ğ‚Í‚é‚©“V‹ó‚Ö
+        // ä½ç½®ã‚’å¼µã‚‹ã‹ã‚·ãƒ©
         Vector3 startpos = transform.position;
-        startpos.y = 100;
+        startpos.y = SET_Y;
         transform.position = startpos;
-        
     }
 
-    //ƒAƒbƒvƒf[ƒg
+    // ã‚¢ãƒƒãƒ—ãƒ‡ãƒ¼ãƒˆ
     void FixedUpdate() {
        
-        //ŠJn‚·‚é‚Ü‚Å“®‚¢‚Ä‚Í‚È‚ç‚È‚¢
-        //if (!DropGameManager.instance.isStart) {
-        //    rb.velocity = Vector3.zero;
-        //    return;
-        //}
+        // é–‹å§‹ã™ã‚‹ã¾ã§å‹•ã„ã¦ã¯ãªã‚‰ãªã„
+        if (!DropGameManager.instance.isStart) {
+            rb.velocity = Vector3.zero;
+            return;
+        }
 
-        //ˆÚ“®
-        if (photonView.IsMine && !isEnd)
+        // ç§»å‹•
+        // ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ã§ã€è‡ªåˆ†ã®ã‚­ãƒ£ãƒ©ã®ã¿å‹•ã‹ã™
+        if (PV.IsMine && !isEnd)
+            Move();
+        // ç§»å‹•(ã‚ªãƒ•ãƒ©ã‚¤ãƒ³æ™‚ã‚‚å‹•ã‹ã™)
+        if (!GameManager.instance.IsOnline() && !isEnd)
             Move();
 
-        //ƒS[ƒ‹‚µ‚Ä‚¢‚é‚Ì‚É“®‚¢‚Ä‚Í‚È‚ç‚È‚¢
-        if (isEnd) {
+        // ã‚´ãƒ¼ãƒ«ã—ã¦ã„ã‚‹ã®ã«å‹•ã„ã¦ã¯ãªã‚‰ãªã„
+        if (DropGameManager.instance.isEnd) {
             rb.velocity = Vector3.zero;
             transform.eulerAngles = Vector3.zero;
         }
-
+        // çµ‚ã‚ã£ã¦ãŸã‚‰ã‚­ãƒãƒãƒ†ã‚£ãƒƒã‚¯ã‚’åˆ‡ã‚‹ä¹Ÿ
+        if (DropGameManager.instance.isEnd)
+            rb.isKinematic = false;
 
     }
 
-    //ƒCƒ“ƒvƒbƒgƒVƒXƒeƒ€‚Ì“ü—Í’l‚Ìó‚¯æ‚è
-    public void OnMove(InputAction.CallbackContext context) {
-        moveInput = context.ReadValue<Vector2>();
-    }
-
+   
     /// <summary>
-    /// ˆÚ“®
+    /// ç§»å‹•
     /// </summary>
     private void Move() {
-
-
-        // “ü—Í’l‚Ìó‚¯æ‚è
+        moveInput = GetComponentInParent<PlayerInfomation>().GetLeftStickValue();
+        // å…¥åŠ›å€¤ã®å—ã‘å–ã‚Š
         float x = moveInput.x;
         float z = moveInput.y;
-        //float y = -1;
 
-        // ³‹K‰»‚µ‚È‚¢‚Å‚»‚Ì‚Ü‚Ü“K—p
+        // æ­£è¦åŒ–ã—ãªã„ã§ãã®ã¾ã¾é©ç”¨
         Vector3 moveDir = new Vector3(x, 0, z);
-        rb.velocity = moveDir * moveSpeed;
+        rb.velocity = moveDir * moveSpeed * Time.deltaTime;
     }
 
     
 
     /// <summary>
-    /// ƒS[ƒ‹‚µ‚Ü‚µ‚½
+    /// ã‚´ãƒ¼ãƒ«ã—ã¾ã—ãŸ
     /// </summary>
     public void End() {
         isEnd = true;
     }
 
-
-    private void OnTriggerEnter(Collider other) {
-        
-    }
-
-    private void OnCollisionEnter(Collision collision) {
-        if (photonView == null) return;
-        if (!photonView.IsMine) return; //‘¼l‚ÌƒvƒŒƒCƒ„[‚Å‚Íˆ—‚µ‚È‚¢
-        if (!collision.gameObject.CompareTag("Player")) return; //ƒvƒŒƒCƒ„[ˆÈŠO‚É‚Ô‚Â‚©‚Á‚Ä‚àˆ—‚µ‚È‚¢
-
-        Rigidbody rb = GetComponent<Rigidbody>();
-        Rigidbody otherRb = collision.rigidbody;
-
-        if (otherRb == null) return;
-
-        //‘Šè‚Æ‚Ì•ûŒüƒxƒNƒgƒ‹‚ğæ“¾
-        Vector3 dir = (transform.position - collision.transform.position).normalized;
-
-        //©g‚Æ‘Šè‚Ì—¼•û‚É’µ‚Ë•Ô‚è‚ğ—^‚¦‚é
-        rb.AddForce(dir * bounceForce, ForceMode.Impulse);
-        otherRb.AddForce(-dir * bounceForce, ForceMode.Impulse);
-    }
-
-    //ƒvƒ‰ƒXƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½‚Æ‚«‚ÉƒzƒXƒg‚¾‚Á‚½‚çƒQ[ƒ€ŠJn(‚»‚Ì‚¤‚¿‚È‚­‚·—\’è)
-    public void Plus(InputAction.CallbackContext context) {
-        RaceManager_PUN.instance.TryStartCountDown();
-    }
-
     /// <summary>
-    /// ƒ}ƒCƒiƒ“ƒo[‚ğˆø‚«“n‚·
+    /// ä»–ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨å½“ãŸã‚Šè¿”ã™
+    /// </summary>
+    /// <param name="col"></param>
+    void OnCollisionEnter(Collision col) {
+        //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã§ãªã‹ã£ãŸã‚‰ã€çµ‚ã‚ã£ã¦ãŸã‚‰å‡¦ç†ã—ãªã„
+        if (col.gameObject.tag == PLAYER_TAG || isEnd)
+            return;
+       
+        //ã‚ªãƒ•ãƒ©ã‚¤ãƒ³ã ã£ãŸã‚‰ã“ã£ã¡
+        if (!GameManager.instance.IsOnline()) {
+            Vector3 pushDir = (col.transform.position - transform.position).normalized;
+            ApplyPushBack(pushDir, bounceForce);
+            return;
+        }
+
+        // å¿µã®ãŸã‚PhotonViewã¯ã‚ã‚‹ã‹ç¢ºèª
+        if (PV == null) return;
+        if (!PV.IsMine) return;
+
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«å½“ãŸã£ãŸã‚‰è·³ã­è¿”ã™
+        if (col.gameObject.CompareTag(PLAYER_TAG)) {
+            Vector3 pushDir = (col.transform.position - transform.position).normalized;
+            col.gameObject.GetComponent<PhotonView>()
+                .RPC(nameof(ApplyPushBack), RpcTarget.All, pushDir, bounceForce);
+        }
+    }
+    /// <summary>
+    /// ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ã§è·³ã­è¿”ã™
+    /// </summary>
+    /// <param name="dir"></param>
+    /// <param name="power"></param>
+    [PunRPC]
+    void ApplyPushBack(Vector3 dir, float power) {
+        if (rb == null) 
+            rb = GetComponent<Rigidbody>();
+
+        //åŠ›ã‚’åŠ ãˆã‚‹ã‚ˆã‚“
+        rb.AddForce(dir * power, ForceMode.Impulse);
+    }
+
+    // ãƒ—ãƒ©ã‚¹ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã¨ãã«ãƒ›ã‚¹ãƒˆãŒã‚²ãƒ¼ãƒ é–‹å§‹(ä»Šã®ã¨ã“ã‚ãªã„å¯èƒ½æ€§)
+    public void Plus(InputAction.CallbackContext context) {
+        DropGameManager.instance.TryStartCountDown();
+    }
+
+
+    #region å„ã‚²ãƒƒã‚¿ãƒ¼ã‚»ãƒƒã‚¿ãƒ¼
+    /// <summary>
+    /// ãƒã‚¤ãƒŠãƒ³ãƒãƒ¼ã‚’æ¸¡ã™
     /// </summary>
     /// <returns></returns>
     public int GetMyNumber() {
-        return photonView.Owner.ActorNumber - 1;
+        return DropGameManager.instance.GetPlayerNumber(this);
     }
 
     /// <summary>
-    /// ˆÊ’uˆÚ“®
+    /// ä½ç½®ç§»å‹•
     /// </summary>
     public void SetPosition(Vector3 pos) {
         transform.position = pos;
     }
 
+    /// <summary>
+    /// ãƒ©ãƒ³ã‚­ãƒ³ã‚°ã‚’ã‚»ãƒƒãƒˆ
+    /// </summary>
+    /// <returns></returns>
     public int GetRank() {
         return myRank;
     }
+    /// <summary>
+    /// é †ä½ã‚’ã‚»ãƒƒãƒˆ
+    /// </summary>
+    /// <param name="rank"></param>
+    public void SetRank(int rank) {
+        myRank = rank;
+    }
+
+    
+
+    /// <summary>
+    /// ãƒã‚¤ãƒ³ãƒˆã‚»ãƒƒãƒˆ(Addã¨åˆ¥ã«ã—ã¦ã‚ˆã‹ã£ãŸã‹ã‚‚ã—ã‚Œãªã„)
+    /// </summary>
+    /// <param name="point"></param>
+    public void SetPoint(int point) {
+        myPoint = point;
+        DropGameManager.instance.SetPoint(this);
+    }
+
+    /// <summary>
+    /// ãƒã‚¤ãƒ³ãƒˆã‚’æ¸¡ã™
+    /// </summary>
+    /// <returns></returns>
+    public int GetPoint() {
+        return myPoint;
+    }
+
+    /// <summary>
+    /// åå‰ã®è¨­å®š
+    /// </summary>
+    public void SetName(string newName) {
+        // åå‰ã‚’é©ç”¨(ä¸€æ™‚çš„ã«ã‚«ã‚¹)
+        myName = newName;
+    }
+
+    #endregion
+
 }

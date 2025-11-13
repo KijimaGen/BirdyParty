@@ -562,19 +562,16 @@ PrefabInstance:
       addedObject: {fileID: 6662441150995483705}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6626891251866940427}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7592914102364212275}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5295626013140102789}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -4562166029860050232}
+      addedObject: {fileID: 8952860643343361704}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1403858468917260252}
+      addedObject: {fileID: 6968464810025448023}
   m_SourcePrefab: {fileID: 100100000, guid: 499fdf98bc1539e4c819bfc840a0afc1, type: 3}
 --- !u!1 &3844068033944646966 stripped
 GameObject:
@@ -595,73 +592,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boostEffect: {fileID: 5589407954798139204, guid: 8aef91ff22719194daeb49deb63cc81c, type: 3}
   slowEffect: {fileID: 765015981913960131, guid: 56d088be2dfd29849b93ba7b8d8f158f, type: 3}
+  photonView: {fileID: 0}
+  PVIsMine: 0
   PlayerIsMine: {fileID: 7639343356926779512}
---- !u!114 &6626891251866940427
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3844068033944646966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 68e444f9dd426d44395b462a7ef2390c, type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6662441150995483705}
-        m_TargetAssemblyTypeName: RacePlayer, Assembly-CSharp
-        m_MethodName: OnMove
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: bb0b8160-83c1-4366-9e7d-298ebcbe00c7
-    m_ActionName: RaceGame/UpDown[/XInputControllerWindows/leftStick,/XInputControllerWindows1/leftStick]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6662441150995483705}
-        m_TargetAssemblyTypeName: RacePlayer, Assembly-CSharp
-        m_MethodName: Plus
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 7159fa62-257f-4aef-99ad-a367b708f7da
-    m_ActionName: RaceGame/Plus[/XInputControllerWindows/start,/XInputControllerWindows1/start,/XInputControllerWindows2/start]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 92871114-e17e-402f-a69a-7cee429e01e1
-    m_ActionName: DropGame/Move[/XInputControllerWindows/leftStick,/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: RaceGame
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!54 &7592914102364212275
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -712,7 +645,7 @@ CapsuleCollider:
   m_Height: 4.18
   m_Direction: 1
   m_Center: {x: -0.2, y: -0.36, z: -0.04}
---- !u!114 &-4562166029860050232
+--- !u!114 &8952860643343361704
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -729,13 +662,13 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 0
+  observableSearch: 2
   ObservedComponents:
-  - {fileID: 1403858468917260252}
+  - {fileID: 6968464810025448023}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &1403858468917260252
+--- !u!114 &6968464810025448023
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -23,7 +23,8 @@ public class PlayerInfomation:MonoBehaviour{
     //自分のskin
     public SkinVariation mySkin;
     //自分の番号
-    public int myNumber { get; private set; }
+    
+    public int myNumber;
 
     //自身のフォトンビュー
     PhotonView photonView;
@@ -55,7 +56,8 @@ public class PlayerInfomation:MonoBehaviour{
 
         //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
         PlayerInput playerInput = transform.GetChild(0).GetComponent<PlayerInput>();
-        VirtualMouseManager.instance.OnPlayerJoined(playerInput);
+        if(VirtualMouseManager.instance != null)
+            VirtualMouseManager.instance.OnPlayerJoined(playerInput);
         if (GameManager.instance.IsOnline()) {
             //名前の取得
             myName = NetworkManager.instance.GetName();
@@ -63,11 +65,23 @@ public class PlayerInfomation:MonoBehaviour{
         }
 
         //エントリーしましたテキストを作る
-        if(GameManager.instance.IsOnline())
-            GameDataManager.instance.GetComponent<PhotonView>().RPC("InstantiateNameBox", RpcTarget.All, myName);
+        if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
+            GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);
+    }
+
+    // 簡単な切断検知
+    void Update() {
+        if (!GameManager.instance.IsOnline())
+            return;
+
+        if (!PhotonNetwork.IsConnected) {
+            Debug.Log("接続が切れています");
+            // 切断時の処理
+            Destroy(gameObject); return;
+        }
     }
 
     //自身が消えるときにコールバックを止める
@@ -100,16 +114,14 @@ public class PlayerInfomation:MonoBehaviour{
         // 子オブジェクトの孫を順番に破壊
         foreach (Transform grandChild in transform) {
             if (grandChild != null)
-                Destroy(grandChild.gameObject);
+                grandChild.gameObject.SetActive(false);
         }
     }
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-        GameObject racePlayer = Instantiate(racePlayerPrefab, transform);
-
-        // 所有権を特定のプレイヤーに移譲
-        //photonView.TransferOwnership(racePlayer.GetComponents<PhotonView>());
+        
+        racePlayerPrefab.SetActive(true);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
@@ -119,6 +131,9 @@ public class PlayerInfomation:MonoBehaviour{
 
     //タイトル画面でエントリーしたい
     public void Plus(InputAction.CallbackContext context) {
+        if (GameDataManager.instance == null)
+            return;
+
         if(GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
             GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
             isEntry = true ;
@@ -133,7 +148,8 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <param name="context"></param>
     public void SetLeftStickValue(InputAction.CallbackContext context) {
-        myInputLeftStickValue = context.ReadValue<Vector2>();
+        if(GetComponent<PhotonView>().IsMine || !GameManager.instance.IsOnline())
+            myInputLeftStickValue = context.ReadValue<Vector2>();
     }
 
     /// <summary>
@@ -141,6 +157,7 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <returns></returns>
     public Vector2 GetLeftStickValue() {
+        
         return myInputLeftStickValue;
     }
 

@@ -230,7 +230,6 @@ public class DiceGameManager : MonoBehaviour
 
             case GameState.CheckResults:
             resultText.text = "結果を判定中です...";
-            StartCoroutine(CheckAllResultsRoutine());
             break;
 
             case GameState.GameOverCheck:
@@ -328,61 +327,6 @@ public class DiceGameManager : MonoBehaviour
         });
     }
 
-    IEnumerator CheckAllResultsRoutine()
-    {
-        yield return new WaitForSeconds(1.0f);
-
-        // 判定フェーズでは、全てのプレイヤーの出目を確定させる (念のため)
-        foreach (PlayerInfo player in players.OrderBy(p => p.PlayerID))
-        {
-            // Rollが実行されていないプレイヤーがいたらスキップ (ありえないはずだが安全策)
-            if (player.IsEliminated || player.CurrentDiceResult == 0) continue;
-
-            DiceRoll dice = playerDices[player];
-
-            // 1. スコア加算
-            if (GameManager.instance.IsOnline())
-            {
-                assignedDicePrefabs[player.PlayerID].GetComponent<DiceScoreManager>().AddScore(player.CurrentDiceResult);
-                UpdateScoreUIs();
-            }
-            else
-            {
-                player.TotalScore += player.CurrentDiceResult;
-                UpdateScoreUIs();
-            }
-
-            // 2. 脱落判定
-            if (player.CurrentDiceResult == currentBabaDiceValue)
-            {
-                player.IsEliminated = true;
-                player.EliminationTurn = currentTurn;
-                dice.gameObject.SetActive(false);
-
-                resultText.text = $"{player.PlayerName} が脱落！ (出目: {player.CurrentDiceResult} = BABA: {currentBabaDiceValue})";
-                UpdateScoreUIs();
-                yield return new WaitForSeconds(3.0f);
-            }
-            else
-            {
-                resultText.text = $"{player.PlayerName} はセーフ！";
-                yield return new WaitForSeconds(1.5f);
-            }
-        }
-
-        // 3. ターン終了チェック
-        int aliveCount = players.Count(p => !p.IsEliminated);
-
-        if (aliveCount <= 1 || currentTurn >= maxTurns)
-        {
-            UpdateGameState(GameState.GameOverCheck);
-        }
-        else
-        {
-            UpdateGameState(GameState.SetBabaDice);
-        }
-    }
-
     private void UpdateScoreUIs()
     {
         int count = Mathf.Min(players.Count, playerScoreTexts.Length);
@@ -440,9 +384,21 @@ public class DiceGameManager : MonoBehaviour
         // スコア加算
         foreach (var p in players.Where(p => !p.IsEliminated))
         {
-            if (p.CurrentDiceResult > 0)
+            if (GameManager.instance.IsOnline())
             {
-                p.TotalScore += p.CurrentDiceResult;
+                if (p.CurrentDiceResult > 0)
+                {
+                    Debug.Log("オンライン時のスコア加算が呼ばれた");
+                    assignedDicePrefabs[p.PlayerID].GetComponent<DiceScoreManager>().AddScore(p.CurrentDiceResult);
+                }
+            }
+            else
+            {
+                if (p.CurrentDiceResult > 0)
+                {
+                    Debug.Log("オフライン時のスコア加算が呼ばれた");
+                    p.TotalScore += p.CurrentDiceResult;
+                }
             }
         }
 

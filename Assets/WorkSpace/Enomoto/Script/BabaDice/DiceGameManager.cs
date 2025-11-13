@@ -58,8 +58,7 @@ public class DiceGameManager : MonoBehaviour
     private int playersFinishedRoll = 0;
     private Coroutine handleResultsRoutine;
 
-    void Awake()
-    {
+    void Awake(){
         SetupPlayers();
     }
 
@@ -322,7 +321,7 @@ public class DiceGameManager : MonoBehaviour
             else
             {
                 Debug.Log($"[Turn Manager] ロール完了: {playersFinishedRoll}/{totalActivePlayers}");
-                PlayerInfo nextPlayer = playersWaitingForRoll.First();
+                PlayerInfo nextPlayer = playersWaitingForRoll.FirstOrDefault();
                 resultText.text = $"待機中... 次のプレイヤーの操作を待っています。";
             }
         });

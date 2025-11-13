@@ -48,11 +48,16 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
         {
             int updatedScore = (int) changedProps["diceScore"];
             //スコアボードにも更新してもらう
-            DropGameManager.instance.UpdateDropPlayerUI(gameObject.GetComponent<PhotonView>().Owner.ActorNumber, updatedScore);
+            
             // スコアボード更新
             DropgameScoreboardUI.Instance?.RefreshUI();
             Debug.Log("ダイスゲームでのスコア共有処理が呼ばれました");
+            DebugLogDice();
         }
+    }
+
+    private void DebugLogDice() {
+        Debug.Log($"{GetComponent<PhotonView>().ViewID}の得点は{diceScore}");
     }
 
     // 自分のスコアを取得（UIなどで使う）

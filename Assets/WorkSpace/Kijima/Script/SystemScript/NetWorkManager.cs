@@ -450,7 +450,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// </summary>
     private void MakeName() {
         //自身の名前をインプットフィールドから取得
-        playerName = nameInputField.GetComponent<TMP_InputField>().text;
+        if(nameInputField != null)
+            playerName = nameInputField.GetComponent<TMP_InputField>().text;
         //名前がない時は名無しにする
         if (playerName == "") {
             playerName = "名無しトリ";

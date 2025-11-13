@@ -36,8 +36,6 @@ public class RacePlayer : MonoBehaviour {
     //減速、加速の割合
     private const float SPEED_CHANGE_RATE = 1.5f;
 
-    //自身の名前
-    private string playerName;
     //自身の番号
     public int myNumber { get; private set; }
     //自身の順位
@@ -92,10 +90,14 @@ public class RacePlayer : MonoBehaviour {
             PlayerIsMine.SetActive(true); 
         else 
             PlayerIsMine.SetActive(false);
+
+        //ゲーム開始
+        RaceManager_PUN.instance.TryStartCountDown();
     }
 
     //アップデート
     void FixedUpdate() {
+        
         //ポジション固定
         Vector3 setpos = new Vector3(transform.position.x,1.2f,transform.position.z);
         transform.position = setpos;
@@ -143,6 +145,7 @@ public class RacePlayer : MonoBehaviour {
             rb.velocity = Vector3.zero;
             transform.eulerAngles = Vector3.zero;
         }
+
         
 
     }
@@ -150,7 +153,7 @@ public class RacePlayer : MonoBehaviour {
     //インプットシステムの入力値の受け取り
     public void OnMove(InputAction.CallbackContext context) {
         moveInput = context.ReadValue<Vector2>();
-        Debug.Log(moveInput);
+        
     }
 
     /// <summary>
@@ -161,11 +164,11 @@ public class RacePlayer : MonoBehaviour {
 
         // X方向は固定（常に前進）
         float x = 1f; // ← 進行方向固定したいならこれでOK
-        float z = moveInput.y;
+        float z = GetComponentInParent<PlayerInfomation>().GetLeftStickValue().y;
 
         // 正規化しないでそのまま適用
         Vector3 moveDir = new Vector3(x, 0, z);
-        rb.velocity = moveDir * moveSpeed;
+        rb.velocity = moveDir * moveSpeed * Time.deltaTime;
     }
 
     /// <summary>
@@ -225,10 +228,7 @@ public class RacePlayer : MonoBehaviour {
         }
     }
 
-    //プラスボタンを押したときにホストだったらゲーム開始(そのうちなくす予定)
-    public void Plus(InputAction.CallbackContext context) {
-        RaceManager_PUN.instance.TryStartCountDown();
-    }
+    
 
     /// <summary>
     /// マイナンバーを引き渡す

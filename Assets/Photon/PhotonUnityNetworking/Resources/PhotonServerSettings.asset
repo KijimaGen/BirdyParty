@@ -46,6 +46,12 @@ MonoBehaviour:
   - StartGame
   - EntryPlayer
   - InstantiateNameBox
+  - LotteryAnswerVariation
+  - SetPanel
+  - SetAnswerPanel
+  - ApplyPushBack
+  - RequestAddScore
+  - SyncPlayerScore
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

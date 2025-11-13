@@ -31,9 +31,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     [Header("デバッグ用設定")]
     [SerializeField] private string debugRoomCode = "TEST2"; // インスペクターで部屋番号を入力するためのフィールド（有効文字のみ使用）
     [SerializeField] private bool autoConnectOnStart = true; // 開始時に自動接続するか
-    [SerializeField] private bool autoCreateTestRoom = false; // テスト用部屋を自動作成するか
     [SerializeField] private bool editorAutoHost = true; // エディター実行時は自動でホストになる
     [SerializeField] private TextMeshProUGUI connectionStatusText; // 接続状態表示用テキスト（オプション）
+    //ルームナンバー
     [SerializeField]
     private TextMeshProUGUI roomNumber;
 
@@ -453,5 +453,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// <returns></returns>
     public string GetName() {
         return playerName;
+    }
+
+    /// <summary>
+    /// ゲームを落とす時に部屋から抜ける
+    /// </summary>
+    private void OnApplicationQuit() {
+        // アプリケーションが終了するとき（ビルド実行時）
+        PhotonNetwork.LeaveRoom();
     }
 }

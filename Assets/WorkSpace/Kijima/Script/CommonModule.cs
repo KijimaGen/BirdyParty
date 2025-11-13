@@ -120,4 +120,24 @@ public class CommonModule {
         }
     }
 
+    /// <summary>
+    /// 項目数を取得
+    /// </summary>
+    public static int GetTypeNum<T>() where T : struct {
+        return Enum.GetValues(typeof(T)).Length;
+    }
+
+    public static T GetRandomFromEnum<T>() where T : struct {
+        int no = UnityEngine.Random.Range(1, GetTypeNum<T>());
+        return NoToType<T>(no);
+    }
+
+    /// <summary>
+    /// 入力された番号の項目を取得
+    /// </summary>
+    public static T NoToType<T>(int targetNo) where T : struct {
+        return (T) Enum.ToObject(typeof(T), targetNo);
+    }
+
+
 }

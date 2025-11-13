@@ -2,7 +2,7 @@
  * @file VirtualMouseManager.cs
  * @brief オンライン対応バーチャルマウス管理クラス
  * コントローラーでマウスカーソルを操作し、複数プレイヤーに対応
- * @author Enomoto + Kiro (オンライン対応修正)
+ * @author Enomoto
  * @date 2025/10/20
  */
 
@@ -102,7 +102,7 @@ public class VirtualMouseManager : MonoBehaviourPunCallbacks
         int playerIndex = playerInput.playerIndex;
         if (playerIndex < 0 || playerIndex >= _cursorPrefabs.Length)
         {
-            Debug.LogError("参加できるプレイヤー数を超えています");
+            //Debug.LogError("参加できるプレイヤー数を超えています");
             return;
         }
 

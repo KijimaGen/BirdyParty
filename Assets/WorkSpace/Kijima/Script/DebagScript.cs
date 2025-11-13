@@ -2,9 +2,11 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
+using System.Security.Cryptography;
 
 public class DebagScript : MonoBehaviourPunCallbacks {
     [SerializeField] private TMP_Text roomInfoText;
+    [SerializeField] private TMP_Text playerNumber;
 
     void Start() {
         if (!PhotonNetwork.IsConnected) {
@@ -49,5 +51,22 @@ public class DebagScript : MonoBehaviourPunCallbacks {
         else {
             roomInfoText.text = "ルーム情報が取得できません。";
         }
+
+        if (PhotonNetwork.IsMasterClient) {
+            roomInfoText.text += "\n貴方がマスターです";
+        }
+       
+    }
+
+    private void Update() {
+        DropPlayer myPlayer = DropGameManager.instance.GetMyPlayer();
+        int myNumber = 114514;
+
+        if (myPlayer != null) {
+            myNumber = myPlayer.GetMyNumber();
+        }
+
+
+        playerNumber.text = $"\n貴方はP{myNumber}です";
     }
 }

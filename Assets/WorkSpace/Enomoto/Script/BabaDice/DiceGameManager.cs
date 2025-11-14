@@ -6,17 +6,18 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
 using Microsoft.Win32.SafeHandles;
+using Photon.Realtime;
 
-// ƒQ[ƒ€‚Ìó‘Ô‚ğ’è‹`
+// ã‚²ãƒ¼ãƒ ã®çŠ¶æ…‹ã‚’å®šç¾©
 public enum GameState
 {
     Start,
-    WaitingForPlayers,  // ƒvƒŒƒCƒ„[Q‰Á‘Ò‚¿
-    SetBabaDice,        // BABAƒ_ƒCƒX‚ğU‚Á‚Ä‚¢‚é
-    PlayerRolling,      // ƒvƒŒƒCƒ„[‚Ì“ü—Í‘Ò‚¿ (Input System)
-    CheckResults,       // ‘Sˆõ‚Ìƒ_ƒCƒX‚ª~‚Ü‚Á‚½Œã‚ÌŒ‹‰Ê”»’è
-    GameOverCheck,      // ƒQ[ƒ€ƒI[ƒo[Œã‚ÌÅI‡ˆÊ•t‚¯
-    GameFinished        // Œ‹‰Ê•\¦
+    WaitingForPlayers,  // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å‚åŠ å¾…ã¡
+    SetBabaDice,        // BABAãƒ€ã‚¤ã‚¹ã‚’æŒ¯ã£ã¦ã„ã‚‹
+    PlayerRolling,      // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å…¥åŠ›å¾…ã¡ (Input System)
+    CheckResults,       // å…¨å“¡ã®ãƒ€ã‚¤ã‚¹ãŒæ­¢ã¾ã£ãŸå¾Œã®çµæœåˆ¤å®š
+    GameOverCheck,      // ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼å¾Œã®æœ€çµ‚é †ä½ä»˜ã‘
+    GameFinished        // çµæœè¡¨ç¤º
 }
 
 public class DiceGameManager : MonoBehaviour
@@ -26,28 +27,28 @@ public class DiceGameManager : MonoBehaviour
     public int currentTurn = 1;
     public int maxTurns = 5;
 
-    [Header("ƒQ[ƒ€İ’è")]
+    [Header("ã‚²ãƒ¼ãƒ è¨­å®š")]
     public int maxPlayers = 4;
 
-    [Header("ƒvƒŒƒCƒ„[ƒ_ƒCƒX‚ÌPrefab")]
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒ€ã‚¤ã‚¹ã®Prefab")]
     public GameObject[] assignedDicePrefabs;
 
-    [Header("ƒ_ƒCƒXoŒ»ˆÊ’u (è“®İ’è)")]
+    [Header("ãƒ€ã‚¤ã‚¹å‡ºç¾ä½ç½® (æ‰‹å‹•è¨­å®š)")]
     public Transform[] playerSpawnPoints = new Transform[4];
 
-    [Header("Input System İ’è")]
+    [Header("Input System è¨­å®š")]
     public InputActionAsset inputActionAsset;
 
-    [Header("BABAƒ_ƒCƒX‚Ö‚ÌQÆ")]
+    [Header("BABAãƒ€ã‚¤ã‚¹ã¸ã®å‚ç…§")]
     public BABADiceRoll babaDiceRoll;
 
-    [Header("UIQÆ")]
+    [Header("UIå‚ç…§")]
     public TextMeshProUGUI turnText;
     public TextMeshProUGUI babaDiceText;
     public TextMeshProUGUI resultText;
     public Button rollButton;
 
-    [Header("ƒXƒRƒA•\¦UI")]
+    [Header("ã‚¹ã‚³ã‚¢è¡¨ç¤ºUI")]
     public TextMeshProUGUI[] playerScoreTexts = new TextMeshProUGUI[4];
 
     private int currentBabaDiceValue;
@@ -67,13 +68,13 @@ public class DiceGameManager : MonoBehaviour
         UpdateGameState(GameState.Start);
     }
 
-    // PlayerInputHandler‚©‚çŒÄ‚Î‚ê‚éAƒvƒŒƒCƒ„[‚Ì“o˜^ˆ—
+    // PlayerInputHandlerã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç™»éŒ²å‡¦ç†
     public void TryRegisterNewPlayer(PlayerInput input, DiceRoll diceScript, PlayerInputHandler handler)
     {
-        // Å‘åƒvƒŒƒCƒ„[”‚ğ’´‚¦‚Ä‚¢‚½‚ç“o˜^‚µ‚È‚¢
+        // æœ€å¤§ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ•°ã‚’è¶…ãˆã¦ã„ãŸã‚‰ç™»éŒ²ã—ãªã„
         if (players.Count >= maxPlayers)
         {
-            Debug.LogWarning("Å‘åƒvƒŒƒCƒ„[”‚É’B‚µ‚Ü‚µ‚½B");
+            Debug.LogWarning("æœ€å¤§ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ•°ã«é”ã—ã¾ã—ãŸã€‚");
             Destroy(input.gameObject); 
             return;
         }
@@ -82,39 +83,39 @@ public class DiceGameManager : MonoBehaviour
         int prefabIndex = newPlayerId - 1;
         string newPlayerName = $"Player {newPlayerId}";
 
-        // 1. V‚µ‚¢ƒ_ƒCƒX‚Æ‚µ‚Äg—p‚·‚éPrefab (À‘Ì) ‚ğæ“¾
+        // 1. æ–°ã—ã„ãƒ€ã‚¤ã‚¹ã¨ã—ã¦ä½¿ç”¨ã™ã‚‹Prefab (å®Ÿä½“) ã‚’å–å¾—
         if (prefabIndex >= assignedDicePrefabs.Length || assignedDicePrefabs[prefabIndex] == null)
         {
-            Debug.LogError($"ƒvƒŒƒCƒ„[ {newPlayerId} ‚Ìƒ_ƒCƒXPrefab‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ (Index: {prefabIndex})B");
+            Debug.LogError($"ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ {newPlayerId} ã®ãƒ€ã‚¤ã‚¹PrefabãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ (Index: {prefabIndex})ã€‚");
             Destroy(input.gameObject);
             return;
         }
         GameObject actualDicePrefab = assignedDicePrefabs[prefabIndex];
 
-        // PlayerInputHandler‚ÍOnRollƒCƒxƒ“ƒgó•t‚É•K—v‚È‚Ì‚Åc‚·
+        // PlayerInputHandlerã¯OnRollã‚¤ãƒ™ãƒ³ãƒˆå—ä»˜ã«å¿…è¦ãªã®ã§æ®‹ã™
         if (diceScript != null) Destroy(diceScript);
 
-        // ƒRƒ“ƒeƒiiej‚Ì–¼‘O‚ğİ’è
+        // ã‚³ãƒ³ãƒ†ãƒŠï¼ˆè¦ªï¼‰ã®åå‰ã‚’è¨­å®š
         input.gameObject.name = $"{newPlayerName}_Container";
 
-        // 2. Š„‚è“–‚Ä‚ç‚ê‚½Prefab (À‘Ì) ‚ğƒRƒ“ƒeƒi‚Ìq‚Æ‚µ‚Ä¶¬
+        // 2. å‰²ã‚Šå½“ã¦ã‚‰ã‚ŒãŸPrefab (å®Ÿä½“) ã‚’ã‚³ãƒ³ãƒ†ãƒŠã®å­ã¨ã—ã¦ç”Ÿæˆ
         GameObject actualDiceObject = Instantiate(actualDicePrefab, input.transform);
         actualDiceObject.name = $"{newPlayerName}_Dice_Actual";
 
         actualDiceObject.transform.position = input.transform.position;
         actualDiceObject.transform.rotation = input.transform.rotation;
 
-        // 3. ¶¬‚µ‚½ƒ_ƒCƒXƒIƒuƒWƒFƒNƒg‚©‚çDiceRoll‚ğæ“¾
+        // 3. ç”Ÿæˆã—ãŸãƒ€ã‚¤ã‚¹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰DiceRollã‚’å–å¾—
         DiceRoll actualDiceScript = actualDiceObject.GetComponent<DiceRoll>();
 
         if (actualDiceScript == null)
         {
-            Debug.LogError($"y’v–½“IƒGƒ‰[z¶¬‚³‚ê‚½Prefab '{actualDicePrefab.name}' ‚É DiceRoll ƒRƒ“ƒ|[ƒlƒ“ƒg‚ª‚ ‚è‚Ü‚¹‚ñB", actualDiceObject);
+            Debug.LogError($"ã€è‡´å‘½çš„ã‚¨ãƒ©ãƒ¼ã€‘ç”Ÿæˆã•ã‚ŒãŸPrefab '{actualDicePrefab.name}' ã« DiceRoll ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒã‚ã‚Šã¾ã›ã‚“ã€‚", actualDiceObject);
             Destroy(input.gameObject);
             return;
         }
 
-        // 4. PlayerInfo‚ğì¬‚µAHandler‚Éİ’è
+        // 4. PlayerInfoã‚’ä½œæˆã—ã€Handlerã«è¨­å®š
         PlayerInfo newPlayer = new PlayerInfo(newPlayerId, newPlayerName);
         handler.PlayerData = newPlayer;
         handler.GameManager = this;
@@ -122,7 +123,7 @@ public class DiceGameManager : MonoBehaviour
         players.Add(newPlayer);
         playerDices.Add(newPlayer, actualDiceScript);
 
-        // 5. oŒ»ˆÊ’uİ’è (ƒRƒ“ƒeƒiiej‚ğˆÚ“®‚³‚¹‚é)
+        // 5. å‡ºç¾ä½ç½®è¨­å®š (ã‚³ãƒ³ãƒ†ãƒŠï¼ˆè¦ªï¼‰ã‚’ç§»å‹•ã•ã›ã‚‹)
         if (newPlayerId - 1 < playerSpawnPoints.Length && playerSpawnPoints[newPlayerId - 1] != null)
         {
             input.transform.position = playerSpawnPoints[newPlayerId - 1].position;
@@ -131,7 +132,7 @@ public class DiceGameManager : MonoBehaviour
 
         UpdateScoreUIs();
 
-        Debug.Log($"[ƒJƒXƒ^ƒ€¶¬¬Œ÷] {newPlayerName} ‚ªQ‰Á‚µ‚Ü‚µ‚½B");
+        Debug.Log($"[ã‚«ã‚¹ã‚¿ãƒ ç”ŸæˆæˆåŠŸ] {newPlayerName} ãŒå‚åŠ ã—ã¾ã—ãŸã€‚");
 
         if (currentState == GameState.WaitingForPlayers && players.Count >= 1)
         {
@@ -175,7 +176,7 @@ public class DiceGameManager : MonoBehaviour
         if (playersWaitingForRoll.Count > 0)
         {
             PlayerInfo firstPlayer = playersWaitingForRoll.First();
-            resultText.text = $"ƒ^[ƒ“ {currentTurn} ŠJn! {firstPlayer.PlayerName} ‚Ì‘€ì‘Ò‚¿‚Å‚·B";
+            resultText.text = $"ã‚¿ãƒ¼ãƒ³ {currentTurn} é–‹å§‹! {firstPlayer.PlayerName} ã®æ“ä½œå¾…ã¡ã§ã™ã€‚";
         }
         else
         {
@@ -186,7 +187,7 @@ public class DiceGameManager : MonoBehaviour
     public void UpdateGameState(GameState newState)
     {
         currentState = newState;
-        Debug.Log("V‚µ‚¢ó‘Ô: " + newState);
+        Debug.Log("æ–°ã—ã„çŠ¶æ…‹: " + newState);
 
         if (rollButton != null)
         {
@@ -203,33 +204,32 @@ public class DiceGameManager : MonoBehaviour
             case GameState.WaitingForPlayers: 
             if (resultText != null)
             {
-                resultText.text = "ƒQ[ƒ€ŠJnI SpaceƒL[‚©ƒRƒ“ƒgƒ[ƒ‰[‚ğ‰Ÿ‚µ‚ÄQ‰Á‚µ‚Ä‚­‚¾‚³‚¢B";
+                resultText.text = "ã‚²ãƒ¼ãƒ é–‹å§‹ï¼ Spaceã‚­ãƒ¼ã‹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã‚’æŠ¼ã—ã¦å‚åŠ ã—ã¦ãã ã•ã„ã€‚";
             }
             break;
 
             case GameState.SetBabaDice:
-            // ƒvƒŒƒCƒ„[‚ª’N‚àQ‰Á‚µ‚Ä‚¢‚È‚¢ê‡‚Í‘Ò‹@ó‘Ô‚É–ß‚·i‹N‚±‚ç‚È‚¢‚Í‚¸‚¾‚ªˆÀ‘Sôj
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒèª°ã‚‚å‚åŠ ã—ã¦ã„ãªã„å ´åˆã¯å¾…æ©ŸçŠ¶æ…‹ã«æˆ»ã™ï¼ˆèµ·ã“ã‚‰ãªã„ã¯ãšã ãŒå®‰å…¨ç­–ï¼‰
             if (players.Count == 0)
             {
                 UpdateGameState(GameState.WaitingForPlayers);
                 return;
             }
 
-            turnText.text = $"ƒ^[ƒ“ {currentTurn} / {maxTurns}";
-            babaDiceText.text = "BABAƒ_ƒCƒX: ?";
-            resultText.text = "BABAƒ_ƒCƒX‚ğŒˆ‚ß‚Ä‚¢‚Ü‚·...";
+            turnText.text = $"ã‚¿ãƒ¼ãƒ³ {currentTurn} / {maxTurns}";
+            babaDiceText.text = "BABAãƒ€ã‚¤ã‚¹: ?";
+            resultText.text = "BABAãƒ€ã‚¤ã‚¹ã‚’æ±ºã‚ã¦ã„ã¾ã™...";
             babaDiceRoll.StartRoll(OnBabaRollComplete);
             break;
 
             case GameState.PlayerRolling:
-            babaDiceText.text = $"BABAƒ_ƒCƒX: {currentBabaDiceValue}";
-            resultText.text = "ŠeƒvƒŒƒCƒ„[‚Í‘Î‰‚·‚é‘€ìƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚ÄƒTƒCƒRƒ‚ğU‚Á‚Ä‚­‚¾‚³‚¢B";
+            babaDiceText.text = $"BABAãƒ€ã‚¤ã‚¹: {currentBabaDiceValue}";
+            resultText.text = "å„ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¯å¯¾å¿œã™ã‚‹æ“ä½œãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ã¦ã‚µã‚¤ã‚³ãƒ­ã‚’æŒ¯ã£ã¦ãã ã•ã„ã€‚";
             StartPlayerTurn();
             break;
 
             case GameState.CheckResults:
-            resultText.text = "Œ‹‰Ê‚ğ”»’è’†‚Å‚·...";
-            StartCoroutine(CheckAllResultsRoutine());
+            resultText.text = "çµæœã‚’åˆ¤å®šä¸­ã§ã™...";
             break;
 
             case GameState.GameOverCheck:
@@ -242,20 +242,20 @@ public class DiceGameManager : MonoBehaviour
         }
     }
 
-    // PlayerInputHandler‚©‚çuƒvƒŒƒCƒ„[‚ªƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½v‚Æ‚¢‚¤’Ê’m‚ğó‚¯æ‚é
+    // PlayerInputHandlerã‹ã‚‰ã€Œãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ãŸã€ã¨ã„ã†é€šçŸ¥ã‚’å—ã‘å–ã‚‹
     public void HandlePlayerRollInput(PlayerInfo player)
     {
-        Debug.Log($"ƒ[ƒ‹s: {player.PlayerName} | Œ»İ‚Ìó‘Ô: {currentState} | ‘Ò‹@ƒŠƒXƒg‚ÉŠÜ‚Ü‚ê‚é‚©: {playersWaitingForRoll.Contains(player)}");
+        Debug.Log($"ãƒ­ãƒ¼ãƒ«è©¦è¡Œ: {player.PlayerName} | ç¾åœ¨ã®çŠ¶æ…‹: {currentState} | å¾…æ©Ÿãƒªã‚¹ãƒˆã«å«ã¾ã‚Œã‚‹ã‹: {playersWaitingForRoll.Contains(player)}");
 
         if (currentState != GameState.PlayerRolling) return;
 
         if (!playersWaitingForRoll.Contains(player))
         {
-            resultText.text = $"{player.PlayerName} ‚ÍŠù‚Éƒ[ƒ‹Ï‚İ‚©A’E—‚µ‚Ä‚¢‚Ü‚·B";
+            resultText.text = $"{player.PlayerName} ã¯æ—¢ã«ãƒ­ãƒ¼ãƒ«æ¸ˆã¿ã‹ã€è„±è½ã—ã¦ã„ã¾ã™ã€‚";
             return;
         }
 
-        Debug.Log($"yƒ[ƒ‹ŠJnz: {player.PlayerName}");
+        Debug.Log($"ã€ãƒ­ãƒ¼ãƒ«é–‹å§‹ã€‘: {player.PlayerName}");
 
         StartSinglePlayerRoll(player);
     }
@@ -266,7 +266,7 @@ public class DiceGameManager : MonoBehaviour
 
         playersWaitingForRoll = players.Where(p => !p.IsEliminated).ToList();
 
-        Debug.Log($"OnBabaRollComplete: ‘Ò‹@ƒŠƒXƒg‚É {playersWaitingForRoll.Count} l‚ÌƒvƒŒƒCƒ„[‚ğ’Ç‰Á‚µ‚Ü‚µ‚½B");
+        Debug.Log($"OnBabaRollComplete: å¾…æ©Ÿãƒªã‚¹ãƒˆã« {playersWaitingForRoll.Count} äººã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’è¿½åŠ ã—ã¾ã—ãŸã€‚");
 
         if (playersWaitingForRoll.Count <= 0)
         {
@@ -287,7 +287,7 @@ public class DiceGameManager : MonoBehaviour
         dice.transform.position = parentTransform.position;
         dice.transform.rotation = parentTransform.rotation;
 
-        resultText.text = $"{player.PlayerName} ‚Ìƒ_ƒCƒXƒ[ƒ‹I";
+        resultText.text = $"{player.PlayerName} ã®ãƒ€ã‚¤ã‚¹ãƒ­ãƒ¼ãƒ«ï¼";
 
         playersWaitingForRoll.Remove(player);
 
@@ -309,77 +309,22 @@ public class DiceGameManager : MonoBehaviour
             {
                 if (handleResultsRoutine == null)
                 {
-                    Debug.Log($"[Turn Manager] ‘SˆõŠ®—¹ ({playersFinishedRoll}/{totalActivePlayers})BƒRƒ‹[ƒ`ƒ“‚ğ‹N“®B");
-                    // ˆ—‚ğŸ‚ÌƒtƒŒ[ƒ€‚Ü‚Å’x‰„‚³‚¹‚éƒRƒ‹[ƒ`ƒ“‚ğŠJn
+                    Debug.Log($"[Turn Manager] å…¨å“¡å®Œäº† ({playersFinishedRoll}/{totalActivePlayers})ã€‚ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’èµ·å‹•ã€‚");
+                    // å‡¦ç†ã‚’æ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã¾ã§é…å»¶ã•ã›ã‚‹ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’é–‹å§‹
                     handleResultsRoutine = StartCoroutine(HandleResultsCoroutine());
                 }
                 else
                 {
-                    Debug.LogWarning("[Turn Manager] Šù‚ÉƒRƒ‹[ƒ`ƒ“‹N“®Ï‚İB‘½dŒÄ‚Ño‚µ‚ğ‘j~B");
+                    Debug.LogWarning("[Turn Manager] æ—¢ã«ã‚³ãƒ«ãƒ¼ãƒãƒ³èµ·å‹•æ¸ˆã¿ã€‚å¤šé‡å‘¼ã³å‡ºã—ã‚’é˜»æ­¢ã€‚");
                 }
             }
             else
             {
-                Debug.Log($"[Turn Manager] ƒ[ƒ‹Š®—¹: {playersFinishedRoll}/{totalActivePlayers}");
+                Debug.Log($"[Turn Manager] ãƒ­ãƒ¼ãƒ«å®Œäº†: {playersFinishedRoll}/{totalActivePlayers}");
                 PlayerInfo nextPlayer = playersWaitingForRoll.FirstOrDefault();
-                resultText.text = $"‘Ò‹@’†... Ÿ‚ÌƒvƒŒƒCƒ„[‚Ì‘€ì‚ğ‘Ò‚Á‚Ä‚¢‚Ü‚·B";
+                resultText.text = $"å¾…æ©Ÿä¸­... æ¬¡ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æ“ä½œã‚’å¾…ã£ã¦ã„ã¾ã™ã€‚";
             }
         });
-    }
-
-    IEnumerator CheckAllResultsRoutine()
-    {
-        yield return new WaitForSeconds(1.0f);
-
-        // ”»’èƒtƒF[ƒY‚Å‚ÍA‘S‚Ä‚ÌƒvƒŒƒCƒ„[‚Ìo–Ú‚ğŠm’è‚³‚¹‚é (”O‚Ì‚½‚ß)
-        foreach (PlayerInfo player in players.OrderBy(p => p.PlayerID))
-        {
-            // Roll‚ªÀs‚³‚ê‚Ä‚¢‚È‚¢ƒvƒŒƒCƒ„[‚ª‚¢‚½‚çƒXƒLƒbƒv (‚ ‚è‚¦‚È‚¢‚Í‚¸‚¾‚ªˆÀ‘Sô)
-            if (player.IsEliminated || player.CurrentDiceResult == 0) continue;
-
-            DiceRoll dice = playerDices[player];
-
-            // 1. ƒXƒRƒA‰ÁZ
-            if (GameManager.instance.IsOnline())
-            {
-                assignedDicePrefabs[player.PlayerID].GetComponent<DiceScoreManager>().AddScore(player.CurrentDiceResult);
-                UpdateScoreUIs();
-            }
-            else
-            {
-                player.TotalScore += player.CurrentDiceResult;
-                UpdateScoreUIs();
-            }
-
-            // 2. ’E—”»’è
-            if (player.CurrentDiceResult == currentBabaDiceValue)
-            {
-                player.IsEliminated = true;
-                player.EliminationTurn = currentTurn;
-                dice.gameObject.SetActive(false);
-
-                resultText.text = $"{player.PlayerName} ‚ª’E—I (o–Ú: {player.CurrentDiceResult} = BABA: {currentBabaDiceValue})";
-                UpdateScoreUIs();
-                yield return new WaitForSeconds(3.0f);
-            }
-            else
-            {
-                resultText.text = $"{player.PlayerName} ‚ÍƒZ[ƒtI";
-                yield return new WaitForSeconds(1.5f);
-            }
-        }
-
-        // 3. ƒ^[ƒ“I—¹ƒ`ƒFƒbƒN
-        int aliveCount = players.Count(p => !p.IsEliminated);
-
-        if (aliveCount <= 1 || currentTurn >= maxTurns)
-        {
-            UpdateGameState(GameState.GameOverCheck);
-        }
-        else
-        {
-            UpdateGameState(GameState.SetBabaDice);
-        }
     }
 
     private void UpdateScoreUIs()
@@ -394,7 +339,7 @@ public class DiceGameManager : MonoBehaviour
 
             if (p.IsEliminated)
             {
-                playerScoreTexts[i].text = "’E—";
+                playerScoreTexts[i].text = "è„±è½";
                 playerScoreTexts[i].color = Color.gray;
             }
             else
@@ -413,39 +358,51 @@ public class DiceGameManager : MonoBehaviour
             .ThenByDescending(p => p.TotalScore)
             .ToList();
 
-        string rankString = "--- ÅIŒ‹‰Ê ---\n";
+        string rankString = "--- æœ€çµ‚çµæœ ---\n";
         for (int i = 0; i < finalRanking.Count; i++)
         {
             PlayerInfo p = finalRanking[i];
             string status = p.IsEliminated
-                            ? $"(’E—: {p.EliminationTurn}T)"
-                            : "(¶‘¶)";
+                            ? $"(è„±è½: {p.EliminationTurn}T)"
+                            : "(ç”Ÿå­˜)";
 
-            rankString += $"{i + 1}ˆÊ: {p.PlayerName} | ƒXƒRƒA: {p.TotalScore} {status}\n";
+            rankString += $"{i + 1}ä½: {p.PlayerName} | ã‚¹ã‚³ã‚¢: {p.TotalScore} {status}\n";
         }
         resultText.text = rankString;
     }
 
     private IEnumerator HandleResultsCoroutine()
     {
-        // ˆ—‚ğŸ‚ÌƒtƒŒ[ƒ€‚Ü‚Å‘Ò‹@ (‘½d‹N“®‚Ì‘j~)
+        // å‡¦ç†ã‚’æ¬¡ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã¾ã§å¾…æ©Ÿ (å¤šé‡èµ·å‹•ã®é˜»æ­¢)
         yield return null;
 
-        Debug.Log($"[Turn Manager] ƒRƒ‹[ƒ`ƒ“ÀsŠJn (Turn: {currentTurn})");
+        Debug.Log($"[Turn Manager] ã‚³ãƒ«ãƒ¼ãƒãƒ³å®Ÿè¡Œé–‹å§‹ (Turn: {currentTurn})");
 
-        // ƒXƒRƒA‰ÁZ‚ÆBABA”»’è
+        // ã‚¹ã‚³ã‚¢åŠ ç®—ã¨BABAåˆ¤å®š
         int babaValue = babaDiceRoll.LastDiceValue;
 
-        // ƒXƒRƒA‰ÁZ
+        // ã‚¹ã‚³ã‚¢åŠ ç®—
         foreach (var p in players.Where(p => !p.IsEliminated))
         {
-            if (p.CurrentDiceResult > 0)
+            if (GameManager.instance.IsOnline())
             {
-                p.TotalScore += p.CurrentDiceResult;
+                if (p.CurrentDiceResult > 0)
+                {
+                    Debug.Log("ã‚ªãƒ³ãƒ©ã‚¤ãƒ³æ™‚ã®ã‚¹ã‚³ã‚¢åŠ ç®—ãŒå‘¼ã°ã‚ŒãŸ");
+                    assignedDicePrefabs[p.PlayerID].GetComponent<DiceScoreManager>().AddScore(p.CurrentDiceResult);
+                }
+            }
+            else
+            {
+                if (p.CurrentDiceResult > 0)
+                {
+                    Debug.Log("ã‚ªãƒ•ãƒ©ã‚¤ãƒ³æ™‚ã®ã‚¹ã‚³ã‚¢åŠ ç®—ãŒå‘¼ã°ã‚ŒãŸ");
+                    p.TotalScore += p.CurrentDiceResult;
+                }
             }
         }
 
-        // BABA”»’è
+        // BABAåˆ¤å®š
         if (babaValue > 0)
         {
             List<PlayerInfo> eliminatedPlayers = new List<PlayerInfo>();
@@ -464,14 +421,14 @@ public class DiceGameManager : MonoBehaviour
                 if (playerDices.ContainsKey(p) && playerDices[p] != null)
                 {
                     playerDices[p].gameObject.SetActive(false);
-                    Debug.Log($"[Elimination] {p.PlayerName} ‚ª’E—‚µ‚Ü‚µ‚½Bƒ_ƒCƒX‚ğ”ñ•\¦‚É‚µ‚Ü‚µ‚½B");
+                    Debug.Log($"[Elimination] {p.PlayerName} ãŒè„±è½ã—ã¾ã—ãŸã€‚ãƒ€ã‚¤ã‚¹ã‚’éè¡¨ç¤ºã«ã—ã¾ã—ãŸã€‚");
                 }
             }
         }
 
         UpdateScoreUIs();
 
-        // ƒ^[ƒ“is‚ÆƒŠƒUƒ‹ƒgƒ`ƒFƒbƒN
+        // ã‚¿ãƒ¼ãƒ³é€²è¡Œã¨ãƒªã‚¶ãƒ«ãƒˆãƒã‚§ãƒƒã‚¯
         bool gameOver = players.Count(p => !p.IsEliminated) <= 1 || currentTurn >= maxTurns;
 
         if (gameOver)
@@ -481,13 +438,13 @@ public class DiceGameManager : MonoBehaviour
         else
         {
             currentTurn++;
-            Debug.Log($"[Turn Manager] Ÿ‚Ìƒ^[ƒ“‚ÖˆÚs: {currentTurn}T");
+            Debug.Log($"[Turn Manager] æ¬¡ã®ã‚¿ãƒ¼ãƒ³ã¸ç§»è¡Œ: {currentTurn}T");
 
             UpdateGameState(GameState.SetBabaDice);
         }
 
-        // ƒRƒ‹[ƒ`ƒ“QÆ‚ğƒNƒŠƒA‚µ‚ÄƒƒbƒN‚ğ‰ğœ
+        // ã‚³ãƒ«ãƒ¼ãƒãƒ³å‚ç…§ã‚’ã‚¯ãƒªã‚¢ã—ã¦ãƒ­ãƒƒã‚¯ã‚’è§£é™¤
         handleResultsRoutine = null;
-        Debug.Log($"[Turn Manager] ƒRƒ‹[ƒ`ƒ“ÀsI—¹BƒƒbƒN‰ğœ (Next Turn: {currentTurn})");
+        Debug.Log($"[Turn Manager] ã‚³ãƒ«ãƒ¼ãƒãƒ³å®Ÿè¡Œçµ‚äº†ã€‚ãƒ­ãƒƒã‚¯è§£é™¤ (Next Turn: {currentTurn})");
     }
 }

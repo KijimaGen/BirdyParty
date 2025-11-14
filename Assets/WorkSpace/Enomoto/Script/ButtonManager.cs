@@ -252,16 +252,6 @@ public class ButtonManager : MonoBehaviour
     }
 
     /// <summary>
-    /// デバッグ用：TEST2ルームに参加
-    /// </summary>
-    [ContextMenu("TEST2ルームに参加")]
-    public void JoinTestRoom() {
-        JoinRoom("TEST2");
-    }
-
-    
-
-    /// <summary>
     /// 安全版：Photonを使わないテスト
     /// </summary>
     [ContextMenu("🛡 安全版テスト")]

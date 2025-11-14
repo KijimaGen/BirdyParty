@@ -5,7 +5,8 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
-using Microsoft.Win32.SafeHandles;
+using ExitGames.Client.Photon;
+using Photon.Pun;
 using Photon.Realtime;
 
 // ゲームの状態を定義
@@ -20,7 +21,7 @@ public enum GameState
     GameFinished        // 結果表示
 }
 
-public class DiceGameManager : MonoBehaviour
+public class DiceGameManager : MonoBehaviourPunCallbacks
 {
 
     public static GameState currentState;
@@ -52,12 +53,14 @@ public class DiceGameManager : MonoBehaviour
     public TextMeshProUGUI[] playerScoreTexts = new TextMeshProUGUI[4];
 
     private int currentBabaDiceValue;
-    private List<PlayerInfo> players;
+    private List<PlayerInfo> players = new List<PlayerInfo>();
     private Dictionary<PlayerInfo, DiceRoll> playerDices;
     private List<PlayerInfo> playersWaitingForRoll;
 
     private int playersFinishedRoll = 0;
     private Coroutine handleResultsRoutine;
+
+    private Dictionary<PlayerInfo, PlayerInputHandler> playerInputHandlers = new Dictionary<PlayerInfo, PlayerInputHandler>();
 
     void Awake(){
         SetupPlayers();
@@ -260,20 +263,54 @@ public class DiceGameManager : MonoBehaviour
         StartSinglePlayerRoll(player);
     }
 
-    void OnBabaRollComplete(string babaFace)
+    private void OnBabaRollComplete(string result)
     {
-        int.TryParse(babaFace, out currentBabaDiceValue);
 
-        playersWaitingForRoll = players.Where(p => !p.IsEliminated).ToList();
-
-        Debug.Log($"OnBabaRollComplete: 待機リストに {playersWaitingForRoll.Count} 人のプレイヤーを追加しました。");
-
-        if (playersWaitingForRoll.Count <= 0)
+        if (babaDiceRoll == null)
         {
-            UpdateGameState(GameState.GameOverCheck);
-            return;
-        }
+            Debug.LogError("BABA Dice RollオブジェクトがInspectorに設定されていません。FindObjectOfTypeで検索します。");
+            // フォールバックとしてシーン全体から検索を試みる
+            babaDiceRoll = FindObjectOfType<BABADiceRoll>();
 
+            if (babaDiceRoll == null)
+            {
+                Debug.LogError("シーン上にもBABADiceRollが見つかりませんでした。処理を続行できません。");
+                UpdateGameState(GameState.PlayerRolling);
+                return;
+            }
+        }
+       
+        int resultValue = babaDiceRoll.LastDiceValue;
+
+        if (GameManager.instance != null && GameManager.instance.IsOnline())
+        {
+            
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // BABAの確定結果を全クライアントに送信 (DiceGameManagerのphotonViewを使う)
+                photonView.RPC(nameof(SyncBabaDiceValue), RpcTarget.All, resultValue);
+            }
+            
+        }
+        else
+        {
+            babaDiceText.text = $"BABA: {resultValue}";
+            UpdateGameState(GameState.PlayerRolling);
+        }
+    }
+
+    // BABAダイス結果を全クライアントで受信するRPC
+    [PunRPC]
+    void SyncBabaDiceValue(int babaValue)
+    {
+        if (babaDiceRoll == null) return;
+
+        babaDiceRoll.LastDiceValue = babaValue;
+
+        // UIを更新
+        babaDiceText.text = $"BABA: {babaValue}";
+
+        // 状態を進行
         UpdateGameState(GameState.PlayerRolling);
     }
 
@@ -327,7 +364,7 @@ public class DiceGameManager : MonoBehaviour
         });
     }
 
-    private void UpdateScoreUIs()
+    public void UpdateScoreUIs()
     {
         int count = Mathf.Min(players.Count, playerScoreTexts.Length);
 
@@ -373,6 +410,8 @@ public class DiceGameManager : MonoBehaviour
 
     private IEnumerator HandleResultsCoroutine()
     {
+        
+
         // 処理を次のフレームまで待機 (多重起動の阻止)
         yield return null;
 
@@ -384,27 +423,21 @@ public class DiceGameManager : MonoBehaviour
         // スコア加算
         foreach (var p in players.Where(p => !p.IsEliminated))
         {
-            //if (GameManager.instance.IsOnline())
-            //{
-            //    if (p.CurrentDiceResult > 0)
-            //    {
-            //        Debug.Log("オンライン時のスコア加算が呼ばれた");
-            //        assignedDicePrefabs[p.PlayerID].GetComponent<DiceScoreManager>().AddScore(p.CurrentDiceResult);
-            //    }
-            //}
-            //else
-            //{
-            //    if (p.CurrentDiceResult > 0)
-            //    {
-            //        Debug.Log("オフライン時のスコア加算が呼ばれた");
-            //        p.TotalScore += p.CurrentDiceResult;
-            //    }
-            //}
-
             if (p.CurrentDiceResult > 0)
             {
-                Debug.Log("オフライン時のスコア加算が呼ばれた");
-                p.TotalScore += p.CurrentDiceResult;
+                if (GameManager.instance != null && GameManager.instance.IsOnline())
+                {
+                    if (playerInputHandlers.ContainsKey(p))
+                    {
+                        PlayerInputHandler handler = playerInputHandlers[p];
+                        DiceScoreManager scoreManager = handler.GetComponent<DiceScoreManager>();
+                        scoreManager?.AddScore(p.CurrentDiceResult);
+                    }
+                }
+                else
+                {
+                    p.TotalScore += p.CurrentDiceResult;
+                }
             }
         }
 
@@ -434,23 +467,125 @@ public class DiceGameManager : MonoBehaviour
 
         UpdateScoreUIs();
 
-        // ターン進行とリザルトチェック
+        // 3. ターン進行とリザルトチェック
         bool gameOver = players.Count(p => !p.IsEliminated) <= 1 || currentTurn >= maxTurns;
 
         if (gameOver)
         {
+            // ゲーム終了処理 (オンライン時はスコアを強制同期するとより確実)
+            if (GameManager.instance != null && GameManager.instance.IsOnline())
+            {
+                ForceSyncOnlineScores();
+            }
             UpdateGameState(GameState.GameOverCheck);
         }
         else
         {
-            currentTurn++;
-            Debug.Log($"[Turn Manager] 次のターンへ移行: {currentTurn}T");
+            if (GameManager.instance != null && GameManager.instance.IsOnline())
+            {
 
-            UpdateGameState(GameState.SetBabaDice);
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    currentTurn++;
+
+
+                    ExitGames.Client.Photon.Hashtable turnUpdate = new ExitGames.Client.Photon.Hashtable
+                {
+                    { "CurrentTurn", currentTurn },
+                    { "GameState", (int)GameState.SetBabaDice }
+                };
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(turnUpdate);
+                }
+            }
+            else
+            {
+
+                currentTurn++;
+                UpdateGameState(GameState.SetBabaDice);
+            }
         }
 
         // コルーチン参照をクリアしてロックを解除
         handleResultsRoutine = null;
         Debug.Log($"[Turn Manager] コルーチン実行終了。ロック解除 (Next Turn: {currentTurn})");
+    }
+
+    public void ForceSyncOnlineScores()
+    {
+        if (GameManager.instance == null || !GameManager.instance.IsOnline())
+        {
+            // オフラインの場合は何もしない
+            return;
+        }
+
+        Debug.Log("[Score Sync] リザルト表示のため、全プレイヤーのスコアを同期します。");
+
+        // 全てのPlayerInfoに対して処理を行う
+        foreach (var p in players)
+        {
+            // プレイヤーのダイスオブジェクト（コンテナ）から DiceScoreManager を取得
+            if (playerDices.TryGetValue(p, out DiceRoll diceRoll))
+            {
+                Transform diceContainer = diceRoll.transform.parent;
+                if (diceContainer != null)
+                {
+                    DiceScoreManager scoreManager = diceContainer.GetComponent<DiceScoreManager>();
+
+                    if (scoreManager != null)
+                    {
+                        int latestScore = scoreManager.GetMyScore();
+
+                        if (p.TotalScore != latestScore)
+                        {
+                            p.TotalScore = latestScore;
+                            Debug.Log($"[Score Sync] {p.PlayerName} のスコアを {latestScore} に同期しました。");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        // オンライン時のみ実行
+        if (GameManager.instance == null || !GameManager.instance.IsOnline()) return;
+
+        // ターンが更新された場合
+        if (changedProps.ContainsKey("CurrentTurn"))
+        {
+            currentTurn = (int) changedProps["CurrentTurn"];
+            turnText.text = $"Turn: {currentTurn} / {maxTurns}";
+        }
+
+        // GameStateが更新された場合
+        if (changedProps.ContainsKey("GameState"))
+        {
+            GameState newState = (GameState) ((int) changedProps["GameState"]);
+            // ローカルでゲーム状態を更新
+            UpdateGameState(newState);
+        }
+    }
+
+    [PunRPC]
+    void SyncPlayerScores(string[] playerNames, int[] scores, bool[] isEliminateds)
+    {
+        // 全クライアントで実行される
+        for (int i = 0; i < playerNames.Length; i++)
+        {
+            // プレイヤー名で該当のPlayerInfoを探す
+            PlayerInfo p = players.FirstOrDefault(info => info.PlayerName == playerNames[i]);
+
+            if (p != null)
+            {
+                // スコアと状態を同期
+                p.TotalScore = scores[i];
+                p.IsEliminated = isEliminateds[i];
+            }
+        }
+
+        // UIを更新
+        UpdateScoreUIs();
+        DisplayFinalRanking();
     }
 }

@@ -5,8 +5,8 @@ public class PlayerInputHandler : MonoBehaviour
 {
     // GameManager‚©‚çPlayerInfo‚ÆManager‚ÌQÆ‚ğİ’è‚³‚ê‚é
 
-    public PlayerInfo PlayerData; //{ get; set; }
-    public DiceGameManager GameManager; //{ get; set; }
+    public PlayerInfo PlayerData { get; set; }
+    public DiceGameManager GameManager { get; set; }
 
     private PlayerInput playerInput;
     private DiceRoll diceRoll;

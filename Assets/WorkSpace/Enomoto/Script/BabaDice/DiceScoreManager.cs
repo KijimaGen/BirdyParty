@@ -47,11 +47,24 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
         if (changedProps.ContainsKey("diceScore"))
         {
             int updatedScore = (int) changedProps["diceScore"];
-            //スコアボードにも更新してもらう
-            
-            // スコアボード更新
+
+            // 1. 親階層からPlayerInputHandlerを見つけ、そのPlayerInfoにアクセス
+            PlayerInputHandler handler = GetComponentInParent<PlayerInputHandler>();
+            if (handler != null && handler.PlayerData != null)
+            {
+                
+                handler.PlayerData.TotalScore = updatedScore;
+
+                // DiceGameManagerのUIを更新（通常時のスコアボードとリザルトの両方に対応）
+                DiceGameManager gameManager = FindObjectOfType<DiceGameManager>();
+                if (gameManager != null)
+                {
+                    gameManager.UpdateScoreUIs();
+                }
+            }
+
             DropgameScoreboardUI.Instance?.RefreshUI();
-            Debug.Log("ダイスゲームでのスコア共有処理が呼ばれました");
+            Debug.Log("ダイスゲームでのスコア共有処理が呼ばれました。PlayerInfo.TotalScoreを同期しました。");
             DebugLogDice();
         }
     }

@@ -11,7 +11,7 @@ public class BABADiceRoll : MonoBehaviour
     private string currentBottomFace = "";
     private string babaFace = "";
 
-    public int LastDiceValue { get; private set; } = 0;
+    public int LastDiceValue { get; set; } = 0;
 
     // GameManagerに結果を通知するためのコールバック
     private Action<string> onRollComplete;

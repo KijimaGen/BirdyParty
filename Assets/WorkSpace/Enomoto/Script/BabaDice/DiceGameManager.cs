@@ -384,21 +384,27 @@ public class DiceGameManager : MonoBehaviour
         // スコア加算
         foreach (var p in players.Where(p => !p.IsEliminated))
         {
-            if (GameManager.instance.IsOnline())
+            //if (GameManager.instance.IsOnline())
+            //{
+            //    if (p.CurrentDiceResult > 0)
+            //    {
+            //        Debug.Log("オンライン時のスコア加算が呼ばれた");
+            //        assignedDicePrefabs[p.PlayerID].GetComponent<DiceScoreManager>().AddScore(p.CurrentDiceResult);
+            //    }
+            //}
+            //else
+            //{
+            //    if (p.CurrentDiceResult > 0)
+            //    {
+            //        Debug.Log("オフライン時のスコア加算が呼ばれた");
+            //        p.TotalScore += p.CurrentDiceResult;
+            //    }
+            //}
+
+            if (p.CurrentDiceResult > 0)
             {
-                if (p.CurrentDiceResult > 0)
-                {
-                    Debug.Log("オンライン時のスコア加算が呼ばれた");
-                    assignedDicePrefabs[p.PlayerID].GetComponent<DiceScoreManager>().AddScore(p.CurrentDiceResult);
-                }
-            }
-            else
-            {
-                if (p.CurrentDiceResult > 0)
-                {
-                    Debug.Log("オフライン時のスコア加算が呼ばれた");
-                    p.TotalScore += p.CurrentDiceResult;
-                }
+                Debug.Log("オフライン時のスコア加算が呼ばれた");
+                p.TotalScore += p.CurrentDiceResult;
             }
         }
 

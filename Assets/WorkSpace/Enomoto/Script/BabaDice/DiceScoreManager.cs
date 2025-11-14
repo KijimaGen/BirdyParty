@@ -5,75 +5,67 @@ using ExitGames.Client.Photon;
 
 public class DiceScoreManager : MonoBehaviourPunCallbacks
 {
-    // ©•ª‚ÌƒXƒRƒAƒLƒƒƒbƒVƒ…iCustomProperties‚É‚à•Û‚³‚ê‚éj
+    // è‡ªåˆ†ã®ã‚¹ã‚³ã‚¢ã‚­ãƒ£ãƒƒã‚·ãƒ¥ï¼ˆCustomPropertiesã«ã‚‚ä¿æŒã•ã‚Œã‚‹ï¼‰
     private int diceScore = 0;
 
-    // ‰Šú‰»
+    // åˆæœŸåŒ–
     private void Start()
     {
-        // ©•ª‚ÌƒvƒŒƒCƒ„[‚¾‚¯ƒXƒRƒA‚ğ‰Šú‰»
+        // è‡ªåˆ†ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã ã‘ã‚¹ã‚³ã‚¢ã‚’åˆæœŸåŒ–
         if (photonView.IsMine)
         {
             SetScore(0);
         }
     }
 
-    // ŠO•”‚©‚çƒXƒRƒA‰ÁZ
+    // å¤–éƒ¨ã‹ã‚‰ã‚¹ã‚³ã‚¢åŠ ç®—
     public void AddScore(int amount)
     {
-        if (!photonView.IsMine) return; // ©•ªˆÈŠO‚ÌƒvƒŒƒCƒ„[‚Í‘€ì‹Ö~
+        Debug.Log("ãƒ€ã‚¤ã‚¹ã‚²ãƒ¼ãƒ ã§ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ã§ã®ã‚¹ã‚³ã‚¢åŠ ç®—å‡¦ç†ãŒå‘¼ã°ã‚ŒãŸã‚ˆ");
+        GameObject rootObject = transform.parent.gameObject;
+        Debug.Log($"è¦ª: {rootObject.name}");
 
-        Debug.Log("ƒ_ƒCƒXƒQ[ƒ€‚ÅƒIƒ“ƒ‰ƒCƒ“‚Å‚ÌƒXƒRƒA‰ÁZˆ—‚ªŒÄ‚Î‚ê‚½‚æ");
+        
+        if (!rootObject.GetComponent<PhotonView>().IsMine) return; // è‡ªåˆ†ä»¥å¤–ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¯æ“ä½œç¦æ­¢
+
+        Debug.Log("ãƒ€ã‚¤ã‚¹ã‚²ãƒ¼ãƒ ã§ã‚ªãƒ³ãƒ©ã‚¤ãƒ³ã§ã®ã‚¹ã‚³ã‚¢åŠ ç®—å‡¦ç†ãŒå‘¼ã°ã‚ŒãŸã‚ˆ");
         int newScore = diceScore + amount;
         SetScore(newScore);
     }
 
-    // “à•”‚ÅCustomProperties‚ğXVi‘Sˆõ‚É‹¤—L‚³‚ê‚éj
+    // å†…éƒ¨ã§CustomPropertiesã‚’æ›´æ–°ï¼ˆå…¨å“¡ã«å…±æœ‰ã•ã‚Œã‚‹ï¼‰
     private void SetScore(int newScore)
     {
         diceScore = newScore;
 
-        // CustomProperties‚ğƒZƒbƒg
+        // CustomPropertiesã‚’ã‚»ãƒƒãƒˆ
         Hashtable hash = new Hashtable();
         hash["diceScore"] = diceScore;
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
     }
 
-    // Player‚ÌCustomProperties‚ª•Ï‚í‚Á‚½‚ÉŒÄ‚Î‚ê‚éƒR[ƒ‹ƒoƒbƒN
+    // Playerã®CustomPropertiesãŒå¤‰ã‚ã£ãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        // ƒXƒRƒA‚ªXV‚³‚ê‚½‚¾‚¯ˆ—
+        // ã‚¹ã‚³ã‚¢ãŒæ›´æ–°ã•ã‚ŒãŸæ™‚ã ã‘å‡¦ç†
         if (changedProps.ContainsKey("diceScore"))
         {
             int updatedScore = (int) changedProps["diceScore"];
-
-            // 1. eŠK‘w‚©‚çPlayerInputHandler‚ğŒ©‚Â‚¯A‚»‚ÌPlayerInfo‚ÉƒAƒNƒZƒX
-            PlayerInputHandler handler = GetComponentInParent<PlayerInputHandler>();
-            if (handler != null && handler.PlayerData != null)
-            {
-                
-                handler.PlayerData.TotalScore = updatedScore;
-
-                // DiceGameManager‚ÌUI‚ğXVi’Êí‚ÌƒXƒRƒAƒ{[ƒh‚ÆƒŠƒUƒ‹ƒg‚Ì—¼•û‚É‘Î‰j
-                DiceGameManager gameManager = FindObjectOfType<DiceGameManager>();
-                if (gameManager != null)
-                {
-                    gameManager.UpdateScoreUIs();
-                }
-            }
-
+            //ã‚¹ã‚³ã‚¢ãƒœãƒ¼ãƒ‰ã«ã‚‚æ›´æ–°ã—ã¦ã‚‚ã‚‰ã†
+            
+            // ã‚¹ã‚³ã‚¢ãƒœãƒ¼ãƒ‰æ›´æ–°
             DropgameScoreboardUI.Instance?.RefreshUI();
-            Debug.Log("ƒ_ƒCƒXƒQ[ƒ€‚Å‚ÌƒXƒRƒA‹¤—Lˆ—‚ªŒÄ‚Î‚ê‚Ü‚µ‚½BPlayerInfo.TotalScore‚ğ“¯Šú‚µ‚Ü‚µ‚½B");
+            Debug.Log("ãƒ€ã‚¤ã‚¹ã‚²ãƒ¼ãƒ ã§ã®ã‚¹ã‚³ã‚¢å…±æœ‰å‡¦ç†ãŒå‘¼ã°ã‚Œã¾ã—ãŸ");
             DebugLogDice();
         }
     }
 
     private void DebugLogDice() {
-        Debug.Log($"{GetComponent<PhotonView>().ViewID}‚Ì“¾“_‚Í{diceScore}");
+        Debug.Log($"{GetComponent<PhotonView>().ViewID}ã®å¾—ç‚¹ã¯{diceScore}");
     }
 
-    // ©•ª‚ÌƒXƒRƒA‚ğæ“¾iUI‚È‚Ç‚Åg‚¤j
+    // è‡ªåˆ†ã®ã‚¹ã‚³ã‚¢ã‚’å–å¾—ï¼ˆUIãªã©ã§ä½¿ã†ï¼‰
     public int GetMyScore()
     {
         return diceScore;

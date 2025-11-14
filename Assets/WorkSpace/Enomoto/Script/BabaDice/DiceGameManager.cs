@@ -5,7 +5,6 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
-using Microsoft.Win32.SafeHandles;
 using Photon.Realtime;
 
 // ゲームの状態を定義

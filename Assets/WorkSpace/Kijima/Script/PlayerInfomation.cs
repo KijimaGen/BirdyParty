@@ -5,12 +5,9 @@
  * @date 2025/10/14
  */
 using Photon.Pun;
-using System.Drawing;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using static GameConst;
 
 public class PlayerInfomation:MonoBehaviour{
@@ -23,19 +20,23 @@ public class PlayerInfomation:MonoBehaviour{
     //自分のskin
     public SkinVariation mySkin;
     //自分の番号
-    
     public int myNumber;
+    
+    //自分の色
+    private Color myColor;
 
     //自身のフォトンビュー
     PhotonView photonView;
    
     //レースゲームのプレイヤー
     [SerializeField]
-    private GameObject racePlayerPrefab;
-
+    private GameObject racePlayer;
+    //ドロップゲームのプレイヤー
+    [SerializeField]
+    private GameObject dropPlayer;
     // ダイスのプレイヤー
     [SerializeField]
-    private GameObject dicePlayerPrefab;
+    private GameObject dicePlayer;
 
     //エントリ～したかどうか
     [SerializeField]
@@ -66,12 +67,25 @@ public class PlayerInfomation:MonoBehaviour{
         if (GameManager.instance.IsOnline()) {
             //名前の取得
             myName = NetworkManager.instance.GetName();
-            
         }
 
         //エントリーしましたテキストを作る
         if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
             GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
+
+        //オンラインだったらエントリーを行う
+        if (GameDataManager.instance.GetToriFromNumber(myNumber) != null 
+            && GameManager.instance.IsOnline()
+            && GameDataManager.instance != null) {
+            //ゲームデータマネージャー側でエントリーしてもらう
+            GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
+            //エントリー変数true
+            isEntry = true;
+
+            //名前を登録してもらう
+            GameDataManager.instance.EntryPlayer(this);
+        }
+
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);
@@ -131,22 +145,22 @@ public class PlayerInfomation:MonoBehaviour{
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
         
-        racePlayerPrefab.SetActive(true);
+        racePlayer.SetActive(true);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
-
+        dropPlayer.SetActive(true);
     }
 
-    private void LoadDiceGameScene()
-    {
-        dicePlayerPrefab.SetActive(true);
+    //ダイスゲームのシーンが読み込まれたときに呼ぶ
+    private void LoadDiceGameScene(){
+        dicePlayer.SetActive(true);
     }
 
     //タイトル画面でエントリーしたい
-    public void Plus(InputAction.CallbackContext context) {
-        if (GameDataManager.instance == null)
+    public void Plus() {
+        if (GameDataManager.instance == null || GameManager.instance.IsOnline())
             return;
 
         if(GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
@@ -172,10 +186,15 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <returns></returns>
     public Vector2 GetLeftStickValue() {
-        
         return myInputLeftStickValue;
     }
 
+    /// <summary>
+    /// 自身をエントリーから外す
+    /// </summary>
+    public void WithdrawEntry() {
+
+    }
 
     #region 各種ゲッターとセッター
     // Point

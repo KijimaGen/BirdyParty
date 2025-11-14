@@ -27,15 +27,12 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     [SerializeField]
     private Transform myCanvas;
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
+    private void Awake(){
+        if (instance == null) {
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
-        {
+        else{
             Destroy(gameObject);
         }
     }
@@ -43,8 +40,7 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     /// <summary>
     /// リセット
     /// </summary>
-    public void ResetData()
-    {
+    public void ResetData(){
         selectedMiniGame = null;
         comeBackFromGame = false;
     }
@@ -89,6 +85,14 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
+    /// プレイヤーのエントリーを外す
+    /// </summary>
+    /// <param name="player"></param>
+    public void WithdrawPlayer(PlayerInfomation player) {
+        titleToriNameList.RemoveAt(player.myNumber);
+    }
+
+    /// <summary>
     /// エントリーしましたテキストを作る
     /// </summary>
     /// <param name="name"></param>
@@ -102,7 +106,6 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
         EntryTextBox newNameBox = Instantiate(box, myCanvas);
         //ボックスの中身の設定
         newNameBox.SetmyText(name);
-
     }
 
 }

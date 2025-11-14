@@ -20,6 +20,8 @@ public static class GameConst {
         Straw   // 麦わらのトリ
     }
 
+    
+
     //ドロップゲームのリストのまま入れる(必要性はない)
     public enum DropGamePanelVariation {
         None,   //一応何もないも実装

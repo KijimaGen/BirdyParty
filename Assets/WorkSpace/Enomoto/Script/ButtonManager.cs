@@ -176,7 +176,7 @@ public class ButtonManager : MonoBehaviour
     /// </summary>
     public void CreateRoom() {
         if (NetworkManager.instance != null) {
-            UpdateNetworkStatus("ルームを作成中...");
+            UpdateNetworkStatus("ランダムな名前でルームを作成中...");
             NetworkManager.instance.CreateRandomRoom();
         }
         else {
@@ -216,7 +216,7 @@ public class ButtonManager : MonoBehaviour
     /// <param name="roomCode">参加するルームコード</param>
     public void JoinRoom(string roomCode) {
         if (NetworkManager.instance == null) {
-            UpdateNetworkStatus("SimpleNetworkManagerが見つかりません");
+            UpdateNetworkStatus("NetworkManagerが見つかりません");
             return;
         }
 
@@ -249,56 +249,6 @@ public class ButtonManager : MonoBehaviour
             connectionStatusText.text = message;
         }
         Debug.Log($"Network: {message}");
-    }
-
-    /// <summary>
-    /// 安全版：Photonを使わないテスト
-    /// </summary>
-    [ContextMenu("🛡 安全版テスト")]
-    public void SafeTest() {
-        Debug.Log("=== 🛡 安全版テスト ===");
-
-        // SimpleNetworkManagerの存在確認
-        if (NetworkManager.instance == null) {
-            Debug.LogError("❌ NetworkManager.instance が見つかりません");
-            UpdateNetworkStatus("NetworkManager");
-            return;
-        }
-
-        Debug.Log("✅ NetworkManager.instance 存在確認OK");
-
-        // InputFieldの確認
-        if (roomCodeInputField == null) {
-            Debug.LogWarning("⚠️ roomCodeInputField が設定されていません");
-            UpdateNetworkStatus("InputFieldを設定してください");
-        }
-        else {
-            Debug.Log($"✅ InputField OK: '{roomCodeInputField.text}'");
-            UpdateNetworkStatus($"InputField設定済み: '{roomCodeInputField.text}'");
-        }
-
-        Debug.Log("🎯 基本設定は正常です");
-    }
-
-    /// <summary>
-    /// デバッグ用：InputField設定チェック
-    /// </summary>
-    [ContextMenu("InputField設定チェック")]
-    public void CheckInputFieldSettings() {
-        Debug.Log("=== InputField設定チェック ===");
-
-        if (roomCodeInputField == null) {
-            Debug.LogError("❌ roomCodeInputField が設定されていません！");
-            UpdateNetworkStatus("InputFieldを設定してください");
-        }
-        else {
-            Debug.Log($"✅ InputField設定OK: {roomCodeInputField.name}");
-            Debug.Log($"   現在の値: '{roomCodeInputField.text}'");
-            Debug.Log($"   文字制限: {roomCodeInputField.characterLimit}");
-            Debug.Log($"   アクティブ: {roomCodeInputField.gameObject.activeInHierarchy}");
-            Debug.Log($"   インタラクト可能: {roomCodeInputField.interactable}");
-            UpdateNetworkStatus($"InputField OK: '{roomCodeInputField.text}'");
-        }
     }
 
     /// <summary>
@@ -363,23 +313,66 @@ public class ButtonManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 部屋に入るか作るか
-    /// </summary>
-    public void CreateOrJoinRoom() {
-        if(isHost) {
-            CreateRoom();
-        }
-        else {
-            string roomCode = roomCodeInputField.text;
-            JoinRoom(roomCode.Trim().ToUpper());
-        }
-    }
-
-    /// <summary>
     /// セットイズホスト
     /// </summary>
     /// <param name="ishost"></param>
     public void SetIsHost(bool ishost) {
         isHost = ishost;
+    }
+
+    /// <summary>
+    /// オンラインにセット
+    /// </summary>
+    public void SetOnline() {
+        GameManager.instance.SetIsOnline(true);
+    }
+
+    /// <summary>
+    /// オフラインにセット
+    /// </summary>
+    public void SetOffline() {
+        GameManager.instance.SetIsOnline(false);
+    }
+
+    /// <summary>
+    /// 部屋を抜ける処理を呼び出すよん
+    /// </summary>
+    public void LeaveRoom() {
+        if(NetworkManager.instance != null)
+            NetworkManager.instance.LeaveRoom();
+    }
+
+    /// <summary>
+    /// サーバーから切&断
+    /// </summary>
+    public void DisconnectingServer() {
+        NetworkManager.instance.DisconnectingServer();
+    }
+
+    /// <summary>
+    /// サーバーに再接続
+    /// </summary>
+    public void ReconnectServer() {
+        if (!PhotonNetwork.IsConnected) {
+            NetworkManager.instance.ConnectingServer();
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーセレクトUIに行くときの処理
+    /// </summary>
+    public void GoPlayerSelectUI() {
+        if (GameManager.instance.IsOnline()&& !isHost) {
+            TitleManager.instance.SetActiveNextButton(false);
+        }
+    }
+
+    /// <summary>
+    /// セレクトから戻るボタン押したときの処理
+    /// </summary>
+    public void BackSelectUIButton() {
+        if(PlayerManager.instance != null) {
+            PlayerManager.instance.DestroyPlayerList();
+        }
     }
 }

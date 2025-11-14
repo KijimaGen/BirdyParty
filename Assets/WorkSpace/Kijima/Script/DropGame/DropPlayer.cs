@@ -182,7 +182,9 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
 
     // プラスボタンが押されたときにホストがゲーム開始(今のところない可能性)
     public void Plus(InputAction.CallbackContext context) {
-        DropGameManager.instance.TryStartCountDown();
+        //ヌルチェック
+        if(DropGameManager.instance != null)
+            DropGameManager.instance.TryStartCountDown();
     }
 
 

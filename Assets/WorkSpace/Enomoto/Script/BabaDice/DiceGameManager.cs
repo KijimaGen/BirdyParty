@@ -215,6 +215,8 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             Debug.Log("ゲーム終了");
             break;
         }
+
+        UpdateScoreUIs();
     }
 
     /// <summary>
@@ -418,42 +420,98 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     public void HandlePlayerRollInput(PlayerInfo playerInfo)
     {
+        // 1. 状態チェック (出目が出た後も転がせる問題の対応)
         if (currentState != GameState.PlayerRolling)
         {
             Debug.Log($"ロール入力拒否: 現在の状態は {currentState} です。");
             return;
         }
 
-        if (playerInfo.IsEliminated)
+        // 2. ロール済みチェック (出目が出た後も転がせる問題の対応)
+        if (playerInfo.CurrentDiceResult > 0)
         {
-            Debug.Log($"{playerInfo.PlayerName} は脱落しているためロールできません。");
+            Debug.Log($"ロール入力拒否: {playerInfo.PlayerName} は今ターン既にロール済みです。");
             return;
         }
 
-        if (playerDices.TryGetValue(playerInfo, out DiceRoll diceRoll))
+        if (playerDices.TryGetValue(playerInfo, out DiceRoll diceRoll) && diceRoll != null)
         {
-            if (diceRoll.isRolling) return;
-
-            // オンラインでは、自分のダイスだけがロールできる
-            if (IsOnline() && (diceRoll.photonView == null || !diceRoll.photonView.IsMine))
-            {
-                Debug.Log($"ロール入力拒否: {playerInfo.PlayerName} は自分のダイスではありません。");
-                return;
-            }
-
-            Debug.Log($"[Roll] {playerInfo.PlayerName} がダイスを振ります。");
-            diceRoll.StartRoll((result) => OnDiceRollComplete(playerInfo, result));
+            // オフラインまたは Master Client がローカルでダイスを振る
+            diceRoll.StartRoll(null);
+            Debug.Log($"[Roll Start Local] {playerInfo.PlayerName} のダイスロールを開始。");
         }
         else
         {
-            Debug.LogWarning($"プレイヤー {playerInfo.PlayerName} に対応するDiceRollが見つかりません。");
+            Debug.LogError($"[Roll Start Local] {playerInfo.PlayerName} の DiceRoll コンポーネントが見つかりませんでした。");
+        }
+    }
+
+    [PunRPC]
+    public void HandlePlayerRollInput(string playerName, PhotonMessageInfo info)
+    {
+        // このRPCは MasterClient のみで実行されるべき
+        if (IsOnline() && !PhotonNetwork.IsMasterClient) return;
+
+        Photon.Realtime.Player sender = info.Sender;
+
+        string senderName = string.IsNullOrEmpty(sender.NickName) ? $"Actor{sender.ActorNumber}" : sender.NickName;
+
+        Debug.Log($"[Roll Input RPC Received] Sender: {senderName} (ActorID: {sender.ActorNumber})");
+
+        // 1. PlayerInfoの検索 (ニックネームの不一致を防ぐため、sender.NickNameを使用)
+        PlayerInfo inputPlayer = players.FirstOrDefault(p => p.PlayerName == sender.NickName);
+
+        // 2. 状態・ロール済みチェック
+        if (currentState != GameState.PlayerRolling || inputPlayer == null || inputPlayer.IsEliminated || inputPlayer.CurrentDiceResult > 0)
+        {
+            string reason = inputPlayer == null ? "プレイヤー情報が未登録" :
+                            inputPlayer.IsEliminated ? "脱落済み" : "既にロール済み";
+            Debug.LogWarning($"ロール入力拒否 (Master RPC): {sender.NickName} の要求を拒否。理由: {reason}。");
+            return;
         }
 
-        if (playerInfo.CurrentDiceResult != 0)
+        // ★★★ 修正箇所: PhotonView.Owner を使って正確な DiceRoll オブジェクトを特定 ★★★
+
+        DiceRoll targetDiceRoll = null;
+        // シーン上に存在する全ての DiceRoll コンポーネントを検索
+        DiceRoll[] allDiceRolls = FindObjectsOfType<DiceRoll>();
+
+        Debug.Log($"[Dice Search] シーン内の DiceRoll 数: {allDiceRolls.Length}");
+
+        foreach (DiceRoll dice in allDiceRolls)
         {
-            // プレイヤーがダイスを振り直すことを許可しない場合はこのチェックを維持
-            Debug.LogWarning($"[Input Rejected] {playerInfo.PlayerName} は既に今ターン振っています。(Result: {playerInfo.CurrentDiceResult})");
-            return;
+            if (dice.photonView != null)
+            {
+                // Debug: 各ダイスのオーナー情報
+                string diceOwnerName = dice.photonView.Owner?.NickName ?? "None";
+                int diceOwnerId = dice.photonView.Owner?.ActorNumber ?? -1;
+                Debug.Log($"  - Dice Found: {dice.gameObject.name}, Owner: {diceOwnerName} (ActorID: {diceOwnerId})");
+
+                if (dice.photonView.Owner == sender)
+                {
+                    targetDiceRoll = dice;
+                    break;
+                }
+            }
+        }
+
+        if (targetDiceRoll != null)
+        {
+            // 3. P2のダイスオブジェクトのローカルコピーに対して StartRoll を実行
+            targetDiceRoll.StartRoll(null);
+
+            Debug.Log($"[Roll Start Master] {inputPlayer.PlayerName} (Sender: {sender.NickName}) のダイスロールを開始しました。");
+
+            // ※（オプション）ここで playerDices のマッピングを更新し、次回以降の検索を高速化する（安全のため）
+            if (playerDices.ContainsKey(inputPlayer))
+            {
+                playerDices[inputPlayer] = targetDiceRoll;
+            }
+        }
+        else
+        {
+            // 4. ダイスが見つからない
+            Debug.LogError($"[Roll Start Master] Sender: {sender.NickName} に対応する DiceRoll オブジェクト（PhotonView.Owner）が見つかりませんでした。");
         }
     }
 
@@ -486,36 +544,39 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     /// オンライン時、DiceRollからRPCでダイス結果が同期された時に呼ばれる（DiceRoll.csからRPCターゲットとして呼ばれることを想定）
     /// </summary>
     [PunRPC]
-    public void SyncPlayerDiceResult(string nickName, int resultValue)
+    public void SyncPlayerDiceResult(string playerName, int resultValue, PhotonMessageInfo info)
     {
-        if (!IsOnline()) return;
+        // 1. 送信元のプレイヤーニックネームを取得
+        string senderName = info.Sender.NickName;
 
-        // PlayerInfoリストからNickNameでプレイヤーを探す
-        // オンラインの場合はPlayerNameにNickNameを含めていることを前提とする
-        PlayerInfo targetPlayer = players.FirstOrDefault(p => p.PlayerName == nickName);
+        // Safety Check: DiceRoll.cs が自分の NickName を送信しているはずなので確認
+        if (playerName != senderName)
+        {
+            Debug.LogError($"[SyncResultRPC] RPCで送信された名前 ({playerName}) が送信元 ({senderName}) と一致しません。処理を中断します。");
+            return;
+        }
 
-        if (targetPlayer != null)
+        // 2. 対応する PlayerInfo を検索
+        PlayerInfo targetPlayer = players.FirstOrDefault(p => p.PlayerName == senderName);
+
+        if (targetPlayer == null)
+        {
+            Debug.LogError($"[SyncResultRPC] {senderName} の PlayerInfo が見つかりません。");
+            return;
+        }
+
+        // 3. 結果の更新とログ
+        if (targetPlayer.CurrentDiceResult == 0) // 二重更新防止
         {
             targetPlayer.CurrentDiceResult = resultValue;
-            Debug.Log($"[RPC Sync] {targetPlayer.PlayerName} のダイス結果を同期: {resultValue}");
-
-            // ロール完了したプレイヤー数をカウント
-            playersFinishedRolling++;
-
-            // 全員がロールを終えたかチェック
-            if (playersFinishedRolling >= players.Count(p => !p.IsEliminated))
-            {
-                Debug.Log("[RPC Sync] 全プレイヤーの結果同期が完了しました。HandleResultsを実行。");
-                // マスタークライアントのみ結果判定処理を行う
-                if (PhotonNetwork.IsMasterClient)
-                {
-                    HandleResults();
-                }
-            }
+            Debug.Log($"[Dice Result] {targetPlayer.PlayerName} の出目を {resultValue} に更新しました。");
         }
-        else
+
+        // 4. 全員のロール完了チェック
+        // ★ マスタークライアントのみが CheckAllPlayersRolled() を呼ぶべき
+        if (IsOnline() && PhotonNetwork.IsMasterClient)
         {
-            Debug.LogWarning($"[RPC Sync] NickName: {nickName} に一致する PlayerInfo が見つかりませんでした。");
+            CheckAllPlayersRolled();
         }
     }
 
@@ -524,26 +585,19 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         // playersリスト内の全てのプレイヤーについてスコアを同期
         foreach (var p in players)
         {
-            // プレイヤーに対応する DiceRoll を見つける
-            if (playerDices.TryGetValue(p, out DiceRoll diceRoll))
+            // PlayerInfoからDiceScoreManagerへの参照を取得
+            if (playerDiceScoreManagers.TryGetValue(p, out DiceScoreManager scoreManager))
             {
-                // DiceRollの親（Dice Container）から DiceScoreManager を取得
-                Transform diceContainer = diceRoll.transform.parent;
-                if (diceContainer != null)
+                if (scoreManager != null)
                 {
-                    DiceScoreManager scoreManager = diceContainer.GetComponent<DiceScoreManager>();
+                    // DiceScoreManagerから最新のスコアを取得（GetMyScore() が必要）
+                    int latestScore = scoreManager.GetMyScore();
 
-                    if (scoreManager != null)
+                    if (p.TotalScore != latestScore)
                     {
-                        // DiceScoreManagerから最新のスコア（Custom Propertiesからの値）を取得
-                        int latestScore = scoreManager.GetMyScore();
-
-                        if (p.TotalScore != latestScore)
-                        {
-                            // PlayerInfoのTotalScoreを更新
-                            p.TotalScore = latestScore;
-                            // Debug.Log($"[Score Sync] {p.PlayerName} のスコアを {latestScore} に同期しました。");
-                        }
+                        // PlayerInfoのTotalScoreを更新
+                        p.TotalScore = latestScore;
+                        Debug.Log($"[Score Sync] {p.PlayerName} のスコアを {latestScore} に同期しました。");
                     }
                 }
             }
@@ -568,13 +622,11 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         // 状態を結果判定へ更新（Master Client/オフラインのみ）
         UpdateGameState(GameState.CheckResults);
 
-        // ★★★ スコア加算処理を最初に実行 ★★★
-        // 1. 生存者全員のスコアを加算
+        // ★★★ 1. スコア加算処理を最初に実行 ★★★
         Debug.Log("[HandleResults] スコア加算処理を開始します。");
 
         foreach (var p in players.Where(p => !p.IsEliminated))
         {
-            // 今回の出目
             int scoreToAdd = p.CurrentDiceResult;
 
             if (!IsOnline())
@@ -585,20 +637,14 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             }
             else // オンライン時: Master ClientがDiceScoreManagerへのRPCを指示
             {
-                if (playerDiceScoreManagers.TryGetValue(p, out DiceScoreManager scoreManager))
+                if (playerDiceScoreManagers.TryGetValue(p, out DiceScoreManager scoreManager) && scoreManager.photonView != null)
                 {
-                    // DiceScoreManagerに実装されている AddScore RPC を呼び出す
-                    // DiceScoreManagerは自分のスコアを CustomProperties で更新する
-                    if (scoreManager.photonView != null)
-                    {
-                        // ★ ここで AddScore RPCを呼ぶことが重要
-                        scoreManager.photonView.RPC(
-                            "ReceiveScoreAddition", // DiceScoreManagerに実装されているRPC名を使う
-                            scoreManager.photonView.Owner, // スコアのOwnerに送信
-                            scoreToAdd
-                        );
-                        Debug.Log($"[Online Score] Masterが {p.PlayerName} のDiceScoreManagerへスコア +{scoreToAdd} を指示。");
-                    }
+                    // DiceScoreManagerに実装されている ReceiveScoreAddition RPC を呼び出す
+                    scoreManager.photonView.RPC(
+                        "ReceiveScoreAddition",
+                        scoreManager.photonView.Owner, // スコアのOwnerに送信
+                        scoreToAdd
+                    );
                 }
             }
         }
@@ -607,7 +653,7 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
         int babaValue = babaDiceRoll.LastDiceValue;
 
-        // BABA判定と脱落処理
+        // ★★★ 2. BABA判定と脱落処理（スコア加算後に実行） ★★★
         if (babaValue > 0)
         {
             List<PlayerInfo> eliminatedPlayers = new List<PlayerInfo>();
@@ -620,16 +666,18 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
                 // ★ 脱落者のスコアを0にリセット
                 p.TotalScore = 0;
 
-                // ★ オンライン時：脱落者はスコアを0にリセットするRPCを送信
+                // ★ オンライン時：CustomPropertiesも0にリセットするRPCを送信
                 if (IsOnline() && PhotonNetwork.IsMasterClient)
                 {
-                    if (playerDiceScoreManagers.TryGetValue(p, out DiceScoreManager scoreManager))
+                    if (playerDiceScoreManagers.TryGetValue(p, out DiceScoreManager scoreManager) && scoreManager.photonView != null)
                     {
                         // RPCでスコアマネージャーの所有者へリセットを指示
+                        // GetMyScore() がある前提で、その値分マイナスする
+                        int currentOnlineScore = scoreManager.GetMyScore();
                         scoreManager.photonView.RPC(
                             "ReceiveScoreAddition",
                             scoreManager.photonView.Owner,
-                            -scoreManager.GetMyScore() // 現在のスコア分マイナスして0にする
+                            -currentOnlineScore
                         );
                         Debug.Log($"[Online Reset] {p.PlayerName} が脱落。スコアを0にリセット指示。");
                     }
@@ -653,9 +701,6 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             }
         }
 
-        // スコア表示の更新
-        UpdateScoreUIs();
-
         // ターン進行とリザルトチェック
         bool gameOver = players.Count(p => !p.IsEliminated) <= 1 || currentTurn >= maxTurns;
 
@@ -668,8 +713,11 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             currentTurn++;
             Debug.Log($"[Turn Manager] 次のターンへ移行: {currentTurn}T");
 
-            // ターン毎のダイス結果をリセット
-            foreach (var p in players) p.ResetTurnResult();
+            foreach (var p in players)
+            {
+                // PlayerInfo.cs で定義されているリセット関数を呼び出す
+                p.ResetTurnResult();
+            }
 
             UpdateGameState(GameState.SetBabaDice);
         }
@@ -680,11 +728,17 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     public void UpdateScoreUIs()
     {
+        if (IsOnline())
+        {
+            // Custom Propertiesから最新のスコアをローカルの PlayerInfo に引っ張ってくる
+            SyncScoresFromDiceManagers();
+        }
+
         // ターン情報とBABAダイス結果の更新
         // babaDiceRollがnullでないか、LastDiceValueが設定されているかを確認
-        string babaResult = (babaDiceRoll != null && babaDiceRoll.LastDiceValue > 0) ? babaDiceRoll.LastDiceValue.ToString() : "N/A";
+        string babaResult = (babaDiceRoll != null && babaDiceRoll.LastDiceValue > 0) ? babaDiceRoll.LastDiceValue.ToString() : "?";
         turnText.text = $"Turn: {currentTurn} / {maxTurns}";
-        babaDiceText.text = $"BABA: {babaResult}";
+        babaDiceText.text = $"BABADice : {babaResult}";
 
         // プレイヤーのスコア表示の更新
         for (int i = 0; i < maxPlayers; i++)
@@ -730,7 +784,7 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             else
             {
                 // 未参加のプレイヤー枠
-                playerScoreTexts[i].text = "???";
+                playerScoreTexts[i].text = "??";
                 playerScoreTexts[i].color = Color.gray;
             }
         }
@@ -793,26 +847,42 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
     {
-        // オフライン時は無視
+        // オンライン時のみ実行
+        // GameManager.instanceに依存せず、IsOnline() を使用
         if (!IsOnline()) return;
 
         // ターンが更新された場合
         if (changedProps.ContainsKey("CurrentTurn"))
         {
             currentTurn = (int) changedProps["CurrentTurn"];
-            if (turnText != null)
-            {
-                turnText.text = $"Turn: {currentTurn} / {maxTurns}";
-            }
+            if (turnText != null) turnText.text = $"Turn: {currentTurn} / {maxTurns}";
+            Debug.Log($"[Photon Sync] CurrentTurnを {currentTurn} に同期しました。");
         }
 
         // GameStateが更新された場合
         if (changedProps.ContainsKey("GameState"))
         {
             GameState newState = (GameState) ((int) changedProps["GameState"]);
-            // ローカルでゲーム状態を更新
+
+            // ローカルの状態が既に同じか、Master Client自身（更新元）であれば無視
+            if (currentState == newState || PhotonNetwork.IsMasterClient) return;
+
+            // ★ 修正: ローカルの状態を直接更新
             currentState = newState;
-            Debug.Log($"[GameState Sync] 状態遷移: {currentState} (Room Prop)");
+            Debug.Log($"[Photon Sync] GameStateを {currentState} に同期しました。");
+
+            // 状態ごとのローカルな処理を開始 (UpdateGameStateから必要な部分をコピー)
+            switch (currentState)
+            {
+                case GameState.SetBabaDice:
+                // BABAダイスのロール開始 (非マスターも実行)
+                
+                break;
+                // 他の状態の処理...
+            }
+
+            // UI更新
+            UpdateScoreUIs();
         }
     }
 
@@ -853,7 +923,6 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     private void CheckAllPlayersRolled()
     {
         // 現在のターンで脱落していないプレイヤー全員がダイスを振ったかチェック
-        // CurrentDiceResult > 0 であれば振ったとみなす
         bool allRolled = players
             .Where(p => !p.IsEliminated) // 脱落者を除外
             .All(p => p.CurrentDiceResult > 0);
@@ -861,18 +930,50 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         // 全員が振り終わり、かつ現在の状態がPlayerRollingである場合
         if (allRolled && currentState == GameState.PlayerRolling)
         {
-            Debug.Log("[Game Flow] 全プレイヤーのロールが完了しました。結果判定へ移行します。");
+            Debug.Log("[CheckAllPlayersRolled] 全生存プレイヤーのダイスロール結果を受信しました。");
 
-            // オンラインの場合はMaster Clientのみが状態遷移を指示する
-            if (IsOnline() && PhotonNetwork.IsMasterClient)
+            // ★ 全員のダイスが物理的に停止したかチェック
+            bool allDiceStopped = players
+                .Where(p => !p.IsEliminated)
+                // isRollingフラグをチェック
+                .All(p => playerDices.ContainsKey(p) && playerDices[p] != null && !playerDices[p].isRolling);
+
+            // BABAダイスも停止しているかチェック
+            bool babaDiceStopped = (babaDiceRoll != null && !babaDiceRoll.isRolling);
+
+            if (allDiceStopped && babaDiceStopped)
             {
-                UpdateGameState(GameState.CheckResults);
+                Debug.Log("[CheckAllPlayersRolled] 全てのダイスが停止しました。結果判定に移行します。");
+
+                // ★ マスタークライアントまたはオフライン時のみ実行
+                if (!IsOnline() || PhotonNetwork.IsMasterClient)
+                {
+                    HandleResults();
+                }
             }
-            else if (!IsOnline())
-            {
-                // ローカルプレイ時は直接状態遷移
-                UpdateGameState(GameState.CheckResults);
-            }
+        }
+    }
+
+    public override void OnJoinedRoom()
+    {
+        // 既存の DiceGameManager の OnJoinedRoom 処理がある場合はここに記述
+
+        // 【重要】自分のダイスプレハブをネットワーク経由で生成
+        // assignedDicePrefabs[0] が P1 用、assignedDicePrefabs[1] が P2 用... と想定
+        int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 1;
+
+        if (playerIndex >= 0 && playerIndex < assignedDicePrefabs.Length)
+        {
+            string dicePrefabName = assignedDicePrefabs[playerIndex].name;
+            Transform spawnPoint = playerSpawnPoints[playerIndex];
+
+            // ★★★ 修正: PhotonNetwork.Instantiate で生成する ★★★
+            PhotonNetwork.Instantiate(
+                dicePrefabName,
+                spawnPoint.position,
+                spawnPoint.rotation
+            );
+            Debug.Log($"[Dice Instantiation] {PhotonNetwork.LocalPlayer.NickName} が自分のダイス ({dicePrefabName}) を生成しました。");
         }
     }
 }

@@ -105,6 +105,23 @@ public class DiceRoll : MonoBehaviourPun
             // onRollCompleteに結果文字列 (例: "3") を渡す
             onRollComplete?.Invoke(resultFace);
 
+            if (photonView.IsMine && PhotonNetwork.InRoom)
+            {
+                // 自分のダイスが止まったら、結果をRPCで全クライアントに通知 (これはDiceGameManagerに送信するRPC)
+                DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+                if (manager != null && manager.photonView != null)
+                {
+                    // プレイヤーの識別子（NickName）と結果を送信
+                    manager.photonView.RPC(
+                        "SyncPlayerDiceResult",
+                        RpcTarget.All,
+                        PhotonNetwork.LocalPlayer.NickName,
+                        lastDiceValue
+                    );
+                    Debug.Log($"[DiceRoll] {PhotonNetwork.LocalPlayer.NickName} のダイス結果 {lastDiceValue} を全クライアントに送信。");
+                }
+            }
+
             onRollComplete = null;
         }
         else

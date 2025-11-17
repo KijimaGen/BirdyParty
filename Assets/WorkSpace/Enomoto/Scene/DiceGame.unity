@@ -2248,7 +2248,6 @@ MonoBehaviour:
   turnText: {fileID: 1732020262972836007}
   babaDiceText: {fileID: 3465465471386236959}
   resultText: {fileID: 5877244418568808817}
-  rollButton: {fileID: 0}
   playerScoreTexts:
   - {fileID: 5707024913233336853}
   - {fileID: 880581028452445464}
@@ -4458,7 +4457,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1212, y: 454.1}
+  m_AnchoredPosition: {x: 1216.6, y: 453.5}
   m_SizeDelta: {x: 169.0086, y: 30.8363}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1694616743996025414

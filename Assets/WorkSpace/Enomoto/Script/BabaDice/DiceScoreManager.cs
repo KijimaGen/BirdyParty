@@ -5,10 +5,8 @@ using ExitGames.Client.Photon;
 
 public class DiceScoreManager : MonoBehaviourPunCallbacks
 {
-    // 自分のスコアキャッシュ（CustomPropertiesにも保持される）
     private int diceScore = 0;
 
-    // 初期化
     private void Start()
     {
         // 自分のプレイヤーだけスコアを初期化
@@ -18,15 +16,16 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // 外部からスコア加算
+    [PunRPC]
+    public void ReceiveScoreAddition(int amount)
+    {
+        Debug.Log($"[DiceScoreManager.RPC] スコア加算リクエストを受信: +{amount}");
+        AddScore(amount);
+    }
+
     public void AddScore(int amount)
     {
-        Debug.Log("ダイスゲームでオンラインでのスコア加算処理が呼ばれたよ");
-        GameObject rootObject = transform.parent.gameObject;
-        Debug.Log($"親: {rootObject.name}");
-
-        
-        if (!rootObject.GetComponent<PhotonView>().IsMine) return; // 自分以外のプレイヤーは操作禁止
+        if (!photonView.IsMine) return;
 
         Debug.Log("ダイスゲームでオンラインでのスコア加算処理が呼ばれたよ");
         int newScore = diceScore + amount;
@@ -41,6 +40,7 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
         // CustomPropertiesをセット
         Hashtable hash = new Hashtable();
         hash["diceScore"] = diceScore;
+
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
     }
@@ -52,16 +52,29 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
         if (changedProps.ContainsKey("diceScore"))
         {
             int updatedScore = (int) changedProps["diceScore"];
-            //スコアボードにも更新してもらう
-            
-            // スコアボード更新
-            DropgameScoreboardUI.Instance?.RefreshUI();
-            Debug.Log("ダイスゲームでのスコア共有処理が呼ばれました");
+
+            // 1. 親階層からPlayerInputHandlerを見つけ、そのPlayerInfoにアクセス
+            PlayerInputHandler handler = GetComponentInParent<PlayerInputHandler>();
+            if (handler != null && handler.PlayerData != null)
+            {
+                // PlayerInfo の TotalScore を更新（ローカルな集計用）
+                handler.PlayerData.TotalScore = updatedScore;
+
+                // DiceGameManagerのUIを更新（通常時のスコアボードとリザルトの両方に対応）
+                DiceGameManager gameManager = FindObjectOfType<DiceGameManager>();
+                if (gameManager != null)
+                {
+                    gameManager.UpdateScoreUIs();
+                }
+            }
+
+            Debug.Log("ダイスゲームでのスコア共有処理が呼ばれました。PlayerInfo.TotalScoreを同期しました。");
             DebugLogDice();
         }
     }
 
-    private void DebugLogDice() {
+    private void DebugLogDice()
+    {
         Debug.Log($"{GetComponent<PhotonView>().ViewID}の得点は{diceScore}");
     }
 

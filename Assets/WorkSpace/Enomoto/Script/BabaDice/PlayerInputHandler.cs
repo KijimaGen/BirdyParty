@@ -30,6 +30,16 @@ public class PlayerInputHandler : MonoBehaviour
             // エラーログを修正: DiceRollがなくてもエラーにしない
             Debug.LogError("PlayerInputHandler: 必要なコンポーネント(DiceGameManagerまたはPlayerInput)が見つかりません。Prefabの設定を確認してください。", this);
         }
+
+        if (playerInput != null)
+        {
+            Debug.Log($"[Input Check] PlayerInput Index: {playerInput.playerIndex} | GameObject: {gameObject.name}");
+        }
+
+        if (manager != null && playerInput != null)
+        {
+            manager.TryRegisterNewPlayer(playerInput, diceRoll, this);
+        }
     }
 
     // Input Action Assetで定義したアクション名 'Roll' に対応する関数

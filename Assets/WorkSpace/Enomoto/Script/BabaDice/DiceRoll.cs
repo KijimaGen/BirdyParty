@@ -67,35 +67,49 @@ public class DiceRoll : MonoBehaviourPun
     {
         if (rb == null) return;
 
+        // ほぼ停止したら
         if (rb.velocity.magnitude < 0.1f && rb.angularVelocity.magnitude < 0.1f)
         {
             isRolling = false;
 
+            // --- 修正箇所: 出目決定ロジックの修正と整理 ---
+            int topFaceValue = 0;
 
-            DiceCheck();
-            onRollComplete?.Invoke(resultFace);
-
-
-            if (GameManager.instance != null && GameManager.instance.IsOnline() && photonView.IsMine)
+            // currentBottomFaceは "Face_1", "Face_2" のような文字列を期待
+            if (!string.IsNullOrEmpty(currentBottomFace))
             {
-                // 自分のダイスが止まったら、結果をRPCで全クライアントに通知
-                DiceGameManager manager = FindObjectOfType<DiceGameManager>();
-                //if (manager != null && manager.photonView != null)
-                //{
-                //    // プレイヤーの識別子（NickName）と結果を送信
-                //    manager.photonView.RPC(
-                //        "SyncPlayerDiceResult",
-                //        RpcTarget.All,
-                //        PhotonNetwork.LocalPlayer.NickName,
-                //        lastDiceValue
-                //    );
-                //}
+                // "Face_1" から "1" の部分を抽出し、intに変換
+                string bottomFaceNumberStr = currentBottomFace.Replace("Face_", "");
+
+                if (int.TryParse(bottomFaceNumberStr, out int bottom))
+                {
+                    // 上面の出目を計算 (1-6)
+                    topFaceValue = 7 - bottom;
+                    resultFace = topFaceValue.ToString(); // 結果文字列を設定
+                    lastDiceValue = topFaceValue; // 内部値を保存
+                }
             }
+
+            // もし topFaceValue が 0 のままなら、結果が不正であることを示す
+            if (topFaceValue == 0)
+            {
+                // 結果が取得できなかった場合は、エラーとして "0" を返すようにする
+                // これにより、GameManager側で "" ではなく "0" が渡され、より安全になる。
+                resultFace = "0";
+                Debug.LogError($"[DiceRoll] サイコロの出目決定に失敗しました。currentBottomFace: '{currentBottomFace}'", this);
+            }
+            // --- 修正箇所終了 ---
+
+            DiceCheck(); // ダイスの見た目（画像/モデル）を更新
+
+            // onRollCompleteに結果文字列 (例: "3") を渡す
+            onRollComplete?.Invoke(resultFace);
 
             onRollComplete = null;
         }
         else
         {
+            // 停止していなければ0.5秒後に再チェック
             Invoke(nameof(CheckIfStopped), 0.5f);
         }
     }

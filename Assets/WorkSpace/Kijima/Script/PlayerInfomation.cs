@@ -141,7 +141,45 @@ public class PlayerInfomation:MonoBehaviour{
 
     private void LoadDiceGameScene()
     {
-        dicePlayerPrefab.SetActive(true);
+        if (photonView.IsMine)
+        {
+            // プレイヤーの ActorNumber (1から始まる) を取得
+            int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber;
+
+            // DiceGameManager からスポーンポイントを取得 (FindObjectOfTypeを使用)
+            DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+            Vector3 spawnPos = Vector3.zero;
+            if (manager != null && playerIndex > 0 && playerIndex <= manager.playerSpawnPoints.Length)
+            {
+                // 0始まりの配列に合わせる
+                spawnPos = manager.playerSpawnPoints[playerIndex - 1].position;
+            }
+
+            Debug.Log($"[Spawn Debug] P{playerIndex} のスポーン座標: {spawnPos}");
+
+            // ★★★ 追加ログ ★★★
+            Debug.Log($"[Instantiate Check] プレイヤー: {PhotonNetwork.LocalPlayer.NickName} が自身のダイスオブジェクト生成を試みます。");
+
+            GameObject spawnedDicePlayer = PhotonNetwork.Instantiate(
+                dicePlayerPrefab.name, // ここで指定しているPrefab名を確認
+                spawnPos,
+                Quaternion.identity
+            );
+
+            // ★★★ 追加ログ ★★★
+            if (spawnedDicePlayer != null)
+            {
+                Debug.Log($"[Instantiate Check] ネットワークオブジェクトの生成に成功しました。名前: {spawnedDicePlayer.name}");
+            }
+            else
+            {
+                Debug.LogError($"[Instantiate Check] ネットワークオブジェクトの生成に失敗しました。Prefab名: {dicePlayerPrefab.name}");
+            }
+        }
+        else
+        {
+            Debug.Log($"[Instantiate Check] リモートプレイヤーのため生成をスキップ。");
+        }
     }
 
     //タイトル画面でエントリーしたい

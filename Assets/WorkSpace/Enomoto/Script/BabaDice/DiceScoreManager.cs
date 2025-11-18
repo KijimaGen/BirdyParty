@@ -75,6 +75,12 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
 
     private void DebugLogDice()
     {
+        if (GameManager.instance == null)
+        {
+            Debug.LogWarning("DebugLogDice: GameManager.instance が null です。");
+            return;
+        }
+
         Debug.Log($"{GetComponent<PhotonView>().ViewID}の得点は{diceScore}");
     }
 

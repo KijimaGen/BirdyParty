@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class DiceRoll : MonoBehaviourPun
 {
@@ -15,19 +16,9 @@ public class DiceRoll : MonoBehaviourPun
 
     // GameManagerに結果を通知するためのコールバック
     private Action<string> onRollComplete;
-    private int lastDiceValue = 0; 
+    private int lastDiceValue = 0;
 
-    [Header("表示させるサイコロ画像")]
-    // (UI設定は元のコードを維持)
-    [SerializeField] private GameObject dice1;
-    [SerializeField] private GameObject dice2;
-    [SerializeField] private GameObject dice3;
-    [SerializeField] private GameObject dice4;
-    [SerializeField] private GameObject dice5;
-    [SerializeField] private GameObject dice6;
-
-    // 出現位置のGameObject（Inspectorで設定が必要）
-    [SerializeField] private GameObject UseDice;
+    private DiceVisualController diceVisuals;
 
     // Rigidbodyの取得はAwakeで行い、初期化を保証
     void Awake()
@@ -61,6 +52,72 @@ public class DiceRoll : MonoBehaviourPun
         rb.AddTorque(torque, ForceMode.Impulse);
 
         Invoke(nameof(CheckIfStopped), 2f);
+    }
+
+    public void OnPhotonInstantiate(PhotonMessageInfo info)
+    {
+        // ネットワークオブジェクト生成直後に一度だけ呼ばれる
+        if (photonView.IsMine)
+        {
+            // ★★★ 修正1: 1フレーム遅延による無限ループ回避を StartCoroutine で実行 ★★★
+            StartCoroutine(InitializeVisualsAfterDelay());
+        }
+    }
+
+    private IEnumerator InitializeVisualsAfterDelay()
+    {
+        // 1フレーム待機し、Unity/Photonの初期化サイクルを完了させる
+        yield return null;
+
+        if (!photonView.IsMine) yield break; // 再度 IsMine チェック
+
+        DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+
+        if (manager == null)
+        {
+            Debug.LogError("[DiceRoll] DiceGameManagerが見つかりません。ビジュアル生成をスキップします。");
+            yield break;
+        }
+
+        // プレイヤーIDの決定 (ActorNumberは1から始まるため、-1で0始まりのインデックスを取得)
+        int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 1;
+        GameObject correctVisualPrefab = null;
+
+        // 割り当てられたプレハブ配列の範囲チェックとプレハブ取得
+        if (playerIndex >= 0 && playerIndex < manager.assignedDicePrefabs.Length)
+        {
+            correctVisualPrefab = manager.assignedDicePrefabs[playerIndex];
+        }
+
+        if (correctVisualPrefab != null)
+        {
+            // ローカルで見た目のみを生成 (ネットワーク生成ではない)
+            GameObject visualClone = Instantiate(correctVisualPrefab, transform.position, transform.rotation);
+
+            // 親を設定し、ローカル位置をリセット
+            visualClone.transform.SetParent(this.transform, worldPositionStays: true);
+            visualClone.transform.localPosition = Vector3.zero;
+            visualClone.transform.localRotation = Quaternion.identity;
+
+            diceVisuals = visualClone.GetComponent<DiceVisualController>();
+
+            if (diceVisuals == null)
+            {
+                Debug.LogError($"[DiceRoll] ビジュアルプレハブ'{correctVisualPrefab.name}'に DiceVisualController が見つかりません。");
+            }
+
+            // ★ 初期状態の見た目（非表示）
+            if (diceVisuals != null)
+            {
+                diceVisuals.DisplayDiceResult(0);
+            }
+
+            Debug.Log($"[DiceRoll Debug] {PhotonNetwork.LocalPlayer.NickName} のダイスビジュアルをローカルに生成完了。");
+        }
+        else
+        {
+            Debug.LogError($"[DiceRoll] P{playerIndex + 1} の Visual Prefabが見つからないか、Managerの設定が不正です。", this);
+        }
     }
 
     void CheckIfStopped()
@@ -98,17 +155,28 @@ public class DiceRoll : MonoBehaviourPun
                 resultFace = "0";
                 Debug.LogError($"[DiceRoll] サイコロの出目決定に失敗しました。currentBottomFace: '{currentBottomFace}'", this);
             }
-            // --- 修正箇所終了 ---
-
-            DiceCheck(); // ダイスの見た目（画像/モデル）を更新
 
             // onRollCompleteに結果文字列 (例: "3") を渡す
             onRollComplete?.Invoke(resultFace);
 
-            if (photonView.IsMine && PhotonNetwork.InRoom)
+            Debug.Log($"[DiceRoll Debug] Owner: {photonView.Owner.NickName}, IsMine: {photonView.IsMine}, InRoom: {PhotonNetwork.InRoom}");
+
+            if (PhotonNetwork.InRoom && photonView.Owner == PhotonNetwork.LocalPlayer)
             {
                 // 自分のダイスが止まったら、結果をRPCで全クライアントに通知 (これはDiceGameManagerに送信するRPC)
                 DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+
+                if (manager == null)
+                {
+                    Debug.LogError("[DiceRoll Debug] DiceGameManager がシーンから見つかりません。");
+                    return; // managerがないため処理を中断
+                }
+                if (manager.photonView == null)
+                {
+                    Debug.LogError("[DiceRoll Debug] DiceGameManager に PhotonView がアタッチされていません。");
+                    return; // photonViewがないため処理を中断
+                }
+
                 if (manager != null && manager.photonView != null)
                 {
                     // プレイヤーの識別子（NickName）と結果を送信
@@ -131,20 +199,43 @@ public class DiceRoll : MonoBehaviourPun
         }
     }
 
+    void DiceCheck()
+    {
+        // (物理的な出目決定ロジックは維持)
+        if (int.TryParse(currentBottomFace.Replace("Face_", ""), out int bottom))
+        {
+            lastDiceValue = 7 - bottom;
+        }
+        else
+        {
+            resultFace = "0";
+            lastDiceValue = 0;
+            Debug.LogError($"[DiceRoll] サイコロの出目決定に失敗しました。currentBottomFace: '{currentBottomFace}'", this);
+        }
+
+        // ★★★ 修正2: DiceVisualController が null でないかチェックしてから呼び出す ★★★
+        if (diceVisuals != null)
+        {
+            diceVisuals.DisplayDiceResult(lastDiceValue);
+        }
+        else
+        {
+            Debug.LogWarning($"[DiceRoll] DiceVisualController が null です。見た目の表示をスキップしました。");
+        }
+
+        // (RPC送信ロジックは維持)
+        onRollComplete?.Invoke(resultFace);
+        // ... (RPC送信ロジック) ...
+    }
+
+    public void SetVisualController(DiceVisualController visuals)
+    {
+        diceVisuals = visuals;
+    }
+
     public void SetBottomFace(string faceName)
     {
         currentBottomFace = faceName;
-    }
-
-    private void DiceCheck()
-    {
-        GameObject[] dices = { dice1, dice2, dice3, dice4, dice5, dice6 };
-        foreach (var d in dices) d.SetActive(false);
-
-        if (int.TryParse(resultFace, out int result) && result >= 1 && result <= 6)
-        {
-            dices[result - 1].SetActive(true);
-        }
     }
 
     public int GetCurrentResult()

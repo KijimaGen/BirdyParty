@@ -452,44 +452,49 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         // このRPCは MasterClient のみで実行されるべき
         if (IsOnline() && !PhotonNetwork.IsMasterClient) return;
 
-        Photon.Realtime.Player sender = info.Sender;
+        Photon.Realtime.Player sender = info.Sender; // RPCを送信したプレイヤー
 
+        // ニックネームが空でも、ActorNumber (ID) は必ず存在する
         string senderName = string.IsNullOrEmpty(sender.NickName) ? $"Actor{sender.ActorNumber}" : sender.NickName;
 
-        Debug.Log($"[Roll Input RPC Received] Sender: {senderName} (ActorID: {sender.ActorNumber})");
+        // 1. PlayerInfo を安全に取得
+        PlayerInfo inputPlayer = players.FirstOrDefault(p => p.PlayerName == playerName);
 
-        // 1. PlayerInfoの検索 (ニックネームの不一致を防ぐため、sender.NickNameを使用)
-        PlayerInfo inputPlayer = players.FirstOrDefault(p => p.PlayerName == sender.NickName);
+        // 2. PlayerInfo が null でないことを確認
+        if (inputPlayer == null)
+        {
+            Debug.LogWarning($"(Master RPC): {senderName} の要求を拒否。理由: PlayerInfoが見つかりません。");
+
+            // ★修正2: デバッグ情報を追加。MasterClientの持つPlayerInfoリストの内容をログ出力★
+            Debug.Log($"(Master Debug): MasterClientが持つ PlayerInfo: {string.Join(", ", players.Select(p => p.PlayerName))}");
+
+            return;
+        }
 
         // 2. 状態・ロール済みチェック
         if (currentState != GameState.PlayerRolling || inputPlayer == null || inputPlayer.IsEliminated || inputPlayer.CurrentDiceResult > 0)
         {
             string reason = inputPlayer == null ? "プレイヤー情報が未登録" :
                             inputPlayer.IsEliminated ? "脱落済み" : "既にロール済み";
-            Debug.LogWarning($"ロール入力拒否 (Master RPC): {sender.NickName} の要求を拒否。理由: {reason}。");
+            Debug.LogWarning($"ロール入力拒否 (Master RPC): {senderName} の要求を拒否。理由: {reason}。");
             return;
         }
 
-        // ★★★ 修正箇所: PhotonView.Owner を使って正確な DiceRoll オブジェクトを特定 ★★★
-
+        // 3. PhotonView.Owner を使って正確な DiceRoll オブジェクトを特定
         DiceRoll targetDiceRoll = null;
-        // シーン上に存在する全ての DiceRoll コンポーネントを検索
         DiceRoll[] allDiceRolls = FindObjectsOfType<DiceRoll>();
 
-        Debug.Log($"[Dice Search] シーン内の DiceRoll 数: {allDiceRolls.Length}");
+        Debug.Log($"[Roll Input RPC] Sender: {senderName} (ActorID: {sender.ActorNumber})");
 
         foreach (DiceRoll dice in allDiceRolls)
         {
             if (dice.photonView != null)
             {
-                // Debug: 各ダイスのオーナー情報
-                string diceOwnerName = dice.photonView.Owner?.NickName ?? "None";
-                int diceOwnerId = dice.photonView.Owner?.ActorNumber ?? -1;
-                Debug.Log($"  - Dice Found: {dice.gameObject.name}, Owner: {diceOwnerName} (ActorID: {diceOwnerId})");
-
+                // OwnerがRPCを送信してきたプレイヤー（sender）と一致するかを確認
                 if (dice.photonView.Owner == sender)
                 {
                     targetDiceRoll = dice;
+                    Debug.Log($"  - Dice Found & Owner Match: {dice.gameObject.name}");
                     break;
                 }
             }
@@ -497,21 +502,14 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
         if (targetDiceRoll != null)
         {
-            // 3. P2のダイスオブジェクトのローカルコピーに対して StartRoll を実行
+            // 4. ダイスロールの開始
             targetDiceRoll.StartRoll(null);
-
-            Debug.Log($"[Roll Start Master] {inputPlayer.PlayerName} (Sender: {sender.NickName}) のダイスロールを開始しました。");
-
-            // ※（オプション）ここで playerDices のマッピングを更新し、次回以降の検索を高速化する（安全のため）
-            if (playerDices.ContainsKey(inputPlayer))
-            {
-                playerDices[inputPlayer] = targetDiceRoll;
-            }
+            Debug.Log($"[Roll Start Master] {inputPlayer.PlayerName} のダイスロールを開始しました。");
         }
         else
         {
-            // 4. ダイスが見つからない
-            Debug.LogError($"[Roll Start Master] Sender: {sender.NickName} に対応する DiceRoll オブジェクト（PhotonView.Owner）が見つかりませんでした。");
+            // 5. ダイスが見つからない
+            Debug.LogError($"[Roll Start Master] Sender: {senderName} に対応する DiceRoll オブジェクト（PhotonView.Owner）が見つかりませんでした。ダイスが PhotonNetwork.Instantiate されていない可能性があります。");
         }
     }
 
@@ -828,15 +826,26 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     /// <summary>
     /// オンライン時: 部屋の人数をチェックし、ゲームを開始するかどうか判断（Master Clientのみ実行）
     /// </summary>
-    void CheckOnlinePlayers()
+    public void CheckOnlinePlayers()
     {
-        if (!IsOnline() || !PhotonNetwork.IsMasterClient || PhotonNetwork.CurrentRoom == null) return;
+        if (!IsOnline() || !PhotonNetwork.IsMasterClient) return;
 
-        // 参加しているプレイヤー数をチェック
-        if (PhotonNetwork.CurrentRoom.PlayerCount >= maxPlayers)
+        // ★★★ 修正: 念のため players リスト自体が初期化されているか確認 ★★★
+        if (players == null)
         {
-            // プレイヤーが揃ったらゲーム開始
+            Debug.LogError("Critical: players list is null. Initialization failed.");
+            return;
+        }
+
+        // ... (既存のロジックを維持) ...
+        if (players.Count >= maxPlayers)
+        {
+            // ...
             UpdateGameState(GameState.SetBabaDice);
+        }
+        else if (players.Count >= 1 && currentState == GameState.WaitingForPlayers)
+        {
+
         }
     }
 
@@ -892,6 +901,8 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         if (!IsOnline()) return;
+
+        Debug.Log($"[GameFlow Check] 2. OnPlayerEnteredRoom が実行されました。新プレイヤー: {newPlayer.NickName}");
 
         Debug.Log($"[Photon] {newPlayer.NickName} が入室しました。");
 
@@ -956,24 +967,33 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        // 既存の DiceGameManager の OnJoinedRoom 処理がある場合はここに記述
+        Debug.Log("[GameFlow Check] 1. OnJoinedRoom が実行されました。");
 
-        // 【重要】自分のダイスプレハブをネットワーク経由で生成
-        // assignedDicePrefabs[0] が P1 用、assignedDicePrefabs[1] が P2 用... と想定
-        int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 1;
-
-        if (playerIndex >= 0 && playerIndex < assignedDicePrefabs.Length)
+        if (string.IsNullOrEmpty(PhotonNetwork.LocalPlayer.NickName))
         {
-            string dicePrefabName = assignedDicePrefabs[playerIndex].name;
-            Transform spawnPoint = playerSpawnPoints[playerIndex];
-
-            // ★★★ 修正: PhotonNetwork.Instantiate で生成する ★★★
-            PhotonNetwork.Instantiate(
-                dicePrefabName,
-                spawnPoint.position,
-                spawnPoint.rotation
-            );
-            Debug.Log($"[Dice Instantiation] {PhotonNetwork.LocalPlayer.NickName} が自分のダイス ({dicePrefabName}) を生成しました。");
+            // ActorNumberは1から始まるユニークなID
+            PhotonNetwork.LocalPlayer.NickName = "Player " + PhotonNetwork.LocalPlayer.ActorNumber;
+            Debug.Log($"[Network] ニックネームを {PhotonNetwork.LocalPlayer.NickName} に設定しました。");
         }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CheckOnlinePlayers();
+        }
+    }
+
+    public PlayerInfo GetPlayerInfo(string playerName)
+    {
+        if (players == null)
+        {
+            Debug.LogError("Player list is null in DiceGameManager.");
+            return null;
+        }
+
+        // ★修正1: Trim() と大文字小文字無視で比較の安全性を高める（念のため）★
+        return players.FirstOrDefault(p =>
+            p != null &&
+            p.PlayerName.Trim().Equals(playerName.Trim(), System.StringComparison.OrdinalIgnoreCase) // 大文字小文字を無視
+        );
     }
 }

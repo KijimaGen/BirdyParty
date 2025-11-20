@@ -8,6 +8,7 @@ using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : SystemObject{
@@ -21,12 +22,15 @@ public class GameManager : SystemObject{
     private GameObject OnlineManager;
     [SerializeField]
     private GameObject OfflineManager;
-
+    //インプットマネージャー
+    PlayerInput playerInput;
     public override async UniTask Initialize() {
         
         instance = this;
 
         SetIsOnline(isOnline);
+
+        playerInput = OfflineManager.GetComponent<PlayerInput>();
 
         await UniTask.CompletedTask;
     }
@@ -44,6 +48,19 @@ public class GameManager : SystemObject{
     /// </summary>
     public void SetIsOnline(bool t) {
         isOnline = t;
+
+        //オンラインマネージャーなかったら取得
+        if(OnlineManager == null) {
+            Transform childTransform = transform.Find("NetWorkManager");
+            OnlineManager = childTransform.gameObject;
+        }
+
+        //オフラインマネージャーなかったら取得
+        if (OfflineManager == null) {
+            Transform childTransform = transform.Find("PlayerInputManager");
+            OfflineManager = childTransform.gameObject;
+        }
+
         if (t) {
             OnlineManager.SetActive(true);
             OfflineManager.SetActive(false);

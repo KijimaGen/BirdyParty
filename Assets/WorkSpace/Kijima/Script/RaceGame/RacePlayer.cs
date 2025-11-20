@@ -5,18 +5,18 @@
  * @date 2025/9/6
  */
 using Photon.Pun;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RacePlayer : MonoBehaviour {
     //移動速度
-    private float moveSpeed = 8f;
+    [SerializeField]
+    private float moveSpeed = 300f;
     //オリジナルのスピード
     private float originSpeed;
 
-    //入力値
-    private Vector2 moveInput;
     //りぎっどボディの入手
     private Rigidbody rb;
 
@@ -60,7 +60,9 @@ public class RacePlayer : MonoBehaviour {
     //これがプレイヤーかどうかを示す
     [SerializeField]
     private GameObject PlayerIsMine;
-    
+
+    //デフォルトのY座標
+    private const float DefaultYPos = 1.2f;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -69,15 +71,17 @@ public class RacePlayer : MonoBehaviour {
         //親のフォトンビュー取得
         photonView = transform.parent.GetComponent<PhotonView>();
 
-        
         //カメラの参照に自身を入れる
         Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
         //レースマネージャーにも入れる
         RaceManager_PUN.instance.AddRacers(this);
-        //自身のポジションを設定
-        RaceManager_PUN.instance.PlayerStartPosSet();
+        
         //自身の番号を取得
         myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        if(myNumber == -1) {
+            myNumber = RaceManager_PUN.instance.GetPlayerNumber(this);
+        }
+
         isGoal = false;
         //スピードのオリジナルを取得
         originSpeed = moveSpeed;
@@ -93,15 +97,29 @@ public class RacePlayer : MonoBehaviour {
 
         //ゲーム開始
         RaceManager_PUN.instance.TryStartCountDown();
+
+        //向きの固定
+        transform.Rotate(0, -90, 0);
+        //色の設定
+        SetMyColor();
+
+        //自身のポジションを設定
+        RaceManager_PUN.instance.PlayerStartPosSet();
     }
 
     //アップデート
     void FixedUpdate() {
-        
-        //ポジション固定
-        Vector3 setpos = new Vector3(transform.position.x,1.2f,transform.position.z);
-        transform.position = setpos;
+        if(transform.position.y - DefaultYPos > 0.1f && !RaceManager_PUN.instance.isGoal) {
+            //Y軸ポジション固定
+            Vector3 setpos = new Vector3(transform.position.x, DefaultYPos, transform.position.z);
+            transform.position = setpos;
+        }
 
+        //スタート前に位置を固定
+        if (!RaceManager_PUN.instance.isStart) {
+            //自身のポジションを設定
+            RaceManager_PUN.instance.PlayerStartPosSet();
+        }
         
         //ここでブースト時間の確認＆switchの切り替え
         if (isBoost) {
@@ -130,38 +148,22 @@ public class RacePlayer : MonoBehaviour {
         }
 
 
-        //開始するまで動いてはならない
-        if (!RaceManager_PUN.instance.isStart) {
-            rb.velocity = Vector3.zero;
-            return;
-        }
-
         //移動
-        if (!isGoal)
+        if (!isGoal　&& RaceManager_PUN.instance.isStart) {
             Move();
-
+        }
+        
         //ゴールしているのに動いてはならない
         if(isGoal) {
             rb.velocity = Vector3.zero;
             transform.eulerAngles = Vector3.zero;
         }
-
-        
-
-    }
-
-    //インプットシステムの入力値の受け取り
-    public void OnMove(InputAction.CallbackContext context) {
-        moveInput = context.ReadValue<Vector2>();
-        
     }
 
     /// <summary>
     /// 移動
     /// </summary>
     private void Move() {
-        
-
         // X方向は固定（常に前進）
         float x = 1f; // ← 進行方向固定したいならこれでOK
         float z = GetComponentInParent<PlayerInfomation>().GetLeftStickValue().y;
@@ -228,17 +230,14 @@ public class RacePlayer : MonoBehaviour {
         }
     }
 
-    
-
     /// <summary>
     /// マイナンバーを引き渡す
     /// </summary>
     /// <returns></returns>
     public int GetMyNumber() {
         if(photonView.Owner == null) {
-            return 0;
+            return myNumber;
         }
-
         return photonView.Owner.ActorNumber - 1;
     }
 
@@ -251,5 +250,18 @@ public class RacePlayer : MonoBehaviour {
 
     public int GetRank() {
         return myRank;
+    }
+
+    /// <summary>
+    /// 自身のいろをかえる
+    /// </summary>
+    public void SetMyColor() {
+        Color myColor = GetComponentInParent<PlayerInfomation>().GetMyColor();
+        foreach(Transform child in transform) {
+            if (child.name == "LeftEye" || child.name == "RightEye") continue;
+            if (child.name == "hat" || child.name == "Canvas") continue;
+
+            child.GetComponent<Renderer>().material.color = myColor;
+        }
     }
 }

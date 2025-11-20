@@ -5,12 +5,9 @@
  * @date 2025/10/14
  */
 using Photon.Pun;
-using System.Drawing;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using static GameConst;
 
 public class PlayerInfomation:MonoBehaviour{
@@ -23,19 +20,23 @@ public class PlayerInfomation:MonoBehaviour{
     //自分のskin
     public SkinVariation mySkin;
     //自分の番号
-    
     public int myNumber;
+    
+    //自分の色
+    private Color myColor;
 
     //自身のフォトンビュー
     PhotonView photonView;
    
     //レースゲームのプレイヤー
     [SerializeField]
-    private GameObject racePlayerPrefab;
-
+    private GameObject racePlayer;
+    //ドロップゲームのプレイヤー
+    [SerializeField]
+    private GameObject dropPlayer;
     // ダイスのプレイヤー
     [SerializeField]
-    private GameObject dicePlayerPrefab;
+    private GameObject dicePlayer;
 
     //エントリ～したかどうか
     [SerializeField]
@@ -61,17 +62,29 @@ public class PlayerInfomation:MonoBehaviour{
 
         //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
         PlayerInput playerInput = transform.GetChild(0).GetComponent<PlayerInput>();
+        
+        //タイトルに基本呼ぶのでバーチャゥマウスを作る
         if(VirtualMouseManager.instance != null)
             VirtualMouseManager.instance.OnPlayerJoined(playerInput);
+
         if (GameManager.instance.IsOnline()) {
             //名前の取得
             myName = NetworkManager.instance.GetName();
-            
         }
 
         //エントリーしましたテキストを作る
         if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
             GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
+
+        //オンラインだったらエントリーを行う
+        if (GameDataManager.instance.GetToriFromNumber(myNumber) != null 
+            && GameManager.instance.IsOnline()
+            && GameDataManager.instance != null) {
+            Entry();
+        }
+
+        //自身の色を決める
+        myColor = PLAYER_COLOR[myNumber];
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);
@@ -95,12 +108,18 @@ public class PlayerInfomation:MonoBehaviour{
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    /// <summary>
+    /// シーン遷移関数
+    /// </summary>
+    /// <param name="scene"></param>
+    /// <param name="mode"></param>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         //エントリーしてないならいなくなる
         if(!isEntry) Destroy(gameObject);
 
         //一回実働オブジェクトを破壊
         DestroySelectedChildren();
+        //それぞれのシーンの名前に合わせたロードシーン関数を呼ぶ
         if (scene.name == RACEGAME_SCENE_NAME) {
             LoadRaceScene();
         }
@@ -109,9 +128,12 @@ public class PlayerInfomation:MonoBehaviour{
             LoadDropGameScene();
         }
 
-        if (scene.name == DICE_SCENE_NAME)
-        {
+        if (scene.name == DICE_SCENE_NAME){
             LoadDiceGameScene();
+        }
+
+        if (scene.name == TITLE_SCENE_NAME) {
+            LoadTitleScene();
         }
     }
     
@@ -130,69 +152,34 @@ public class PlayerInfomation:MonoBehaviour{
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-        
-        racePlayerPrefab.SetActive(true);
+        racePlayer.SetActive(true);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
-
+        PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
+        playerInput.SwitchCurrentActionMap("DropGame");
+        dropPlayer.SetActive(true);
     }
 
-    private void LoadDiceGameScene()
-    {
-        if (photonView.IsMine)
-        {
-            // プレイヤーの ActorNumber (1から始まる) を取得
-            int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber;
+    //ダイスゲームのシーンが読み込まれたときに呼ぶ
+    private void LoadDiceGameScene(){
+       
+        dicePlayer.SetActive(true);
+    }
 
-            // DiceGameManager からスポーンポイントを取得 (FindObjectOfTypeを使用)
-            BABADiceGameManager manager = FindObjectOfType<BABADiceGameManager>();
-            Vector3 spawnPos = Vector3.zero;
-            if (manager != null && playerIndex > 0 && playerIndex <= manager.playerSpawnPoints.Length)
-            {
-                // 0始まりの配列に合わせる
-                spawnPos = manager.playerSpawnPoints[playerIndex - 1].position;
-            }
-
-            Debug.Log($"[Spawn Debug] P{playerIndex} のスポーン座標: {spawnPos}");
-
-            // ★★★ 追加ログ ★★★
-            Debug.Log($"[Instantiate Check] プレイヤー: {PhotonNetwork.LocalPlayer.NickName} が自身のダイスオブジェクト生成を試みます。");
-
-            GameObject spawnedDicePlayer = PhotonNetwork.Instantiate(
-                dicePlayerPrefab.name, // ここで指定しているPrefab名を確認
-                spawnPos,
-                Quaternion.identity
-            );
-
-            // ★★★ 追加ログ ★★★
-            if (spawnedDicePlayer != null)
-            {
-                Debug.Log($"[Instantiate Check] ネットワークオブジェクトの生成に成功しました。名前: {spawnedDicePlayer.name}");
-            }
-            else
-            {
-                Debug.LogError($"[Instantiate Check] ネットワークオブジェクトの生成に失敗しました。Prefab名: {dicePlayerPrefab.name}");
-            }
-        }
-        else
-        {
-            Debug.Log($"[Instantiate Check] リモートプレイヤーのため生成をスキップ。");
-        }
+    //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)
+    private void LoadTitleScene() {
+        Destroy(gameObject);
     }
 
     //タイトル画面でエントリーしたい
-    public void Plus(InputAction.CallbackContext context) {
-        if (GameDataManager.instance == null)
+    public void Plus() {
+        if (GameDataManager.instance == null || GameManager.instance.IsOnline())
             return;
 
         if(GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
-            GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
-            isEntry = true ;
-
-            //名前を登録してもらう
-            GameDataManager.instance.EntryPlayer(this);
+            Entry();
         }
     }
 
@@ -201,6 +188,7 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <param name="context"></param>
     public void SetLeftStickValue(InputAction.CallbackContext context) {
+        //オンラインだったら自分のだけ。オフラインだったら気にせず取る
         if(GetComponent<PhotonView>().IsMine || !GameManager.instance.IsOnline())
             myInputLeftStickValue = context.ReadValue<Vector2>();
     }
@@ -210,10 +198,27 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <returns></returns>
     public Vector2 GetLeftStickValue() {
-        
         return myInputLeftStickValue;
     }
 
+    /// <summary>
+    /// 自身をエントリーから外す
+    /// </summary>
+    public void WithdrawEntry() {
+        //自身のモデルをfalseにしてもらう
+        GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(false);
+    }
+
+    public void Entry() {
+        //ゲームデータマネージャー側でエントリーしてもらう
+        //自身のモデルをtrueにしてもらう
+        GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
+        //エントリー変数true
+        isEntry = true;
+
+        //名前を登録してもらう
+        GameDataManager.instance.EntryPlayer(this);
+    }
 
     #region 各種ゲッターとセッター
     // Point
@@ -235,6 +240,9 @@ public class PlayerInfomation:MonoBehaviour{
     // Number
     public int GetMyNumber() { return myNumber; }
     public void SetMyNumber(int value) { myNumber = value; }
+    //Color
+
+    public Color GetMyColor() { return myColor; }
 
     #endregion
 }

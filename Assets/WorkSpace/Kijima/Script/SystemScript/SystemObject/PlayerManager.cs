@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static GameConst;
+using static CommonModule;
 
 public class PlayerManager : SystemObject {
     //自身のインスタンス
@@ -56,5 +57,38 @@ public class PlayerManager : SystemObject {
     /// <returns></returns>
     public int GetPlayerNumber(PlayerInfomation player) {
         return playerList.IndexOf(player);
+    }
+
+    /// <summary>
+    /// プレイヤーに特定の処理を行わせる
+    /// </summary>
+    /// <param name="task"></param>
+    public void ExeCuteAllPlayer(System.Func<PlayerInfomation, UniTask> task) {
+        if (task == null || IsEmpty(playerList)) return;
+        for (int i = 0, max = playerList.Count; i < max; i++) {
+            if (playerList[i] == null) continue;
+             task(playerList[i]);
+        }
+    }
+
+    /// <summary>
+    /// プレイヤーリストを一掃しながら破壊
+    /// </summary>
+    public void DestroyPlayerList() {
+        // 後ろから削除する場合
+        for (int i = playerList.Count - 1; i >= 0; i--) {
+            if (playerList[i] == null) continue;
+
+            PlayerInfomation player = playerList[i];
+            playerList.RemoveAt(i);
+            if (!GameManager.instance.IsOnline()) {
+                // GameObjectを破壊
+                Destroy(player.gameObject);
+            }
+            else {
+                player.gameObject.SetActive(false);
+            }
+            
+        }
     }
 }

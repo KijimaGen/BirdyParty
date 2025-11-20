@@ -69,25 +69,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// </summary>
     void Start() {
         if (autoConnectOnStart) {
-            Debug.Log("Photonに接続中...");
-            UpdateConnectionStatus("Photonに接続中...");
-            PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
-
-            //インプットフィールド取得
-            nameInputField = GameObject.Find("MakeNameInput");
+            ConnectingServer();
         }
            
-    }
-
-    private void Update()
-    {
-        if(Input.GetKeyUp(KeyCode.Space)){
-            if (PhotonNetwork.InRoom) {
-                return;
-            }
-            JoinRoomWithCode(debugRoomCode);
-        }
-        
     }
 
     /// <summary>
@@ -192,6 +176,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     public override void OnCreatedRoom() {
         Debug.Log($"ルーム作成成功: {currentRoomCode}");
         OnRoomCodeGenerated?.Invoke(currentRoomCode); // UIにルームコードを通知
+        if(TitleManager.instance != null) {
+            TitleManager.instance.SetRoomCode();
+        }
     }
 
     /// <summary>
@@ -439,12 +426,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         Debug.Log($"Photonから切断されました: {cause}");
         UpdateConnectionStatus("Photonから切断されました");
         
-        // リセット後の再接続
-        if (cause == Photon.Realtime.DisconnectCause.DisconnectByClientLogic) {
-            Debug.Log("🔄 リセット完了 - 再接続中...");
-            UpdateConnectionStatus("リセット完了 - 再接続中...");
-            PhotonNetwork.ConnectUsingSettings();
-        }
+        
     }
 
     /// <summary>
@@ -473,6 +455,35 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// </summary>
     private void OnApplicationQuit() {
         // アプリケーションが終了するとき（ビルド実行時）
-        PhotonNetwork.LeaveRoom();
+        // 接続状態に応じて適切な処理を行う
+        if (PhotonNetwork.IsConnected) {
+            if (PhotonNetwork.InRoom) {
+                // 部屋にいる場合は部屋を抜ける
+                PhotonNetwork.LeaveRoom();
+            }
+            else {
+                // ロビーやマスターサーバーにいる場合は切断
+                PhotonNetwork.Disconnect();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Photonの鯖から完全に退出
+    /// </summary>
+    public void DisconnectingServer() {
+        PhotonNetwork.Disconnect();
+    }
+
+    /// <summary>
+    /// サーバーに接続
+    /// </summary>
+    public void ConnectingServer() {
+        Debug.Log("Photonに接続中...");
+        UpdateConnectionStatus("Photonに接続中...");
+        PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
+
+        //インプットフィールド取得
+        nameInputField = GameObject.Find("MakeNameInput");
     }
 }

@@ -1,15 +1,13 @@
-/**
- * @file GameConst.cs
- * @brief 定数定義
- * @author Sum1r3
- * @date 2025/10/6
- */
 
-using Photon.Realtime;
-using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
-
+/**
+* @file GameConst.cs
+* @brief 定数定義
+* @author Sum1r3
+* @date 2025/10/6
+*/
 public static class GameConst {
     // プレイヤーの最大数
     public static readonly int PLAYER_MAX = 4;
@@ -39,7 +37,13 @@ public static class GameConst {
     //ドロップゲームのポイントのキーの名前
     public static readonly string KEY_NAME_POINT = "Point";
 
-    #region ミニゲームのシーン名一覧
+    //各種プレイヤー色
+    public static readonly Color[] PLAYER_COLOR = new Color[] {
+        Color.blue, Color.red, Color.green, Color.yellow
+    };
+
+    #region シーン名一覧
+    public static readonly string TITLE_SCENE_NAME = "Title";
     public static readonly string RACEGAME_SCENE_NAME = "Race"; 
     public static readonly string DROPGAME_SCENE_NAME = "DropBird";
     public static readonly string DICE_SCENE_NAME = "DiceGame";

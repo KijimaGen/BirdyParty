@@ -888,6 +888,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: LeaveRoom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: BackSelectUIButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &132573295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2307,7 +2331,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 262953729}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 773.34863, y: 491.60648, z: 183558.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4844,7 +4868,7 @@ GameObject:
   - component: {fileID: 496841853}
   - component: {fileID: 496841852}
   m_Layer: 5
-  m_Name: RoomCoadText
+  m_Name: RoomCodeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8471,6 +8495,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: JoinRoomFromInput
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: GoPlayerSelectUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &879131438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9761,6 +9809,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: DisconnectingServer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &984380653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10570,6 +10630,52 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 699627945578106912, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
   m_PrefabInstance: {fileID: 4754205837566559183}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1090465619
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1090465621}
+  - component: {fileID: 1090465620}
+  m_Layer: 0
+  m_Name: TitleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1090465620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090465619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71a9901fbe4975143a6998908f6a3177, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomCodeText: {fileID: 496841852}
+  NextButton: {fileID: 1939314449}
+--- !u!4 &1090465621
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090465619}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1097115272
 GameObject:
   m_ObjectHideFlags: 0
@@ -11249,7 +11355,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uFF1F\uFF1F\uFF1F"
+  m_text: "\u30C9\u30ED\u30C3\u30D7\u30D0\u30FC\u30C9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
   m_sharedMaterial: {fileID: 3760129218394280299, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
@@ -12099,7 +12205,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1569012578}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: OnClickStartGame
-        m_Mode: 5
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -14239,14 +14345,26 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1569012578}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: OpenLog
+        m_MethodName: Open
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 998839957}
+          m_ObjectArgument: {fileID: 1464178680}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: SetNextSceneName
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: DropBird
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1364957176
@@ -14642,7 +14760,7 @@ GameObject:
   - component: {fileID: 1393000007}
   - component: {fileID: 1393000006}
   m_Layer: 5
-  m_Name: RoomCoadInfo
+  m_Name: RoomCodeInfo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15649,7 +15767,7 @@ MonoBehaviour:
   textTransform: {fileID: 1809946551}
   textMeshPro: {fileID: 1809946549}
   maskImage: {fileID: 1357706176}
-  infoText: "\u53C2\u52A0\u4EBA\u6570\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044\u3002\n\u53C2\u52A0\u3059\u308B\u5834\u5408\u306F\u300C\u25CF\u25CF\u30AD\u30FC\u300D\u3067\u3059\u3002\n\u30AA\u30F3\u30E9\u30A4\u30F3\u306E\u5834\u5408\u306F\u81EA\u52D5\u3067\u5272\u308A\u632F\u308A\u307E\u3059\u3002\n\u30AA\u30F3\u30E9\u30A4\u30F3\u306E\u5834\u5408\u306F\u30DB\u30B9\u30C8\u304C\u3053\u306E\u5F8C\u306E\u8A2D\u5B9A\u3092\u884C\u3044\u307E\u3059\u3002\u30B2\u30FC\u30E0\u304C\u958B\u59CB\u3055\u308C\u308B\u307E\u3067\u3057\u3070\u3089\u304F\u304A\u5F85\u3061\u304F\u3060\u3055\u3044\u3002"
+  infoText: "\u53C2\u52A0\u4EBA\u6570\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044\u3002\n\u53C2\u52A0\u3059\u308B\u5834\u5408\u306F\u300C\u30D7\u30E9\u30B9\u30AD\u30FC\u300D\u3067\u3059\u3002\n\u30AA\u30F3\u30E9\u30A4\u30F3\u306E\u5834\u5408\u306F\u81EA\u52D5\u3067\u5272\u308A\u632F\u308A\u307E\u3059\u3002\n\u30AA\u30F3\u30E9\u30A4\u30F3\u306E\u5834\u5408\u306F\u30DB\u30B9\u30C8\u304C\u3053\u306E\u5F8C\u306E\u8A2D\u5B9A\u3092\u884C\u3044\u307E\u3059\u3002\u30B2\u30FC\u30E0\u304C\u958B\u59CB\u3055\u308C\u308B\u307E\u3067\u3057\u3070\u3089\u304F\u304A\u5F85\u3061\u304F\u3060\u3055\u3044\u3002"
   spaceBetweenLines: 8
   scrollSpeed: 100
   fadeDistance: 110
@@ -16305,6 +16423,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 966610766}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: SetOffline
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -17598,6 +17728,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: CreateRoom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: GoPlayerSelectUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &1872676003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18144,6 +18298,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: SetOnline
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: ReconnectServer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1921205300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18373,7 +18551,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u30EC\u30FC\u30F3\u3092\u8D70\u3063\u30661\u4F4D\u3092\u7AF6\u3044\u307E\u3059\u3002\n\u30C0\u30C3\u30B7\u30E5\u677F\u306B\u4E57\u308B\u3068\u52A0\u901F\u3001\n\u30CF\u30FC\u30C9\u30EB\u306B\u5F53\u305F\u308B\u3068\u6E1B\u901F\u3067\u3059\u3002\n--------------------------------------\n\u64CD\u4F5C\u8AAC\u660E\n\u5DE6\u30B9\u30C6\u30A3\u30C3\u30AF\uFF1A\u79FB\u52D5"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
   m_sharedMaterial: {fileID: 3760129218394280299, guid: ebb5fb7ec9468514ca1a7bee4061d13a, type: 2}
@@ -18542,7 +18720,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1939314450
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18762,6 +18940,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: SetNextSceneName
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Race
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1959557515
@@ -20262,6 +20452,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ButtonManager
       objectReference: {fileID: 0}
+    - target: {fileID: 699627945578106912, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: modeUI
       value: 
@@ -20315,6 +20509,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1650817816}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: ExplanationText
+      value: 
+      objectReference: {fileID: 1925219916}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: createRoomButton
       value: 
       objectReference: {fileID: 1872676002}
@@ -20348,15 +20546,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8133398928993597140, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8133398928993597140, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8133398928993597140, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8133398928993597140, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -20387,7 +20585,6 @@ SceneRoots:
   - {fileID: 509480022}
   - {fileID: 761360164}
   - {fileID: 469623193}
-  - {fileID: 4754205837566559183}
   - {fileID: 1848743253}
   - {fileID: 1505704290}
   - {fileID: 338083226}
@@ -20397,6 +20594,8 @@ SceneRoots:
   - {fileID: 942876764}
   - {fileID: 1464178684}
   - {fileID: 613233722}
-  - {fileID: 262953731}
   - {fileID: 1874000735}
   - {fileID: 755802938}
+  - {fileID: 262953731}
+  - {fileID: 1090465621}
+  - {fileID: 4754205837566559183}

@@ -85,6 +85,9 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
         Vector3 startpos = transform.position;
         startpos.y = SET_Y;
         transform.position = startpos;
+
+        //色の設定
+        SetMyColor();
     }
 
     // アップデート
@@ -182,7 +185,9 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
 
     // プラスボタンが押されたときにホストがゲーム開始(今のところない可能性)
     public void Plus(InputAction.CallbackContext context) {
-        DropGameManager.instance.TryStartCountDown();
+        //ヌルチェック
+        if(DropGameManager.instance != null)
+            DropGameManager.instance.TryStartCountDown();
     }
 
 
@@ -245,5 +250,17 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     }
 
     #endregion
+    /// <summary>
+    /// 自身のいろをかえる
+    /// </summary>
+    public void SetMyColor() {
+        Color myColor = GetComponentInParent<PlayerInfomation>().GetMyColor();
+        foreach (Transform child in transform) {
+            if (child.name == "LeftEye" || child.name == "RightEye") continue;
+            if (child.name == "hat" || child.name == "Canvas") continue;
+
+            child.GetComponent<Renderer>().material.color = myColor;
+        }
+    }
 
 }

@@ -21,7 +21,7 @@ public enum GameState
     GameFinished        // 結果表示
 }
 
-public class DiceGameManager : MonoBehaviourPunCallbacks
+public class BABADiceGameManager : MonoBehaviourPunCallbacks
 {
     public static GameState currentState;
 

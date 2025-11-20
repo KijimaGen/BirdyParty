@@ -71,7 +71,7 @@ public class DiceRoll : MonoBehaviourPun
 
         if (!photonView.IsMine) yield break; // 再度 IsMine チェック
 
-        DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+        BABADiceGameManager manager = FindObjectOfType<BABADiceGameManager>();
 
         if (manager == null)
         {
@@ -164,7 +164,7 @@ public class DiceRoll : MonoBehaviourPun
             if (PhotonNetwork.InRoom && photonView.Owner == PhotonNetwork.LocalPlayer)
             {
                 // 自分のダイスが止まったら、結果をRPCで全クライアントに通知 (これはDiceGameManagerに送信するRPC)
-                DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+                BABADiceGameManager manager = FindObjectOfType<BABADiceGameManager>();
 
                 if (manager == null)
                 {

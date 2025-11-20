@@ -61,7 +61,7 @@ public class DiceScoreManager : MonoBehaviourPunCallbacks
                 handler.PlayerData.TotalScore = updatedScore;
 
                 // DiceGameManagerのUIを更新（通常時のスコアボードとリザルトの両方に対応）
-                DiceGameManager gameManager = FindObjectOfType<DiceGameManager>();
+                BABADiceGameManager gameManager = FindObjectOfType<BABADiceGameManager>();
                 if (gameManager != null)
                 {
                     gameManager.UpdateScoreUIs();

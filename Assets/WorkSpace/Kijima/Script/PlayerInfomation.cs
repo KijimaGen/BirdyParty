@@ -147,7 +147,7 @@ public class PlayerInfomation:MonoBehaviour{
             int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber;
 
             // DiceGameManager からスポーンポイントを取得 (FindObjectOfTypeを使用)
-            DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+            BABADiceGameManager manager = FindObjectOfType<BABADiceGameManager>();
             Vector3 spawnPos = Vector3.zero;
             if (manager != null && playerIndex > 0 && playerIndex <= manager.playerSpawnPoints.Length)
             {

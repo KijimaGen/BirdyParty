@@ -7,7 +7,7 @@ public class PlayerInputHandler : MonoBehaviour
     // GameManagerからPlayerInfoとManagerの参照を設定される
 
     public PlayerInfo PlayerData { get; set; }
-    public DiceGameManager GameManager { get; set; }
+    public BABADiceGameManager GameManager { get; set; }
 
     private PlayerInput playerInput;
     private DiceRoll diceRoll;
@@ -21,7 +21,7 @@ public class PlayerInputHandler : MonoBehaviour
         diceRoll = GetComponent<DiceRoll>(); 
 
         // 2. シーン上の唯一のDiceGameManagerを探す
-        DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+        BABADiceGameManager manager = FindObjectOfType<BABADiceGameManager>();
 
         if (manager != null && playerInput != null)
         {
@@ -61,7 +61,7 @@ public class PlayerInputHandler : MonoBehaviour
 
         // 3. 【重要】ゲームの状態と、既にロールしたかをチェック
         // PlayerRolling 状態でのみ入力受付。かつ、CurrentDiceResultが0（未ロール）であること。
-        if (DiceGameManager.currentState != GameState.PlayerRolling || PlayerData.CurrentDiceResult > 0)
+        if (BABADiceGameManager.currentState != GameState.PlayerRolling || PlayerData.CurrentDiceResult > 0)
         {
             // Debug.Log($"ロール入力拒否: 状態={DiceGameManager.currentState}, ロール済み={PlayerData.CurrentDiceResult > 0}");
             return;

@@ -62,8 +62,11 @@ public class PlayerInfomation:MonoBehaviour{
 
         //自身の実稼働オブジェクトを取得し、そいつを引き渡してカーソルをもらう
         PlayerInput playerInput = transform.GetChild(0).GetComponent<PlayerInput>();
+        
+        //タイトルに基本呼ぶのでバーチャゥマウスを作る
         if(VirtualMouseManager.instance != null)
             VirtualMouseManager.instance.OnPlayerJoined(playerInput);
+
         if (GameManager.instance.IsOnline()) {
             //名前の取得
             myName = NetworkManager.instance.GetName();
@@ -77,15 +80,11 @@ public class PlayerInfomation:MonoBehaviour{
         if (GameDataManager.instance.GetToriFromNumber(myNumber) != null 
             && GameManager.instance.IsOnline()
             && GameDataManager.instance != null) {
-            //ゲームデータマネージャー側でエントリーしてもらう
-            GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
-            //エントリー変数true
-            isEntry = true;
-
-            //名前を登録してもらう
-            GameDataManager.instance.EntryPlayer(this);
+            Entry();
         }
 
+        //自身の色を決める
+        myColor = PLAYER_COLOR[myNumber];
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);
@@ -109,12 +108,18 @@ public class PlayerInfomation:MonoBehaviour{
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    /// <summary>
+    /// シーン遷移関数
+    /// </summary>
+    /// <param name="scene"></param>
+    /// <param name="mode"></param>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         //エントリーしてないならいなくなる
         if(!isEntry) Destroy(gameObject);
 
         //一回実働オブジェクトを破壊
         DestroySelectedChildren();
+        //それぞれのシーンの名前に合わせたロードシーン関数を呼ぶ
         if (scene.name == RACEGAME_SCENE_NAME) {
             LoadRaceScene();
         }
@@ -123,9 +128,12 @@ public class PlayerInfomation:MonoBehaviour{
             LoadDropGameScene();
         }
 
-        if (scene.name == DICE_SCENE_NAME)
-        {
+        if (scene.name == DICE_SCENE_NAME){
             LoadDiceGameScene();
+        }
+
+        if (scene.name == TITLE_SCENE_NAME) {
+            LoadTitleScene();
         }
     }
     
@@ -144,18 +152,25 @@ public class PlayerInfomation:MonoBehaviour{
 
     //レースゲームのシーンが読み込まれたときに呼ぶ
     public void LoadRaceScene() {
-        
         racePlayer.SetActive(true);
     }
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
+        PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
+        playerInput.SwitchCurrentActionMap("DropGame");
         dropPlayer.SetActive(true);
     }
 
     //ダイスゲームのシーンが読み込まれたときに呼ぶ
     private void LoadDiceGameScene(){
+       
         dicePlayer.SetActive(true);
+    }
+
+    //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)
+    private void LoadTitleScene() {
+        Destroy(gameObject);
     }
 
     //タイトル画面でエントリーしたい
@@ -164,11 +179,7 @@ public class PlayerInfomation:MonoBehaviour{
             return;
 
         if(GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
-            GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
-            isEntry = true ;
-
-            //名前を登録してもらう
-            GameDataManager.instance.EntryPlayer(this);
+            Entry();
         }
     }
 
@@ -177,6 +188,7 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     /// <param name="context"></param>
     public void SetLeftStickValue(InputAction.CallbackContext context) {
+        //オンラインだったら自分のだけ。オフラインだったら気にせず取る
         if(GetComponent<PhotonView>().IsMine || !GameManager.instance.IsOnline())
             myInputLeftStickValue = context.ReadValue<Vector2>();
     }
@@ -193,7 +205,19 @@ public class PlayerInfomation:MonoBehaviour{
     /// 自身をエントリーから外す
     /// </summary>
     public void WithdrawEntry() {
+        //自身のモデルをfalseにしてもらう
+        GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(false);
+    }
 
+    public void Entry() {
+        //ゲームデータマネージャー側でエントリーしてもらう
+        //自身のモデルをtrueにしてもらう
+        GameDataManager.instance.GetToriFromNumber(myNumber).SetActive(true);
+        //エントリー変数true
+        isEntry = true;
+
+        //名前を登録してもらう
+        GameDataManager.instance.EntryPlayer(this);
     }
 
     #region 各種ゲッターとセッター
@@ -216,6 +240,9 @@ public class PlayerInfomation:MonoBehaviour{
     // Number
     public int GetMyNumber() { return myNumber; }
     public void SetMyNumber(int value) { myNumber = value; }
+    //Color
+
+    public Color GetMyColor() { return myColor; }
 
     #endregion
 }

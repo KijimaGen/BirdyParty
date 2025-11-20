@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Photon.Pun;
 using TMPro;
+using static GameConst;
 
 
 
@@ -18,10 +18,6 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject playerSelectUI;
     [SerializeField] private GameObject gameReadyUI;
 
-    [Header("オンライン定義")]
-    [SerializeField] private GameObject online;
-    [SerializeField] private GameObject offline;
-
     [Header("エラーログ")]
     [SerializeField] private GameObject errorMinigameSelect;
 
@@ -36,6 +32,19 @@ public class ButtonManager : MonoBehaviour
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
     //ホストかどうか
     private bool isHost;
+    //次に行くシーンの名前
+    private string NextSceneText;
+    [Header("説明テキスト")]
+    //説明テキスト
+    [SerializeField]
+    private TextMeshProUGUI ExplanationText;
+
+    //レースゲームの説明テキスト
+    private const string RaceGameExplanationText = "レーンを走って1位を競います。\r\nダッシュ板に乗ると加速、\r\nハードルに当たると減速です。" +
+        "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
+    //ドロップゲームの説明テキスト
+    private const string DropGameExplanationText = "４つのパネルのうち１つのパネルは\r\n通ることが出来ます。\r\n正しいパネルを見つけて\r\nゴールを目指しましょう。" +
+        "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
 
     private void Start()
     {
@@ -87,8 +96,11 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-    public void Back()
-    {
+    public void Back(){
+        if (GameManager.instance == null) {
+            Debug.LogWarning("GameManager が存在しません");
+            return;
+        }
         if (uiHistory.Count > 1)
         {
             GameObject closing = uiHistory.Pop();
@@ -99,27 +111,24 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-    public void PlayStyle()
-    {
-        if (GameDataManager.instance.playOnline)
-        {
-            online.SetActive(true);
-            offline.SetActive(false);
+    //プレイスタイル変更関数
+    public void PlayStyle(){
+        if (GameManager.instance == null) {
+            Debug.LogWarning("GameManager が存在しません");
+            return;
+        }
+
+        if (GameDataManager.instance.playOnline){
             //ゲームマネージャーの内部的なfalseとtrueを変える
             GameManager.instance.SetIsOnline(true);
-        }
-        else
-        {
-            online.SetActive(false);
-            offline.SetActive(true);
+        }else{
             //ゲームマネージャーの内部的なfalseとtrueを変える
             GameManager.instance.SetIsOnline(false);
         }
     }
 
     // ログオープン
-    public void OpenObject(GameObject openLog)
-    {
+    public void OpenObject(GameObject openLog){
         openLog.SetActive(true);
     }
 
@@ -129,17 +138,16 @@ public class ButtonManager : MonoBehaviour
         closeLog.SetActive(false);
     }
 
-    public void OnClickStartGame(string sceneName) {
-
+    public void OnClickStartGame() {
         //自分がマスタークライアントだったら全員に送る
         PhotonView photonView = gameObject.GetComponent<PhotonView>();
         if (PhotonNetwork.IsMasterClient) {
-            photonView.RPC("StartGame", RpcTarget.All, sceneName);
-            Debug.Log("マスタークライアントなので全員におくりますた");
+            photonView.RPC("StartGame", RpcTarget.All, NextSceneText);
+            Debug.Log(NextSceneText);
         }
 
         if (!GameManager.instance.IsOnline())
-            StartGame(sceneName);
+            StartGame(NextSceneText);
     }
 
     [PunRPC]
@@ -324,15 +332,26 @@ public class ButtonManager : MonoBehaviour
     /// オンラインにセット
     /// </summary>
     public void SetOnline() {
-        GameManager.instance.SetIsOnline(true);
+        if (GameManager.instance != null && GameManager.instance.gameObject != null) {
+            GameManager.instance.SetIsOnline(true);
+        }
+        else {
+            Debug.LogWarning("GameManager が破壊されています");
+        }
     }
 
     /// <summary>
     /// オフラインにセット
     /// </summary>
     public void SetOffline() {
-        GameManager.instance.SetIsOnline(false);
+        if (GameManager.instance != null && GameManager.instance.gameObject != null) {
+            GameManager.instance.SetIsOnline(false);
+        }
+        else {
+            Debug.LogWarning("GameManager が破壊されています");
+        }
     }
+
 
     /// <summary>
     /// 部屋を抜ける処理を呼び出すよん
@@ -362,9 +381,8 @@ public class ButtonManager : MonoBehaviour
     /// プレイヤーセレクトUIに行くときの処理
     /// </summary>
     public void GoPlayerSelectUI() {
-        if (GameManager.instance.IsOnline()&& !isHost) {
-            TitleManager.instance.SetActiveNextButton(false);
-        }
+        //次へボタンを見せなくする
+        TitleManager.instance.SetActiveNextButton(false);
     }
 
     /// <summary>
@@ -373,6 +391,33 @@ public class ButtonManager : MonoBehaviour
     public void BackSelectUIButton() {
         if(PlayerManager.instance != null) {
             PlayerManager.instance.DestroyPlayerList();
+            GameDataManager.instance.AllToriListEliminate();
+        }
+    }
+
+    /// <summary>
+    /// 次のシーンの名前を設定する
+    /// </summary>
+    /// <param name="nextName"></param>
+    public void SetNextSceneName(string nextName) {
+        NextSceneText = nextName;
+        SetExplanationText();
+    }
+
+    /// <summary>
+    /// 次のシーンに合わせて説明テキストを変える
+    /// </summary>
+    public void SetExplanationText() {
+        switch(NextSceneText) {
+            //レース
+            case "Race":
+                ExplanationText.text = RaceGameExplanationText;
+                break;
+                //ドロップ
+            case "DropBird":
+                ExplanationText.text = DropGameExplanationText;
+                break;
+            
         }
     }
 }

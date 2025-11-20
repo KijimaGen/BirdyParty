@@ -24,7 +24,7 @@ public class TitleManager : MonoBehaviour{
     /// </summary>
     /// <param name="newCode"></param>
     public void SetRoomCode() {
-        
+        //ルームコードを設定
         roomCodeText.text ="ルームコード : " +PhotonNetwork.CurrentRoom.Name;
         //オフラインだったら何も表示しない
         if (!GameManager.instance.IsOnline()) {
@@ -33,7 +33,7 @@ public class TitleManager : MonoBehaviour{
     }
 
     /// <summary>
-    /// 次へボタンを消す
+    /// 次へボタンを出したり消したり
     /// </summary>
     /// <param name="isActive"></param>
     public void SetActiveNextButton(bool isActive) {
@@ -45,11 +45,9 @@ public class TitleManager : MonoBehaviour{
         //インスタンスの作成
         if(instance == null) {
             instance = this;
-        }
-        else {
+        }else {
             Destroy(gameObject);
         }
-        
     }
 
 }

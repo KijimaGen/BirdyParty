@@ -27,13 +27,15 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     [SerializeField]
     private Transform myCanvas;
 
-    private void Awake(){
-        if (instance == null) {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else{
-            Destroy(gameObject);
+    void Awake() {
+        //インスタンスの設定
+        instance = this;
+    }
+
+    void OnDestroy() {
+        // 自分がインスタンスの場合はクリア
+        if (instance == this) {
+            instance = null;
         }
     }
 
@@ -80,8 +82,17 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param name="player"></param>
     public void EntryPlayer(PlayerInfomation player) {
-        if (player.myName == "") return;
-        titleToriNameList[player.myNumber].text = player.myName;
+        //名前がないかつオンラインだったらエラーが発生するので行わない
+        if (player.myName != "" && !GameManager.instance.IsOnline()) {
+            //プレイヤーリストにプレイヤーの名前を登録
+            titleToriNameList[player.myNumber].text = player.myName;
+        }
+        //エントリ～したときにプレイヤーの人数が2人以上だったら
+        if (GetEntriedPlayerCount() < 2) return;
+        //オンラインかつホストじゃなかったらリターン
+        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient) return;
+        //オフラインもしくは、オンラインかつマスターだったら
+        TitleManager.instance.SetActiveNextButton(true);
     }
 
     /// <summary>
@@ -108,4 +119,12 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
         newNameBox.SetmyText(name);
     }
 
+    /// <summary>
+    /// 見た目上エントリーしているプレイヤーを見えなくする
+    /// </summary>
+    public void AllToriListEliminate() {
+        for(int i =0,max = titleToriList.Count; i < max; i++) {
+            titleToriList[i].gameObject.SetActive(false);
+        }
+    }
 }

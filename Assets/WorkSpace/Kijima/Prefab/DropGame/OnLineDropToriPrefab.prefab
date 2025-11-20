@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 8
-  bounceForce: 1
+  bounceForce: 10
   myName: 
 --- !u!114 &4311840364419200979
 MonoBehaviour:

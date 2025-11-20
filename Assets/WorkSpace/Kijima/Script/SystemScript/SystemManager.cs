@@ -14,9 +14,16 @@ public class SystemManager : MonoBehaviour {
     /// </summary>
     [SerializeField]
     private SystemObject[] _systemObjectList = null;
+    //重複を防ぐためのinstance
+    public static SystemManager instance;
 
     private void Awake() {
+        if (instance != null) {
+            Destroy(gameObject);
+            return;
+        }
         UniTask task = Initialize();
+        instance = this;
         DontDestroyOnLoad(gameObject);
     }
 

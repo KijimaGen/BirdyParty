@@ -8,7 +8,8 @@ using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using Photon.Realtime;
+using UnityEngine.SceneManagement;
+using static GameConst;
 
 public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -47,12 +48,14 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     //自身のインスタンスを作成
     private void Awake() {
         instance = this;
+        //ゴールを初期化
+        isGoal = false;
         AudioManager.instance.PlayBGM(1);
     }
 
     private void Update() {
         // 全員ゴール判定
-        if (racers.Count == ranking.Count && isStart) {
+        if (racers.Count == ranking.Count && isStart && !isGoal) {
             PlayerGoalPosSet();
             
             // オンライン時はRPCで同期、オフライン時は直接呼び出し
@@ -71,8 +74,6 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     // ============================================
     public override void OnJoinedRoom() {
         Debug.Log($"Room joined! Player count: {PhotonNetwork.CurrentRoom.PlayerCount}");
-
-
     }
 
     // ============================================
@@ -180,8 +181,20 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
 
     // 🔥 RPCで全員に同期する処理
     [PunRPC]
-    private void RPC_SetGoal() {
+    private async void RPC_SetGoal() {
         isGoal = true;
         Debug.Log("ゴールフラグが全員に伝わった！");
+        await AfterGoal();
+    }
+
+    /// <summary>
+    /// ゴールした後の処理
+    /// </summary>
+    /// <returns></returns>
+    private async UniTask AfterGoal() {
+        //五秒ほど待って
+        await UniTask.Delay(5000);
+        //画面遷移
+        SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
 }

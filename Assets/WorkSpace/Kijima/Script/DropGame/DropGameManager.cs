@@ -15,6 +15,7 @@ using System.Linq;
 using TMPro;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
+using UnityEngine.SceneManagement;
 
 public class DropGameManager : MonoBehaviourPunCallbacks {
     // --- シングルトン ---
@@ -94,6 +95,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         isStart = false;
         //カウントの初期化
         gameCount = 0;
+        //BGMの設定
+        AudioManager.instance.PlayBGM(2);
 
         //ポイントの見た目を切る
         ToInvisibleScore();
@@ -105,7 +108,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         PanelObject.gameObject.SetActive(false);
 
         //ゲームの開始を宣言する！
-        //await StartCountDown();
+        await StartCountDown();
     }
 
     private void Update() {
@@ -121,7 +124,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
         // 全員ゴール判定
         //GAME_END_COUNT回やったらおしまい
-        if (gameCount == GAME_END_COUNT) {
+        if (gameCount == GAME_END_COUNT && !isEnd) {
             GameEnd();
         }
         //デバッグだよ
@@ -279,10 +282,21 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// RPCで全員に同期するゲームエンド
     /// </summary>
     [PunRPC]
-    private void RPC_SetGoal() {
+    private async void RPC_SetGoal() {
         isEnd = true;
+        await AfterGoal();
     }
 
+    /// <summary>
+    /// ゴールした後の処理
+    /// </summary>
+    /// <returns></returns>
+    private async UniTask AfterGoal() {
+        //五秒ほど待って
+        await UniTask.Delay(5000);
+        //画面遷移
+        SceneManager.LoadScene(TITLE_SCENE_NAME);
+    }
     /// <summary>
     /// マテリアルの名前を受け取って、それに合ったバリエーションを引き渡す
     /// </summary>

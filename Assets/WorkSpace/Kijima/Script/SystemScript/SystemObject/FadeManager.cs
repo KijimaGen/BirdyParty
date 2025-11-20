@@ -52,10 +52,21 @@ public class FadeManager : SystemObject {
     /// <param myName="duration"></param>
     /// <returns></returns>
     private async UniTask FadeTargetAlpha(float targetAlpha, float duration) {
+
+        if (_fadeImage == null || _fadeImage.gameObject == null) {
+            Debug.LogWarning("FadeImage が破壊されています");
+            return;
+        }
+
         float elapsedTime = 0.0f;//経過時間
         float startAlpha = _fadeImage.color.a;  //開始透明度
         Color targetColor = _fadeImage.color;
         while (elapsedTime < duration) {
+            // ループ中もチェック
+            if (_fadeImage == null || _fadeImage.gameObject == null) {
+                Debug.LogWarning("フェード中に FadeImage が破壊されました");
+                return;
+            }
             elapsedTime += Time.deltaTime;
             //保管した不透明度をフェード画像に設定
             float t = elapsedTime / duration;
@@ -65,7 +76,11 @@ public class FadeManager : SystemObject {
             //1フレーム待ち
             await UniTask.Delay(1);
         }
-        targetColor.a = targetAlpha;
-        _fadeImage.color = targetColor;
+
+        // 最後もチェック
+        if (_fadeImage != null && _fadeImage.gameObject != null) {
+            targetColor.a = targetAlpha;
+            _fadeImage.color = targetColor;
+        }
     }
 }

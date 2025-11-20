@@ -2211,6 +2211,7 @@ GameObject:
   - component: {fileID: 1274199691}
   - component: {fileID: 1274199692}
   - component: {fileID: 1274199693}
+  - component: {fileID: 1274199694}
   m_Layer: 0
   m_Name: DiceGameManager
   m_TagString: Untagged
@@ -2278,6 +2279,19 @@ MonoBehaviour:
   timerText: {fileID: 1729651813}
   babaNumberText: {fileID: 3465465471386236959}
   resultText: {fileID: 5877244418568808817}
+--- !u!114 &1274199694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274199689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07e173a3ad2c28c48b1b69b45e788f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 1274199693}
 --- !u!1 &1356588180
 GameObject:
   m_ObjectHideFlags: 0
@@ -4660,7 +4674,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 694.1353, y: 453.31366}
+  m_AnchoredPosition: {x: 694.7, y: 456.9}
   m_SizeDelta: {x: 391.9269, y: 210.1592}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &2863524847273206809

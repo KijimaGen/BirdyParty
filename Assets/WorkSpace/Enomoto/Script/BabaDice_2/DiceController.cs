@@ -14,6 +14,7 @@ public class DiceController : MonoBehaviourPun
     [Header("Dice Settings")]
     public float rollForce = 10f;
     public float torqueAmount = 20f;
+    public int ownerID = 0;
 
     // 面判定用のローカル座標定義 (標準的なダイスの場合)
     // 上、前、右、左、後、下 の順に対応する出目を定義
@@ -34,6 +35,11 @@ public class DiceController : MonoBehaviourPun
     {
         rb = GetComponent<Rigidbody>();
         // 重力を切っておき、振るときに有効化するなど演出はお好みで
+
+        if (GameManager.instance != null && GameManager.instance.IsOnline() && photonView != null)
+        {
+            ownerID = photonView.Owner.ActorNumber;
+        }
     }
 
     // InputSystemからのコールバック
@@ -120,5 +126,10 @@ public class DiceController : MonoBehaviourPun
     {
         hasRolled = false;
         // 必要なら位置をリセットしたりする
+    }
+
+    public void SetupOffline(int id)
+    {
+        ownerID = id;
     }
 }

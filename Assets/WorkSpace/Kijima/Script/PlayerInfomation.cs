@@ -128,7 +128,7 @@ public class PlayerInfomation:MonoBehaviour{
             LoadDropGameScene();
         }
 
-        if (scene.name == DICE_SCENE_NAME){
+        if (scene.name == DICEGAME_SCENE_NAME){
             LoadDiceGameScene();
         }
 
@@ -164,8 +164,20 @@ public class PlayerInfomation:MonoBehaviour{
 
     //ダイスゲームのシーンが読み込まれたときに呼ぶ
     private void LoadDiceGameScene(){
-       
-        dicePlayer.SetActive(true);
+        PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
+        playerInput.SwitchCurrentActionMap("DiceGame");
+        Debug.Log("ダイスゲームが呼ばれた。");
+
+        var spawner = FindObjectOfType<DicePlayerSpawner>();
+
+        if (spawner != null)
+        {
+            spawner.SpawnDiceForPlayer(this, dicePlayer);
+        }
+        else
+        {
+            Debug.LogWarning("DicePlayerSpawnerがシーンに見つかりません。DiceGameManagerと同じオブジェクト等にアタッチしてください。");
+        }
     }
 
     //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)

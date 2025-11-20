@@ -132,8 +132,8 @@ public class DiceGame_GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     public void StartTurnRPC(int turn, int babaNum)
     {
-        infoText.text = $"TURN {turn}/{maxTurns}";
-        babaNumberText.text = $"BABA: {babaNum}";
+        infoText.text = $"ターン {turn}/{maxTurns}";
+        babaNumberText.text = $"BABADice: {babaNum}";
         resultText.text = "";
 
         // 自分のダイスの入力許可などをここで行う通知を出しても良い
@@ -204,7 +204,7 @@ public class DiceGame_GameManager : MonoBehaviourPunCallbacks
         {
             int score = playerScores.ContainsKey(p.ActorNumber) ? playerScores[p.ActorNumber] : 0;
             bool isAlive = playerAliveStatus.ContainsKey(p.ActorNumber) ? playerAliveStatus[p.ActorNumber] : true;
-            string status = isAlive ? "ALIVE" : "DEAD";
+            string status = isAlive ? "SAFE" : "OUT";
             display += $"{p.NickName}: {score}pts [{status}]\n";
         }
         resultText.text = display;

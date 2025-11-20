@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
+using Photon.Pun;
 
-public class DiceRoll : MonoBehaviour
+public class DiceRoll : MonoBehaviourPun
 {
     private Rigidbody rb;
     public bool isRolling = false;
@@ -69,14 +70,27 @@ public class DiceRoll : MonoBehaviour
         if (rb.velocity.magnitude < 0.1f && rb.angularVelocity.magnitude < 0.1f)
         {
             isRolling = false;
-            if (int.TryParse(currentBottomFace.Replace("Face_", ""), out int bottom))
-            {
-                int top = 7 - bottom;
-                resultFace = top.ToString();
-            }
+
 
             DiceCheck();
             onRollComplete?.Invoke(resultFace);
+
+
+            if (GameManager.instance != null && GameManager.instance.IsOnline() && photonView.IsMine)
+            {
+                // 自分のダイスが止まったら、結果をRPCで全クライアントに通知
+                DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+                if (manager != null && manager.photonView != null)
+                {
+                    // プレイヤーの識別子（NickName）と結果を送信
+                    manager.photonView.RPC(
+                        "SyncPlayerDiceResult",
+                        RpcTarget.All,
+                        PhotonNetwork.LocalPlayer.NickName,
+                        lastDiceValue
+                    );
+                }
+            }
 
             onRollComplete = null;
         }

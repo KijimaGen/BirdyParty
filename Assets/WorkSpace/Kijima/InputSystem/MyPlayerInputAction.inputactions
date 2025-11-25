@@ -323,6 +323,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "BattleDome",
+            "id": "6b21a7ae-b0ba-41b9-b44f-d2fd800efb3c",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "7c7926e8-12c3-4a24-838a-79026afd5bae",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9f63100b-7986-46cd-a9bd-703f0045c36e",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

@@ -79,17 +79,17 @@ public class DiceRoll : MonoBehaviourPun
             if (GameManager.instance != null && GameManager.instance.IsOnline() && photonView.IsMine)
             {
                 // 自分のダイスが止まったら、結果をRPCで全クライアントに通知
-                DiceGameManager manager = FindObjectOfType<DiceGameManager>();
-                if (manager != null && manager.photonView != null)
-                {
-                    // プレイヤーの識別子（NickName）と結果を送信
-                    manager.photonView.RPC(
-                        "SyncPlayerDiceResult",
-                        RpcTarget.All,
-                        PhotonNetwork.LocalPlayer.NickName,
-                        lastDiceValue
-                    );
-                }
+                //DiceGameManager manager = FindObjectOfType<DiceGameManager>();
+                //if (manager != null && manager.photonView != null)
+                //{
+                //    // プレイヤーの識別子（NickName）と結果を送信
+                //    manager.photonView.RPC(
+                //        "SyncPlayerDiceResult",
+                //        RpcTarget.All,
+                //        PhotonNetwork.LocalPlayer.NickName,
+                //        lastDiceValue
+                //    );
+                //}
             }
 
             onRollComplete = null;

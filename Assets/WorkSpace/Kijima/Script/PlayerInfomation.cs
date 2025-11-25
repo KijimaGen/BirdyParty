@@ -157,8 +157,10 @@ public class PlayerInfomation:MonoBehaviour{
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
+        //自身のアクションマップの切り替え麺
         PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
         playerInput.SwitchCurrentActionMap("DropGame");
+        //ドロップゲームの子オブジェクトを起動
         dropPlayer.SetActive(true);
     }
 

@@ -1,5 +1,6 @@
 using System.Threading;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Flipper : MonoBehaviour {
     //Higneコンポーネントの参照
@@ -16,8 +17,8 @@ public class Flipper : MonoBehaviour {
     private HingeJoint hjR; //AxisR
 
     //JointSpring
-    private JointSpring jL; //AxisL
     private JointSpring jR; //AxisR
+    private JointSpring jL; //AxisL
 
     //AxisLとAxisR
     [Header("参照を持ちたいオブジェクト")]
@@ -26,7 +27,7 @@ public class Flipper : MonoBehaviour {
     [SerializeField]
     private GameObject _axisR;
 
-    private void Start() {
+    private void Awake() {
         //ヒンジジョイントを受け取る
         hjL = _axisL.GetComponent<HingeJoint>();
         hjR = _axisR.GetComponent<HingeJoint>();
@@ -36,47 +37,54 @@ public class Flipper : MonoBehaviour {
         jR = hjR.spring;
     }
 
-    void Update() {
-        
+    /// <summary>
+    /// 左フリップの入力検知
+    /// </summary>
+    /// <param name="context"></param>
+    public void FlipLeft(InputAction.CallbackContext context) {
+        //ぬるちぇっく
+        if (hjL == null || hjR == null) return;
+        switch (context.phase) {
+            //HingeJointを取ってSpringの値を弄り、動かす
+            //押している間
+            case InputActionPhase.Performed:
+                jL.spring = spring;
+                jL.targetPosition = openAngle;
+                hjL.spring = jL;
+                break;
+            //離した瞬間
+            case InputActionPhase.Canceled:
+                jL.spring = spring;
+                jL.targetPosition = closeAngle;
+                hjL.spring = jL;
+                break;
+        }
     }
 
     /// <summary>
-    /// 左フリップ着火
+    /// 右フリップの入力検知
     /// </summary>
-    public void OnFlipLeft() {
-        jL.spring = spring;
-        jL.targetPosition = openAngle;
-        hjL.spring = jL;
-    }
+    /// <param name="context"></param>
+    public void FlipRight(InputAction.CallbackContext context) {
+        //ぬるちぇっく
+        if (hjL == null || hjR == null) return;
 
-    /// <summary>
-    /// 左フリップ鎮火
-    /// </summary>
-    public void OffFlipLeft() {
-        jL.spring = spring;
-        jL.targetPosition = closeAngle;
-        hjL.spring = jL;
-    }
+        switch (context.phase) {
+            //HingeJointを取ってSpringの値を弄り、動かす
+            //押している間
+            case InputActionPhase.Performed:
+                jR.spring = spring;
+                jR.targetPosition = openAngle;
+                hjR.spring = jR;
+                break;
+            //離した瞬間
+            case InputActionPhase.Canceled:
+                jR.spring = spring;
+                jR.targetPosition = closeAngle;
+                hjR.spring = jR;
 
-    /// <summary>
-    /// 右フリップ着火
-    /// </summary>
-    public void OnFlipRight() {
-        jR.spring = spring;
-        jR.targetPosition = openAngle;
-        hjR.spring = jR;
-    }
 
-    /// <summary>
-    /// 右フリップ鎮火
-    /// </summary>
-    public void OffFlipRight() {
-        jR.spring = spring;
-        jR.targetPosition = closeAngle;
-        hjR.spring = jR;
-    }
-
-    public void FlipLeft(ContextCallback context) {
-
+                break;
+        }
     }
 }

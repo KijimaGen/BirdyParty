@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 
 public class Flipper : MonoBehaviour {
@@ -36,31 +37,46 @@ public class Flipper : MonoBehaviour {
     }
 
     void Update() {
-        //左クリック
-        if(Input.GetMouseButtonDown(0)) {
-            jL.spring = spring;
-            jL.targetPosition = openAngle;
-            hjL.spring = jL;
-        }
+        
+    }
 
-        if(Input.GetMouseButtonUp(0)){
-            jL.spring = spring;
-            jL.targetPosition = closeAngle;
-            hjL.spring = jL;
-        }
+    /// <summary>
+    /// 左フリップ着火
+    /// </summary>
+    public void OnFlipLeft() {
+        jL.spring = spring;
+        jL.targetPosition = openAngle;
+        hjL.spring = jL;
+    }
 
+    /// <summary>
+    /// 左フリップ鎮火
+    /// </summary>
+    public void OffFlipLeft() {
+        jL.spring = spring;
+        jL.targetPosition = closeAngle;
+        hjL.spring = jL;
+    }
 
-        //右クリック
-        if (Input.GetMouseButtonDown(1)) {
-            jR.spring = spring;
-            jR.targetPosition = openAngle;
-            hjR.spring = jR;
-        }
+    /// <summary>
+    /// 右フリップ着火
+    /// </summary>
+    public void OnFlipRight() {
+        jR.spring = spring;
+        jR.targetPosition = openAngle;
+        hjR.spring = jR;
+    }
 
-        if (Input.GetMouseButtonUp(1)) {
-            jR.spring = spring;
-            jR.targetPosition = closeAngle;
-            hjR.spring = jR;
-        }
+    /// <summary>
+    /// 右フリップ鎮火
+    /// </summary>
+    public void OffFlipRight() {
+        jR.spring = spring;
+        jR.targetPosition = closeAngle;
+        hjR.spring = jR;
+    }
+
+    public void FlipLeft(ContextCallback context) {
+
     }
 }

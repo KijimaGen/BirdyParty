@@ -64,6 +64,17 @@ MonoBehaviour:
   - ShowTurnResultRPC
   - StartTurnRPC
   - UpdateTimerUI
+  - RPC_InitializeDice
+  - RPC_RequestRoll
+  - RPC_SyncTurnStart
+  - RPC_TurnResult
+  - InitializeDice
+  - RollDice
+  - SyncBabaNumber
+  - SyncTurnResults
+  - ReportDiceResult
+  - SetGameStateRPC
+  - UpdateTurnTextRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

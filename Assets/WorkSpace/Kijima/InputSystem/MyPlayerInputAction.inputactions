@@ -290,7 +290,7 @@
             "id": "c0329146-1d25-4ddd-a529-d0b89de03d20",
             "actions": [
                 {
-                    "name": "RollInput",
+                    "name": "Roll",
                     "type": "Button",
                     "id": "9174aa53-d4f6-402d-adb4-f8de797f7cc8",
                     "expectedControlType": "",
@@ -307,7 +307,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "RollInput",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -318,7 +318,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "RollInput",
+                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

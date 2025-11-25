@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System.Collections; // ★ System.Collections.Hashtable の参照
+using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
-using ExitGames.Client.Photon; // ★ ExitGames.Client.Photon.Hashtable の参照
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 

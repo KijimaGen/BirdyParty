@@ -1,443 +1,417 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Photon.Pun;
-using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using TMPro; // TextMeshProã‚’ä½¿ç”¨ã™ã‚‹å ´åˆ
 using Cysharp.Threading.Tasks;
-using TMPro;
-using System.Linq;
-using System.Xml.Serialization;
+using System.Linq; // LINQã‚’ä½¿ç”¨
+// using static GameConst; // GameConstã®ä¾å­˜é–¢ä¿‚ãŒã‚ã‚Œã°è§£é™¤
 
-/*
-    BABADice‘S‘Ì‚ÌisŠÇ—
-    ƒ}ƒXƒ^[‚ªå“±Œ ‚ğ‚Â‚æ‚¤‚ÉiƒIƒtƒ‰ƒCƒ“‚Í©g‚ğj
-*/
+// --------------------------------------------------
+// DiceGameå°‚ç”¨ã®ã‚²ãƒ¼ãƒ çŠ¶æ…‹åˆ—æŒ™ä½“
+// --------------------------------------------------
+public enum E_DICE_GAME_STATE
+{
+    WAITING_FOR_PLAYERS, // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å¾…æ©Ÿä¸­
+    INITIALIZING,       // åˆæœŸåŒ–ä¸­
+    TURN_START,         // ã‚¿ãƒ¼ãƒ³é–‹å§‹ (å…¥åŠ›å¾…ã¡)
+    DICE_ROLLING,       // ãƒ€ã‚¤ã‚¹ãŒè»¢ãŒã£ã¦ã„ã‚‹æœ€ä¸­
+    RESULT_CALCULATING, // çµæœè¨ˆç®—ä¸­
+    TURN_END,           // ã‚¿ãƒ¼ãƒ³çµ‚äº†
+    GAME_END            // ã‚²ãƒ¼ãƒ çµ‚äº†
+}
+// --------------------------------------------------
+
+/// <summary>
+/// ãƒ€ã‚¤ã‚¹ã‚²ãƒ¼ãƒ å…¨ä½“ã®é€²è¡Œç®¡ç†ã€BABAåˆ¤å®šã€ã‚¹ã‚³ã‚¢è¨ˆç®—ã€UIè¡¨ç¤ºã‚’è¡Œã†
+/// </summary>
 public class DiceGame_GameManager : MonoBehaviourPunCallbacks
 {
-    [Header("Prefabs & Resources")]
-    [SerializeField] private string dicePrefabName = "DicePrefab"; // ResourcesƒtƒHƒ‹ƒ_“à‚ÌƒvƒŒƒnƒu–¼
-    [SerializeField] private Material[] playerMaterials;           // ƒvƒŒƒCƒ„[‚²‚Æ‚Ìƒ}ƒeƒŠƒAƒ‹(4‚Â)
 
+    public static DiceGame_GameManager instance;
+
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®1ã€œ6ã®å‡ºç›®ç”»åƒã‚’ä¿æŒã™ã‚‹ãŸã‚ã®ã‚·ãƒªã‚¢ãƒ©ã‚¤ã‚ºå¯èƒ½ãªã‚¯ãƒ©ã‚¹
+    [System.Serializable]
+    public class DiceFaceImageSet
+    {
+        // 1ã€œ6ã®å‡ºç›®ã‚’ä¿æŒã™ã‚‹é…åˆ— (ã‚¤ãƒ³ã‚¹ãƒšã‚¯ã‚¿ãƒ¼ã§è¡¨ç¤ºã•ã‚Œã‚‹)
+        [Tooltip("å‡ºç›® 1 ã‹ã‚‰ 6 ã«å¯¾å¿œã™ã‚‹ç”»åƒã‚’é †ã«ç™»éŒ²ã—ã¦ãã ã•ã„ã€‚")]
+        public Sprite[] faces = new Sprite[6];
+    }
+
+    // --- ã€ã‚²ãƒ¼ãƒ é€²è¡Œç®¡ç†å¤‰æ•°ã€‘ ---
     [Header("Game Settings")]
-    [SerializeField] private float turnLimitTime = 10.0f; // 1ƒ^[ƒ“‚Ì§ŒÀŠÔ
-    [SerializeField] private Transform[] spawnPoints; // ƒvƒŒƒCƒ„[1~4‚Ìƒ_ƒCƒXƒXƒ|[ƒ“ˆÊ’u
+    [SerializeField] private int maxTurns = 5;
+    [SerializeField] private float rollTimeLimit = 5.0f; // åˆ¶é™æ™‚é–“
+
+    // ç¾åœ¨ã®ã‚²ãƒ¼ãƒ çŠ¶æ…‹
+    [SerializeField]
+    private E_DICE_GAME_STATE gameState = E_DICE_GAME_STATE.WAITING_FOR_PLAYERS;
+
+    // ç¾åœ¨ã®ã‚¿ãƒ¼ãƒ³æ•°ã¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·
+    [SerializeField] private int currentTurn = 1;
+    [SerializeField] private int currentPlayerNumber = 1;
+
+    /// <summary>ãƒ€ã‚¤ã‚¹ã‚’æŒ¯ã‚Œã‚‹çŠ¶æ…‹ã‹ã©ã†ã‹ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£</summary>
+    public bool CanRoll => gameState == E_DICE_GAME_STATE.TURN_START;
+
+    // ãƒ€ã‚¤ã‚¹çµæœã‚’ä¸€æ™‚çš„ã«ä¿æŒã™ã‚‹è¾æ›¸
+    private Dictionary<int, int> turnResults = new Dictionary<int, int>();
+
+    // --- ã€UI & Prefabã€‘ ---
+    [Header("Prefabs & Materials")]
+    [SerializeField] private string dicePrefabName = "PlayerDice"; // Resourcesãƒ•ã‚©ãƒ«ãƒ€å†…ã®Prefabå
+    [SerializeField] private Material[] playerMaterials; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®ãƒãƒ†ãƒªã‚¢ãƒ«ï¼ˆ4è‰²ï¼‰
+
+    [Header("Spawn Settings")]
+    [SerializeField] private Transform[] diceSpawnPoints; // ãƒ€ã‚¤ã‚¹ç”Ÿæˆä½ç½®ã®Transformé…åˆ—
 
     [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI infoText;
-    [SerializeField] private TextMeshProUGUI babaText;
-    [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private TextMeshProUGUI[] scoreTexts; // ƒvƒŒƒCƒ„[‚²‚Æ‚ÌƒXƒRƒA•\¦
+    [SerializeField] private TextMeshProUGUI infoText; // ã‚²ãƒ¼ãƒ å…¨ä½“ã®æƒ…å ±è¡¨ç¤ºãƒ†ã‚­ã‚¹ãƒˆ
+    [SerializeField] private TextMeshProUGUI turnText; // ç¾åœ¨ã®ã‚¿ãƒ¼ãƒ³æ•°è¡¨ç¤ºãƒ†ã‚­ã‚¹ãƒˆ
 
-    // “à•”ƒpƒ‰ƒ[ƒ^
-    private int currentTurn = 1;
-    private const int MaxTurns = 5;
-    private int currentBabaNumber = 0;
-    private float currentTimer = 0f;
-    private bool isTurnActive = false;
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã”ã¨ã®çµæœç”»åƒè¡¨ç¤º (UI Image)
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·(1ã€œ)ã¨ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹(0ã€œ)ã®å¯¾å¿œã«æ³¨æ„
+    [SerializeField] private Image[] playerResultImages;
 
-    // ƒvƒŒƒCƒ„[ƒf[ƒ^ŠÇ—
-    private Dictionary<int, DiceObject> playerDiceMap = new Dictionary<int, DiceObject>();
-    private Dictionary<int, int> playerScores = new Dictionary<int, int>();
-    private List<int> droppedOutPlayers = new List<int>(); // ’E—‚µ‚½ƒvƒŒƒCƒ„[”Ô†
+    // å‡ºç›®ç”»åƒã‚»ãƒƒãƒˆ (ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ•°åˆ†)
+    [SerializeField] private DiceFaceImageSet[] diceFaceImageSets;
 
-    private void Start()
+
+    // --- ã€ãƒ€ã‚¤ã‚¹ç®¡ç†ã€‘ ---
+    private Dictionary<int, DiceController> activeDices = new Dictionary<int, DiceController>();
+
+    private void Awake()
     {
-        StartCoroutine(InitializeGame());
-    }
-
-    private IEnumerator InitializeGame()
-    {
-        // ­‚µ‘Ò‹@‚µ‚ÄÚ‘±ˆÀ’è‚ğ‘Ò‚Â
-        yield return new WaitForSeconds(0.5f);
-
-        // ‰Šú‰»
-        currentTurn = 1;
-        droppedOutPlayers.Clear();
-        playerScores.Clear();
-        for (int i = 0; i < 4; i++) playerScores[i] = 0;
-
-        UpdateUI();
-
-        // ƒ_ƒCƒX‚Ì¶¬
-        SpawnDice();
-
-        // ­‚µ‘Ò‚Á‚Ä‚©‚çƒQ[ƒ€ŠJn
-        yield return new WaitForSeconds(1.0f);
-
-        if (IsMaster())
+        // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹è¨­å®š
+        if (instance == null)
         {
-            StartNewTurn();
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 
     /// <summary>
-    /// ƒ_ƒCƒX‚Ì¶¬ˆ—
-    /// ƒIƒ“ƒ‰ƒCƒ“Fƒ}ƒXƒ^[‚ªRoomObject‚Æ‚µ‚Ä¶¬
-    /// ƒIƒtƒ‰ƒCƒ“Fƒ[ƒJƒ‹‚Å¶¬
+    /// ã‚²ãƒ¼ãƒ ã®åˆæœŸåŒ– (SystemObject.Initializeã‚’ä»£æ›¿)
     /// </summary>
-    private void SpawnDice()
+    public async UniTask InitializeGame()
     {
-        bool isOnline = GameManager.instance.IsOnline();
+        // ... (ä»–ã®åˆæœŸåŒ–å‡¦ç†) ...
 
-        // ƒIƒ“ƒ‰ƒCƒ“‚Ìê‡Aƒ}ƒXƒ^[ƒNƒ‰ƒCƒAƒ“ƒg‚Ì‚İ‚ª¶¬‚ğ’S“–
-        if (isOnline && !PhotonNetwork.IsMasterClient) return;
-
-        // Å‘å4l•ª¶¬
-        int playerCount = isOnline ? PhotonNetwork.CurrentRoom.PlayerCount : 1; // ƒIƒtƒ‰ƒCƒ“‚Í‚Æ‚è‚ ‚¦‚¸1lor4lİ’è‚É‡‚í‚¹‚Ä’²®
-        // ¦—vŒ‚É‡‚í‚¹‚ÄƒIƒtƒ‰ƒCƒ“‚Å‚à4‚Âo‚·‚È‚çƒ‹[ƒv‚ğŒÅ’è
-        int loopCount = 4;
-
-        for (int i = 0; i < loopCount; i++)
+        // åˆæœŸçŠ¶æ…‹ã‚’è¨­å®š
+        if (PhotonNetwork.IsMasterClient)
         {
-            GameObject diceObj = null;
-            Vector3 pos = spawnPoints[i % spawnPoints.Length].position;
+            photonView.RPC(nameof(SetGameStateRPC), RpcTarget.All, E_DICE_GAME_STATE.INITIALIZING);
+            StartGameSetup().Forget();
+        }
+        else
+        {
+            // éãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã‚‚UIã‚’åˆæœŸåŒ–
+            UpdateInfoText("Waiting for Master Client to start...");
+            // ã‚¿ãƒ¼ãƒ³æ•°ã®è¡¨ç¤ºã‚’åˆæœŸåŒ–
+            UpdateTurnTextUI(currentTurn);
+        }
 
-            if (isOnline)
-            {
-                // PhotonŒo—R‚ÅRoomObject‚Æ‚µ‚Ä¶¬
-                diceObj = PhotonNetwork.InstantiateRoomObject(dicePrefabName, pos, Quaternion.identity);
-            }
-            else
-            {
-                // ƒ[ƒJƒ‹¶¬
-                var prefab = Resources.Load<GameObject>(dicePrefabName);
-                diceObj = Instantiate(prefab, pos, Quaternion.identity);
-            }
+        await UniTask.CompletedTask;
+    }
 
-            if (diceObj != null)
+    /// <summary>
+    /// ã‚²ãƒ¼ãƒ ã®åˆæœŸã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ— (ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ã¿å®Ÿè¡Œ)
+    /// </summary>
+    private async UniTask StartGameSetup()
+    {
+        UpdateInfoText("Initializing...");
+
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æº–å‚™ãŒæ•´ã†ã¾ã§å¾…æ©Ÿã™ã‚‹ãƒ­ã‚¸ãƒƒã‚¯ã‚’ã“ã“ã«è¿½åŠ 
+        await UniTask.Delay(System.TimeSpan.FromSeconds(1));
+
+        SpawnDices();
+
+        // æœ€åˆã®ã‚¿ãƒ¼ãƒ³é–‹å§‹
+        GoToNextPlayerTurn();
+    }
+
+    /// <summary>
+    /// ãƒ€ã‚¤ã‚¹ã‚’ç”Ÿæˆã—ã€åˆæœŸåŒ–ã™ã‚‹ (MasterClientã®ã¿å®Ÿè¡Œ)
+    /// </summary>
+    public void SpawnDices()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        List<PlayerInfomation> activePlayers = PlayerManager.instance.GetPlayerList();
+
+        for (int i = 0; i < activePlayers.Count; i++)
+        {
+            // PlayerInfomationã‚¯ãƒ©ã‚¹ã®å®šç¾©ãŒå¿…è¦
+            PlayerInfomation player = activePlayers[i];
+            int playerNumber = player.GetMyNumber();
+
+            // ç”Ÿæˆä½ç½®ã‚’SpawnPointsã‹ã‚‰å–å¾— (iã¯0ã‹ã‚‰å§‹ã¾ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)
+            Vector3 spawnPos = (i < diceSpawnPoints.Length && diceSpawnPoints[i] != null)
+                                ? diceSpawnPoints[i].position
+                                : new Vector3(0, 5, 0) + Vector3.right * i * 2f;
+
+            GameObject diceObj = PhotonNetwork.InstantiateRoomObject(
+                dicePrefabName,
+                spawnPos,
+                Quaternion.identity
+            );
+
+            DiceController diceController = diceObj.GetComponent<DiceController>();
+
+            if (diceController != null)
             {
-                DiceObject diceScript = diceObj.GetComponent<DiceObject>();
-                // ‘Sˆõ‚É‰Šú‰»î•ñ‚ğ‘—‚é
-                if (isOnline)
-                {
-                    photonView.RPC(nameof(RPC_InitializeDice), RpcTarget.AllBuffered, diceScript.GetComponent<PhotonView>().ViewID, i);
-                }
-                else
-                {
-                    InitializeDiceLocal(diceScript, i);
-                }
+                // å…¨å“¡ã«å¯¾ã—ã¦RPCã§ãƒ€ã‚¤ã‚¹ã‚’åˆæœŸåŒ–
+                diceController.photonView.RPC(nameof(DiceController.InitializeDice), RpcTarget.All, playerNumber);
+                Debug.Log($"Spawned Dice for Player {playerNumber} at {spawnPos}");
             }
         }
     }
 
+    /// <summary>
+    /// ãƒ€ã‚¤ã‚¹ã‚’ãƒªã‚¹ãƒˆã«ç™»éŒ² (å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå®Ÿè¡Œ)
+    /// DiceController.InitializeDiceã‹ã‚‰å‘¼ã°ã‚Œã‚‹
+    /// </summary>
+    public void RegisterDice(int playerNumber, DiceController dice)
+    {
+        activeDices[playerNumber] = dice;
+        Debug.Log($"Dice for Player {playerNumber} registered.");
+    }
+
+    /// <summary>
+    /// DiceGamePlayer.csã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã‚²ãƒƒã‚¿ãƒ¼
+    /// </summary>
+    public DiceController GetDiceForPlayer(int playerNumber)
+    {
+        if (activeDices.ContainsKey(playerNumber))
+        {
+            return activeDices[playerNumber];
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·ã«å¯¾å¿œã™ã‚‹ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’å–å¾—
+    /// </summary>
+    /// <param name="index">ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå· (1ã‹ã‚‰å§‹ã¾ã‚‹)</param>
+    public Material GetPlayerMaterial(int index)
+    {
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·ã¯1ã‹ã‚‰å§‹ã¾ã‚‹ãŸã‚ã€ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¯-1
+        int actualIndex = index - 1;
+
+        if (playerMaterials != null && actualIndex >= 0 && actualIndex < playerMaterials.Length)
+        {
+            return playerMaterials[actualIndex];
+        }
+        // ãƒãƒ†ãƒªã‚¢ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆã€ã‚¨ãƒ©ãƒ¼ãƒ­ã‚°ã‚’å‡ºåŠ›
+        Debug.LogWarning($"Player Material not found for player number {index}. Check DiceGameManager Inspector.");
+        return null; // ãƒãƒ†ãƒªã‚¢ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã¯nullã‚’è¿”ã™
+    }
+
+    // --------------------------------------------------
+    // â˜… ã‚²ãƒ¼ãƒ é€²è¡Œç®¡ç†ã®æ ¸ã¨ãªã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ â˜…
+    // --------------------------------------------------
+
+    /// <summary>
+    /// ãƒ€ã‚¤ã‚¹çµæœã‚’DiceControllerã‹ã‚‰å—ã‘å–ã‚‹ (å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå®Ÿè¡Œ)
+    /// </summary>
+    /// <param name="playerNumber">çµæœã‚’å‡ºã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·</param>
+    /// <param name="resultValue">ãƒ€ã‚¤ã‚¹ã®å‡ºç›® (1-6)</param>
     [PunRPC]
-    private void RPC_InitializeDice(int viewID, int playerNum)
+    public void ReportDiceResult(int playerNumber, int resultValue)
     {
-        PhotonView targetView = PhotonView.Find(viewID);
-        if (targetView != null)
+        Debug.Log($"Player {playerNumber} reported dice result: {resultValue}");
+
+        // çµæœã‚’UIã«è¡¨ç¤º
+        UpdateResultImage(playerNumber, resultValue);
+
+        // çµæœã‚’ä¸€æ™‚ä¿å­˜
+        if (turnResults.ContainsKey(playerNumber))
         {
-            DiceObject dice = targetView.GetComponent<DiceObject>();
-            InitializeDiceLocal(dice, playerNum);
+            turnResults[playerNumber] = resultValue;
+        }
+        else
+        {
+            turnResults.Add(playerNumber, resultValue);
+        }
+
+        // ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã§çµæœã®é›†è¨ˆã¨æ¬¡ã®é€²è¡Œã‚’åˆ¤å®š
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (turnResults.Count == PlayerManager.instance.GetPlayerList().Count)
+            {
+                // å…¨å“¡ã®çµæœãŒå‡ºãŸã‚‰è¨ˆç®—ãƒ•ã‚§ãƒ¼ã‚ºã¸
+                photonView.RPC(nameof(SetGameStateRPC), RpcTarget.All, E_DICE_GAME_STATE.RESULT_CALCULATING);
+                CalculateTurnResults(); // çµæœã®é›†è¨ˆå‡¦ç†ã‚’å®Ÿè¡Œ
+            }
         }
     }
 
-    private void InitializeDiceLocal(DiceObject dice, int playerNum)
+    /// <summary>
+    /// çµæœè¨ˆç®—ãƒ•ã‚§ãƒ¼ã‚º (ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ã¿å®Ÿè¡Œ)
+    /// </summary>
+    private void CalculateTurnResults()
     {
-        Material mat = (playerNum < playerMaterials.Length) ? playerMaterials[playerNum] : null;
-        dice.Initialize(playerNum, mat);
+        // BABAï¼ˆãƒãƒï¼‰ã®åˆ¤å®šãƒ­ã‚¸ãƒƒã‚¯ã‚’ã“ã“ã«è¿½åŠ 
+        // ... (ä¾‹: æœ€ã‚‚å°ã•ã„å‡ºç›®ã‚’å‡ºã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ç‰¹å®šã—ã€ãã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«ãƒãƒã‚’æ¸¡ã™)
 
-        if (!playerDiceMap.ContainsKey(playerNum))
-        {
-            playerDiceMap.Add(playerNum, dice);
-        }
+        UpdateInfoText("Results Calculated! Next Turn in 3 seconds.");
+
+        // ã‚¿ãƒ¼ãƒ³çµ‚äº†å‡¦ç†ã¸
+        StartCoroutine(GoToNextTurnSequence());
     }
 
-    // --- ƒ^[ƒ“ŠÇ— ---
-
-    private void StartNewTurn()
+    private IEnumerator GoToNextTurnSequence()
     {
-        if (currentTurn > MaxTurns || GetActivePlayerCount() <= 1)
+        // ã‚¿ãƒ¼ãƒ³çµ‚äº†UIè¡¨ç¤ºãªã©
+        yield return new WaitForSeconds(3.0f);
+
+        // ã‚¿ãƒ¼ãƒ³æ•°ãƒã‚§ãƒƒã‚¯
+        if (currentTurn >= maxTurns)
         {
             EndGame();
-            return;
-        }
-
-        // BABAŒˆ’è (ƒ}ƒXƒ^[‚Ì‚İ)
-        int newBaba = Random.Range(1, 7); // 1-6
-
-        if (GameManager.instance.IsOnline())
-        {
-            photonView.RPC(nameof(RPC_SyncTurnStart), RpcTarget.All, currentTurn, newBaba);
         }
         else
         {
-            RPC_SyncTurnStart(currentTurn, newBaba);
-        }
-    }
-
-    [PunRPC]
-    private void RPC_SyncTurnStart(int turn, int baba)
-    {
-        currentTurn = turn;
-        currentBabaNumber = baba;
-        currentTimer = turnLimitTime;
-        isTurnActive = true;
-
-        // UIXV
-        infoText.text = $"TURN {currentTurn} START!";
-        babaText.text = $"BABA: {currentBabaNumber}";
-
-        // BABA‰‰o‚È‚Ç‚ğ‚±‚±‚ÅŒÄ‚Ô
-    }
-
-    private void Update()
-    {
-        if (!isTurnActive) return;
-
-        // ƒ^ƒCƒ}[ˆ— (•\¦‚Í‘SˆõA”»’è‚Íƒ}ƒXƒ^[)
-        currentTimer -= Time.deltaTime;
-        timerText.text = $"Time: {currentTimer:F1}";
-
-        // ƒ[ƒJƒ‹“ü—Íˆ— (©•ª‚Ìƒ_ƒCƒX‚ğU‚é)
-        HandleInput();
-
-        // ƒ}ƒXƒ^[‚Ì‚İ‚ªŠÔØ‚ê‚È‚Ç‚ğŠÄ‹
-        if (IsMaster())
-        {
-            if (currentTimer <= 0)
-            {
-                // ŠÔØ‚ê‚È‚ç‹­§ƒ[ƒ‹
-                ForceRollAll();
-            }
-
-            // ‘Sˆõ‚ªU‚èI‚í‚èA‚©‚Âƒ_ƒCƒX‚ª~‚Ü‚Á‚½‚©ƒ`ƒFƒbƒN
-            CheckTurnResultCondition();
+            // æ¬¡ã®ã‚¿ãƒ¼ãƒ³ã¸ç§»è¡Œ
+            GoToNextPlayerTurn();
         }
     }
 
     /// <summary>
-    /// “ü—Íˆ—
-    /// Input System‚ğg‚Á‚Ä“ü—Í‚ğŒŸ’m‚µA©•ª‚Ìƒ_ƒCƒX‚ğU‚é
+    /// æ¬¡ã®ã‚¿ãƒ¼ãƒ³ã«ç§»è¡Œã™ã‚‹ (ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ã¿å®Ÿè¡Œ)
     /// </summary>
-    private void HandleInput()
+    private void GoToNextPlayerTurn()
     {
-        // ‚·‚Å‚É’E—‚µ‚Ä‚¢‚½‚ç‘€ì•s‰Â
-        int myNumber = GetMyPlayerNumber();
-        if (droppedOutPlayers.Contains(myNumber)) return;
+        currentTurn++; // ã‚¿ãƒ¼ãƒ³æ•°ã‚’å¢—ã‚„ã™
+        turnResults.Clear(); // çµæœã‚’ãƒªã‚»ãƒƒãƒˆ
 
-        // InputSystem‚Ì”»’è (—á: SpaceƒL[‚âGamepad Southƒ{ƒ^ƒ“)
-        bool inputTriggered = false;
-        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) inputTriggered = true;
-        if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame) inputTriggered = true;
+        // UIã®çµæœç”»åƒã‚’éè¡¨ç¤ºã«ã™ã‚‹ãªã©ã€ãƒªã‚»ãƒƒãƒˆå‡¦ç†
+        // ResetResultImages();
 
-        if (inputTriggered)
-        {
-            // ƒ_ƒCƒX‚ğU‚éƒŠƒNƒGƒXƒg‚ğ‘—‚é
-            if (GameManager.instance.IsOnline())
-            {
-                photonView.RPC(nameof(RPC_RequestRoll), RpcTarget.MasterClient, myNumber);
-            }
-            else
-            {
-                // ƒIƒtƒ‰ƒCƒ“‚È‚ç’¼ÚU‚éiƒfƒoƒbƒO—p‚É‘Sƒ_ƒCƒXU‚éA‚ ‚é‚¢‚Í1P‚Ì‚İ‚È‚Çd—l‚É‚æ‚éj
-                // ‚±‚±‚Å‚ÍƒIƒtƒ‰ƒCƒ“‚Å‚àu©•ª‚Ì”Ô†v‚Ìƒ_ƒCƒX‚ğU‚é
-                RollDiceLogic(myNumber);
-            }
-        }
-    }
+        // ã‚¿ãƒ¼ãƒ³æ•°ã®æ›´æ–°ã‚’å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«RPCã§é€šçŸ¥
+        photonView.RPC(nameof(UpdateTurnTextRPC), RpcTarget.All, currentTurn);
 
-    [PunRPC]
-    private void RPC_RequestRoll(int playerNumber)
-    {
-        // ƒ}ƒXƒ^[‚ªó‚¯æ‚Á‚Ä•¨——Í‚ğ‰Á‚¦‚é
-        RollDiceLogic(playerNumber);
-    }
+        // çŠ¶æ…‹ã‚’TURN_STARTã«æˆ»ã™
+        photonView.RPC(nameof(SetGameStateRPC), RpcTarget.All, E_DICE_GAME_STATE.TURN_START);
 
-    private void RollDiceLogic(int playerNumber)
-    {
-        if (playerDiceMap.ContainsKey(playerNumber))
-        {
-            playerDiceMap[playerNumber].RollDice();
-        }
-    }
-
-    private void ForceRollAll()
-    {
-        foreach (var kvp in playerDiceMap)
-        {
-            // ‚Ü‚¾’E—‚µ‚Ä‚¢‚È‚¢ƒvƒŒƒCƒ„[‚Ì‚İ
-            if (!droppedOutPlayers.Contains(kvp.Key))
-            {
-                kvp.Value.RollDice();
-            }
-        }
+        // æƒ…å ±ãƒ†ã‚­ã‚¹ãƒˆã‚’æ›´æ–°
+        UpdateInfoText($"Turn {currentTurn} Start! Roll the Dice.");
     }
 
     /// <summary>
-    /// ƒ^[ƒ“‚ÌŒ‹‰Ê”»’è‚ª‰Â”\‚©ƒ`ƒFƒbƒNi‘Sˆõ‚Ìƒ_ƒCƒX‚ª~‚Ü‚Á‚Ä‚¢‚é‚©j
+    /// ã‚²ãƒ¼ãƒ çµ‚äº†å‡¦ç† (ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ã¿å®Ÿè¡Œ)
     /// </summary>
-    private void CheckTurnResultCondition()
-    {
-        // §ŒÀŠÔ“à‚Å‚à‘SˆõU‚èI‚í‚Á‚ÄÃ~‚µ‚½‚ç”»’è‚Ö
-        bool allStopped = true;
-        foreach (var kvp in playerDiceMap)
-        {
-            if (droppedOutPlayers.Contains(kvp.Key)) continue; // ’E—Ò‚Í–³‹
-
-            // ‚Ü‚¾Ã~‚µ‚Ä‚¢‚È‚¢ƒ_ƒCƒX‚ª‚ ‚ê‚Î‘Ò‹@
-            if (!kvp.Value.IsSleeping())
-            {
-                allStopped = false;
-                break;
-            }
-        }
-
-        // ŠÔØ‚ê ‚Ü‚½‚Í ‘SˆõÃ~
-        if (currentTimer <= 0 || allStopped)
-        {
-            // ”»’èˆ—‚Öid•¡Às–h~‚Ì‚½‚ßƒtƒ‰ƒOŠÇ—‚ª•K—vj
-            StartCoroutine(ProcessTurnResult());
-        }
-    }
-
-    private bool isProcessingResult = false;
-    private IEnumerator ProcessTurnResult()
-    {
-        if (isProcessingResult) yield break;
-        isProcessingResult = true;
-        isTurnActive = false; // “ü—Íó•tI—¹
-
-        // ­‚µ•¨—“I‚È—‚¿’…‚«‚ğ‘Ò‚Â
-        yield return new WaitForSeconds(1.5f);
-
-        List<int> eliminatedThisTurn = new List<int>();
-        Dictionary<int, int> roundScores = new Dictionary<int, int>();
-
-        // Œ‹‰ÊWŒv
-        foreach (var kvp in playerDiceMap)
-        {
-            int pNum = kvp.Key;
-            if (droppedOutPlayers.Contains(pNum)) continue;
-
-            int roll = kvp.Value.GetResult();
-
-            if (roll == currentBabaNumber)
-            {
-                eliminatedThisTurn.Add(pNum);
-                roundScores[pNum] = 0; // ’E—Ò‚Í0“_‰ÁZi‚ ‚é‚¢‚Í–vû‚È‚Ç‚Ìƒ‹[ƒ‹‚É‚æ‚éj
-            }
-            else
-            {
-                roundScores[pNum] = roll;
-            }
-        }
-
-        // Œ‹‰Ê‚ğ‹¤—L
-        if (GameManager.instance.IsOnline())
-        {
-            // Dictionary‚ÍRPC‚Å‘—‚ê‚È‚¢‚½‚ß”z—ñ‚É•ÏŠ·‚µ‚Ä‘—‚é‚È‚Ç‚ÌH•v‚ª•K—v
-            // ‚±‚±‚Å‚ÍŠÈˆÕ“I‚É‘—M
-            int[] pNums = roundScores.Keys.ToArray();
-            int[] pScores = roundScores.Values.ToArray();
-            int[] elims = eliminatedThisTurn.ToArray();
-
-            photonView.RPC(nameof(RPC_TurnResult), RpcTarget.All, pNums, pScores, elims);
-        }
-        else
-        {
-            RPC_TurnResult(roundScores.Keys.ToArray(), roundScores.Values.ToArray(), eliminatedThisTurn.ToArray());
-        }
-
-        yield return new WaitForSeconds(3.0f); // Œ‹‰Ê•\¦‘Ò‹@
-
-        isProcessingResult = false;
-
-        // Ÿ‚Ìƒ^[ƒ“‚Ö
-        if (IsMaster())
-        {
-            currentTurn++;
-            StartNewTurn();
-        }
-    }
-
-    [PunRPC]
-    private void RPC_TurnResult(int[] playerNums, int[] scores, int[] eliminated)
-    {
-        string resultLog = "Result:\n";
-
-        for (int i = 0; i < playerNums.Length; i++)
-        {
-            int pNum = playerNums[i];
-            int score = scores[i];
-
-            // ƒXƒRƒA‰ÁZ
-            if (!droppedOutPlayers.Contains(pNum))
-            {
-                playerScores[pNum] += score;
-            }
-        }
-
-        // ’E—Òˆ—
-        foreach (int eNum in eliminated)
-        {
-            if (!droppedOutPlayers.Contains(eNum))
-            {
-                droppedOutPlayers.Add(eNum);
-                resultLog += $"Player {eNum} is OUT (Rolled {currentBabaNumber})!\n";
-                // ’E—‰‰oiƒ_ƒCƒX‚ğÁ‚·A”š”­‚³‚¹‚é“™j
-                if (playerDiceMap.ContainsKey(eNum))
-                {
-                    playerDiceMap[eNum].gameObject.SetActive(false);
-                }
-            }
-        }
-
-        UpdateUI();
-        infoText.text = resultLog;
-    }
-
     private void EndGame()
     {
-        // ÅI‡ˆÊŒvZ
-        var sortedRanking = playerScores.OrderByDescending(x => x.Value).ToList();
-        string rankText = "GAME OVER\nRanking:\n";
-        for (int i = 0; i < sortedRanking.Count; i++)
-        {
-            rankText += $"{i + 1}. Player {sortedRanking[i].Key} : {sortedRanking[i].Value}pts\n";
+        photonView.RPC(nameof(SetGameStateRPC), RpcTarget.All, E_DICE_GAME_STATE.GAME_END);
+        UpdateInfoText("Game Set!");
 
-            // PlayerInformation‚É‡ˆÊ‚ğ‘‚«‚Ş
-            // PlayerInfomation info = PlayerManager.instance.GetPlayer(sortedRanking[i].Key);
-            // if(info) info.SetRank(i+1);
-        }
+        // é †ä½ä»˜ã‘ãƒ­ã‚¸ãƒƒã‚¯
+        // PlayerInfomationã®Pointã‚’è¦‹ã¦Rankä»˜ã‘
+        // ...
 
-        infoText.text = rankText;
-
-        // I—¹Œã‚Ìˆ—iƒ^ƒCƒgƒ‹‚Ö–ß‚éƒ{ƒ^ƒ“•\¦‚È‚Çj
-        // ¡‰ñ‚ÍŠÈˆÕ“I‚ÉƒƒOo‚µ‚Ì‚İ
+        // GameManagerã«æˆ»ã‚‹ç­‰ã®å‡¦ç†
+        StartCoroutine(ReturnToTitle());
     }
 
-    // --- ƒ†[ƒeƒBƒŠƒeƒB ---
-
-    private void UpdateUI()
+    private IEnumerator ReturnToTitle()
     {
-        for (int i = 0; i < 4; i++)
+        yield return new WaitForSeconds(3.0f);
+
+        // GameManager.csã®å®šç¾©ã«OnBackToSelect()ãŒå­˜åœ¨ã™ã‚‹ã“ã¨ã‚’å‰æã¨ã™ã‚‹
+        if (GameManager.instance != null)
         {
-            if (i < scoreTexts.Length)
+            GameManager.instance.OnBackToSelect();
+        }
+    }
+
+    // --------------------------------------------------
+    // â˜… UIåˆ¶å¾¡ãƒ¡ã‚½ãƒƒãƒ‰ (RPCã§å‘¼ã°ã‚Œã‚‹ã‚‚ã®ã‚’å«ã‚€) â˜…
+    // --------------------------------------------------
+
+    /// <summary>
+    /// ã‚²ãƒ¼ãƒ æƒ…å ±ãƒ†ã‚­ã‚¹ãƒˆã‚’æ›´æ–° (å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå®Ÿè¡Œ)
+    /// </summary>
+    private void UpdateInfoText(string msg)
+    {
+        if (infoText) infoText.text = msg;
+    }
+
+    /// <summary>
+    /// ã‚¿ãƒ¼ãƒ³æ•°è¡¨ç¤ºã‚’æ›´æ–°ã™ã‚‹RPC (å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå®Ÿè¡Œ)
+    /// </summary>
+    [PunRPC]
+    private void UpdateTurnTextRPC(int newTurn)
+    {
+        currentTurn = newTurn;
+        // RPCã§å—ã‘å–ã£ãŸå€¤ã‚’ä½¿ã£ã¦UIã‚’æ›´æ–°
+        UpdateTurnTextUI(newTurn);
+    }
+
+    /// <summary>
+    /// ã‚¿ãƒ¼ãƒ³æ•°è¡¨ç¤ºUIã‚’ãƒ­ãƒ¼ã‚«ãƒ«ã§æ›´æ–°ã™ã‚‹
+    /// </summary>
+    private void UpdateTurnTextUI(int turn)
+    {
+        if (turnText != null)
+        {
+            turnText.text = $"Turn: {turn} / {maxTurns}";
+        }
+    }
+
+    /// <summary>
+    /// ãƒ€ã‚¤ã‚¹ã®å‡ºç›®ç”»åƒã‚’æ›´æ–° (å…¨ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå®Ÿè¡Œ)
+    /// </summary>
+    /// <param name="playerNumber">ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå· (1ã‹ã‚‰)</param>
+    /// <param name="resultValue">å‡ºç›® (1ã‹ã‚‰6)</param>
+    private void UpdateResultImage(int playerNumber, int resultValue)
+    {
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ç•ªå·(1ã€œ)ã‚’ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹(0ã€œ)ã«å¤‰æ›
+        int playerIndex = playerNumber - 1;
+
+        // resultValue (1ã€œ6) ã‚’ç”»åƒã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ (0ã€œ5) ã«å¤‰æ›
+        int imageIndex = resultValue - 1;
+
+        if (playerIndex >= 0 && playerIndex < playerResultImages.Length && playerResultImages[playerIndex] != null)
+        {
+            if (playerIndex < diceFaceImageSets.Length && imageIndex >= 0 && imageIndex < diceFaceImageSets[playerIndex].faces.Length)
             {
-                string status = droppedOutPlayers.Contains(i) ? "DEAD" : "ALIVE";
-                scoreTexts[i].text = $"P{i}: {playerScores[i]} ({status})";
+                playerResultImages[playerIndex].sprite = diceFaceImageSets[playerIndex].faces[imageIndex];
+                playerResultImages[playerIndex].gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"Image set or face index out of bounds for Player {playerNumber}. Result: {resultValue}");
             }
         }
+        else
+        {
+            Debug.LogWarning($"Player result image UI not found for Player {playerNumber}. Check Inspector setup.");
+        }
     }
 
-    private bool IsMaster()
+    /// <summary>
+    /// ã‚²ãƒ¼ãƒ çŠ¶æ…‹ã‚’åŒæœŸã™ã‚‹RPC
+    /// </summary>
+    [PunRPC]
+    private void SetGameStateRPC(E_DICE_GAME_STATE newState)
     {
-        return !GameManager.instance.IsOnline() || PhotonNetwork.IsMasterClient;
+        gameState = newState;
+        Debug.Log($"Game State changed to: {newState}");
+
+        // çŠ¶æ…‹å¤‰æ›´æ™‚ã®UIå‡¦ç†ãªã©ã‚’ã“ã“ã§è¡Œã†
     }
 
-    private int GetMyPlayerNumber()
+    /// <summary>
+    /// ç¾åœ¨ã®ã‚²ãƒ¼ãƒ çŠ¶æ…‹ã‚’å–å¾—
+    /// </summary>
+    public E_DICE_GAME_STATE GetGameState()
     {
-        if (!GameManager.instance.IsOnline()) return 0; // ƒIƒtƒ‰ƒCƒ“‚ÍP1ˆµ‚¢
-
-        // PlayerInfomation‚©‚çæ“¾‚·‚é‚Ì‚ª³U–@
-        // ‚±‚±‚Å‚ÍŠù‘¶‚ÌPlayerInfomation‚ğ’T‚µ‚Ä©•ª‚Ì”Ô†‚ğ•Ô‚·ˆ—‚ğ‘z’è
-        var myInfo = FindObjectsOfType<PlayerInfomation>().FirstOrDefault(p => p.GetComponent<PhotonView>().IsMine);
-        return myInfo != null ? myInfo.myNumber : -1;
-    }
-
-    private int GetActivePlayerCount()
-    {
-        return 4 - droppedOutPlayers.Count; // Å‘å4lŒÅ’è‚Ìê‡
+        return gameState;
     }
 }

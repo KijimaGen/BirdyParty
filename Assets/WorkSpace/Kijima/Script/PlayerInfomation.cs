@@ -77,9 +77,9 @@ public class PlayerInfomation:MonoBehaviour{
             GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
 
         //オンラインだったらエントリーを行う
-        if (GameDataManager.instance.GetToriFromNumber(myNumber) != null 
+        if (GameDataManager.instance != null 
             && GameManager.instance.IsOnline()
-            && GameDataManager.instance != null) {
+            && GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
             Entry();
         }
 
@@ -166,18 +166,8 @@ public class PlayerInfomation:MonoBehaviour{
     private void LoadDiceGameScene(){
         PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
         playerInput.SwitchCurrentActionMap("DiceGame");
-        Debug.Log("ダイスゲームが呼ばれた。");
-
-        var spawner = FindObjectOfType<DicePlayerSpawner>();
-
-        if (spawner != null)
-        {
-            spawner.SpawnDiceForPlayer(this, dicePlayer);
-        }
-        else
-        {
-            Debug.LogWarning("DicePlayerSpawnerがシーンに見つかりません。DiceGameManagerと同じオブジェクト等にアタッチしてください。");
-        }
+        Debug.Log("ダイスゲームスタート");
+        dicePlayer.SetActive(true);
     }
 
     //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)

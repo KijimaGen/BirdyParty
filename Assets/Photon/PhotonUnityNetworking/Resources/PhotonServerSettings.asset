@@ -75,6 +75,15 @@ MonoBehaviour:
   - ReportDiceResult
   - SetGameStateRPC
   - UpdateTurnTextRPC
+  - RollDiceRPC
+  - MasterClient_StartDiceRolling
+  - RequestRoll
+  - SetupBabaDiceRPC
+  - SetupDiceRPC
+  - ShowDiceUI
+  - SyncMaterialIndex
+  - SyncTurnState
+  - SyncBabaResult
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

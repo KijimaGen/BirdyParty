@@ -36,7 +36,7 @@ public class PlayerInfomation:MonoBehaviour{
     private GameObject dropPlayer;
     // ダイスのプレイヤー
     [SerializeField]
-    private GameObject dicePlayer;
+    public GameObject dicePlayer;
 
     //エントリ～したかどうか
     [SerializeField]

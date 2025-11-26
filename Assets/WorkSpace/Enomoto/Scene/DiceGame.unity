@@ -757,7 +757,7 @@ GameObject:
   - component: {fileID: 362883747}
   - component: {fileID: 362883746}
   - component: {fileID: 362883745}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -1256,6 +1256,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 0
+  diceParent: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &576536303
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1618,6 +1622,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 0
+  diceParent: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &820482051
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1698,6 +1706,10 @@ PrefabInstance:
     - target: {fileID: 6801955793903224657, guid: 0d2b9188252a78b4298fb8e34d9229ee, type: 3}
       propertyPath: m_Name
       value: BABA_Dice
+      objectReference: {fileID: 0}
+    - target: {fileID: 6801955793903224657, guid: 0d2b9188252a78b4298fb8e34d9229ee, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2374,6 +2386,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 0
+  diceParent: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &1151825206
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2564,62 +2580,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 1274199689}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a979eaeb725b4c45a465ab851b38f27, type: 3}
+  m_Script: {fileID: 11500000, guid: 66e655deb6c2b174f8540317da94f568, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxTurns: 5
-  rollTimeLimit: 10
-  gameState: 0
-  currentTurn: 0
-  currentPlayerNumber: 1
-  dicePrefabName: PlayerDice
+  timeLimit: 10
+  dicePrefab: {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+  spawnPoints:
+  - {fileID: 2075429780}
+  - {fileID: 367879513}
+  - {fileID: 2035925062}
+  - {fileID: 1052052322}
   playerMaterials:
   - {fileID: 2100000, guid: 7cfef8c7af7233f48bdf0b5f736be209, type: 2}
   - {fileID: 2100000, guid: b950b9b7caee7a84c95f33637695198d, type: 2}
   - {fileID: 2100000, guid: 041c025c77de3024ea1e19c8ceb307de, type: 2}
   - {fileID: 2100000, guid: 84cd69044c0e3324b951a8724366213d, type: 2}
-  diceSpawnPoints:
-  - {fileID: 2075429780}
-  - {fileID: 367879513}
-  - {fileID: 2035925062}
-  - {fileID: 1052052322}
-  infoText: {fileID: 5877244418568808817}
-  turnText: {fileID: 1732020262972836007}
+  babaMaterial: {fileID: 2100000, guid: c87f89a25a0ca2243967cdbd22c1c234, type: 2}
   playerResultImages:
   - {fileID: 245544975}
   - {fileID: 670901709}
   - {fileID: 190132113}
   - {fileID: 259771345}
-  - {fileID: 7186444426299104252}
-  diceFaceImageSets:
-  - faces:
-    - {fileID: 21300000, guid: e5c9de5d518fc8147a6319377d3aa130, type: 3}
-    - {fileID: 21300000, guid: 10a67c884047f2e4c93a828a38feeecb, type: 3}
-    - {fileID: 21300000, guid: 78b0afd9b1c277c4db20fcc9a097c1df, type: 3}
-    - {fileID: 21300000, guid: 223063fc99e78d24dae7aeb9aea040e7, type: 3}
-    - {fileID: 21300000, guid: 7b9f4a97590eb7c44a3ea7ad70720c39, type: 3}
-    - {fileID: 21300000, guid: 0f1b8cf5ecadb2447978629fafad91a8, type: 3}
-  - faces:
-    - {fileID: 21300000, guid: e0a51a89b778df64ca8dc0eaf183821b, type: 3}
-    - {fileID: 21300000, guid: 0e619f1f0c64cf44b8dbfef7dcc87ad4, type: 3}
-    - {fileID: 21300000, guid: 6a75761dc18e5f349aff96ab07b8fef8, type: 3}
-    - {fileID: 21300000, guid: 0d503c35071bfc7498e7bc67e09839ee, type: 3}
-    - {fileID: 21300000, guid: 3c42454bb789c3b448cad205e3203332, type: 3}
-    - {fileID: 21300000, guid: cf86d57b5cf92a84c8965ed26bb8b680, type: 3}
-  - faces:
-    - {fileID: 21300000, guid: e6e60cf76a58b2a47a45f4ae666265d3, type: 3}
-    - {fileID: 21300000, guid: d24d603f40378924a9e8c43aafb7d254, type: 3}
-    - {fileID: 21300000, guid: c0280243b7d98f143ab65d33e5e8f100, type: 3}
-    - {fileID: 21300000, guid: 473a45d361bafd4489e172fe7be3fc1a, type: 3}
-    - {fileID: 21300000, guid: 09a4460d61cb9ca40b34616f31abe0ba, type: 3}
-    - {fileID: 21300000, guid: 413b7eab09941a34b86e6c35408462e4, type: 3}
-  - faces:
-    - {fileID: 21300000, guid: c71022e65b2bd20468ff770835a3f907, type: 3}
-    - {fileID: 21300000, guid: 2d316738270ea804c927951eddb2f086, type: 3}
-    - {fileID: 21300000, guid: 0876b70b657323046a1af77d4bea2385, type: 3}
-    - {fileID: 21300000, guid: f7fef2e5175bf224ca860d3f97c72ffd, type: 3}
-    - {fileID: 21300000, guid: 7d1fbaddf2981d84f81144b5ad8344e5, type: 3}
-    - {fileID: 21300000, guid: 9debf28c11111604f8af25d6c2d8a680, type: 3}
+  babaResultImage: {fileID: 7186444426299104252}
+  diceSprites:
+  - {fileID: 21300000, guid: f2749e274e9ded841aa49888fc66e104, type: 3}
+  - {fileID: 21300000, guid: f7a661566a37ff441a334709bd54d601, type: 3}
+  - {fileID: 21300000, guid: cd346b29d294add41ad7d3659d433c3f, type: 3}
+  - {fileID: 21300000, guid: bb83ebc39a620744e8bdc7da4a04c5bc, type: 3}
+  - {fileID: 21300000, guid: 6e80ad52019c57b468a18910628c6231, type: 3}
+  - {fileID: 21300000, guid: 650d6cd2ec05bb04fb73fcf27c75d4d3, type: 3}
+  infoText: {fileID: 5877244418568808817}
+  timerText: {fileID: 1729651813}
 --- !u!1 &1356588180
 GameObject:
   m_ObjectHideFlags: 0
@@ -2912,6 +2904,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 0
+  diceParent: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &1563215514
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3284,6 +3280,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 0
+  diceParent: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &1697580894
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4504,6 +4504,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 0
+  diceParent: {fileID: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &2138946232
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4962,6 +4966,21 @@ RectTransform:
   m_AnchoredPosition: {x: 694.7, y: 456.9}
   m_SizeDelta: {x: 391.9269, y: 210.1592}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!4 &2825268578975095093
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3206156532640269199}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -80.8, y: 7, z: 10.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!222 &3158762469732733017
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5016,6 +5035,23 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &3206156532640269199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2825268578975095093}
+  - component: {fileID: 7973685469962400408}
+  m_Layer: 0
+  m_Name: BABA_Dice_SpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!224 &3436574901710648756
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6069,6 +6105,27 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!65 &7973685469962400408
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3206156532640269199}
+  m_Material: {fileID: 13400000, guid: 0b5d8056dd35ac649af8c65ddd380a94, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.4, y: 1.4, z: 1.4}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!222 &8076695836292271523
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6197,5 +6254,6 @@ SceneRoots:
   - {fileID: 367879513}
   - {fileID: 2035925062}
   - {fileID: 1052052322}
+  - {fileID: 2825268578975095093}
   - {fileID: 1274199691}
   - {fileID: 408560812}

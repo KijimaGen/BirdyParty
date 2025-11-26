@@ -77,9 +77,9 @@ public class PlayerInfomation:MonoBehaviour{
             GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
 
         //オンラインだったらエントリーを行う
-        if (GameDataManager.instance.GetToriFromNumber(myNumber) != null 
+        if (GameDataManager.instance != null
             && GameManager.instance.IsOnline()
-            && GameDataManager.instance != null) {
+            && GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
             Entry();
         }
 

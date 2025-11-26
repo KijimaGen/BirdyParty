@@ -1,13 +1,11 @@
-
-
-using System.Collections.Generic;
-using UnityEngine;
 /**
 * @file GameConst.cs
 * @brief 定数定義
 * @author Sum1r3
 * @date 2025/10/6
 */
+using UnityEngine;
+
 public static class GameConst {
     // プレイヤーの最大数
     public static readonly int PLAYER_MAX = 4;
@@ -18,7 +16,7 @@ public static class GameConst {
         Straw   // 麦わらのトリ
     }
 
-    //ドロップゲームのリストのまま入れる(必要性はない)
+    //ドロップゲームのリストのまま入れる
     public enum DropGamePanelVariation {
         None,   //一応何もないも実装
         Grape,  
@@ -41,6 +39,9 @@ public static class GameConst {
     public static readonly Color[] PLAYER_COLOR = new Color[] {
         Color.blue, Color.red, Color.green, Color.yellow
     };
+
+    //１秒
+    public const int _DELAY_SECOND = 1000;
 
     #region シーン名一覧
     public static readonly string TITLE_SCENE_NAME = "Title";

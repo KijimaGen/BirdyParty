@@ -1,8 +1,15 @@
-using System.Threading;
+/**
+* @file BattleDomePlayer.cs
+* @brief バトルドームシーンのプレイヤー
+* @author Sum1r3
+* @date 2025/11/26
+*/
+using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Flipper : MonoBehaviour {
+public class BattleDomePlayer : MonoBehaviourPunCallbacks {
     //Higneコンポーネントの参照
     [Header("Hingeのステータス")]
     [SerializeField]
@@ -27,6 +34,9 @@ public class Flipper : MonoBehaviour {
     [SerializeField]
     private GameObject _axisR;
 
+    //マイナンバー
+    private int myNumber;
+
     private void Awake() {
         //ヒンジジョイントを受け取る
         hjL = _axisL.GetComponent<HingeJoint>();
@@ -35,6 +45,9 @@ public class Flipper : MonoBehaviour {
         //スプリングを受け取る
         jL = hjL.spring;
         jR = hjR.spring;
+
+        //エントリー
+        _=EntryToManager();
     }
 
     /// <summary>
@@ -86,5 +99,23 @@ public class Flipper : MonoBehaviour {
 
                 break;
         }
+    }
+
+    public async UniTask EntryToManager() {
+        //プレイヤーマネージャーの参照がなかったら出来るまで待つ
+        while(BattleDomePlayerManager.instance == null) {
+            await UniTask.Delay(1);
+        }
+
+        //参照をキャッシュ
+        BattleDomePlayerManager PlayerManager = BattleDomePlayerManager.instance;
+        //エントリーさせてもらう
+        PlayerManager.Enty(this);
+        //マイナンバー取得
+        myNumber = PlayerManager.GetPlayerNumber(this);
+        //位置調整
+        transform.position = PlayerManager.GetPlayerPosition(myNumber);
+        //角度調整
+        transform.rotation = Quaternion.Euler(PlayerManager.GetPlayerRotation(myNumber));
     }
 }

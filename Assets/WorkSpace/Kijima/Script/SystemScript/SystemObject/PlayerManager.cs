@@ -1,6 +1,6 @@
 /**
  * @file PlayerManager.cs
- * @brief プレイヤーの情報を取っておきたい(唐突な願望)
+ * @brief プレイヤーの情報を取っておきたい
  * @author Sum1r3
  * @date 2025/10/14
  */

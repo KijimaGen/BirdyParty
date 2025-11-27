@@ -158,11 +158,10 @@ MonoBehaviour:
   Group: 0
   prefixField: -1
   Synchronization: 3
-  OwnershipTransfer: 0
+  OwnershipTransfer: 2
   observableSearch: 2
   ObservedComponents:
   - {fileID: 4252676855613725449}
-  - {fileID: 462675842041297150}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -194,19 +193,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c202ff5b46090247999260e48c4b59c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rollPower: 10
-  torquePower: 20
-  meshRenderer: {fileID: 0}
-  faces:
-  - {fileID: 5418554656291465464}
-  - {fileID: 6359949429420078574}
-  - {fileID: 1433095139559838914}
-  - {fileID: 7090652467302840383}
-  - {fileID: 2960690023063168813}
-  - {fileID: 1928880757448108212}
+  InitialPosition: {x: 0, y: 0, z: 0}
+  InitialRotation: {x: 0, y: 0, z: 0, w: 0}
+  rollForce: 5
+  rollTorque: 10
+  stopThreshold: 0.1
+  stabilizationTime: 0.5
+  actorNumber: 0
   isRolling: 0
   resultNumber: -1
-  ownerActorNumber: -1
+  faces:
+  - upDirection: {x: 0, y: 0, z: 0}
+    value: 0
+  - upDirection: {x: 0, y: 0, z: 0}
+    value: 0
+  - upDirection: {x: 0, y: 0, z: 0}
+    value: 0
+  - upDirection: {x: 0, y: 0, z: 0}
+    value: 0
+  - upDirection: {x: 0, y: 0, z: 0}
+    value: 0
+  - upDirection: {x: 0, y: 0, z: 0}
+    value: 0
 --- !u!1 &2418113870696635013
 GameObject:
   m_ObjectHideFlags: 0

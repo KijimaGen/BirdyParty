@@ -8,7 +8,7 @@ using Photon.Pun;
  * DiceGameManagerと連携し、Roll、Reset、Result Reportを行う。
  */
 [RequireComponent(typeof(Rigidbody))]
-public class DiceObject : MonoBehaviour
+public class DiceObject : MonoBehaviourPun, IPunInstantiateMagicCallback
 {
     // 【★追加】ダイスの初期位置と回転を保持するためのフィールド
     [HideInInspector] public Vector3 InitialPosition;
@@ -25,7 +25,6 @@ public class DiceObject : MonoBehaviour
     private Rigidbody rb;
     public bool isRolling = false; // 回転中かどうか
     public int resultNumber = -1; // 確定した出目 (1-6)。-1は未確定/リセット状態。
-    private bool isInitialized = false;
     private DiceGameManager manager;
 
     // ダイスの各面（フェース）の情報を格納する構造体（他のロジックが使用しているため省略せず残す）
@@ -77,7 +76,6 @@ public class DiceObject : MonoBehaviour
             renderer.material = mat;
         }
 
-        isInitialized = true;
     }
 
     // 【ロールメソッド】
@@ -192,6 +190,54 @@ public class DiceObject : MonoBehaviour
         else
         {
             Debug.LogError($"Dice {gameObject.name} stopped, but result is invalid: {resultNumber}");
+        }
+    }
+
+    public void OnPhotonInstantiate(PhotonMessageInfo info)
+    {
+        // DiceGameManager が初期化を完了し、activePlayers リストが設定された後に処理を実行
+        if (!info.Sender.IsLocal)
+        {
+            // ローカルクライアントが生成したダイスではない（他プレイヤーのダイス）
+
+            // 生成時に渡されたデータ（object[] data）を取得
+            object[] instantiationData = this.photonView.InstantiationData;
+
+            if (instantiationData != null && instantiationData.Length >= 2)
+            {
+                int actorNumber = (int) instantiationData[0];
+                int materialIndex = (int) instantiationData[1];
+
+                // ダイス生成位置は、DiceGameManager の activePlayers リスト順序から取得する
+                DiceGameManager manager = DiceGameManager.instance;
+                if (manager != null)
+                {
+                    // activePlayers のリストが全クライアントで一致していることを前提とする
+                    PlayerInfomation p = manager.activePlayers.Find(ap => ap.GetComponent<PhotonView>().OwnerActorNr == actorNumber);
+
+                    if (p != null)
+                    {
+                        int playerIndex = manager.activePlayers.IndexOf(p);
+                        Transform sp = manager.spawnPoints[playerIndex % manager.spawnPoints.Length];
+
+                        this.InitialPosition = sp.position;
+                        this.InitialRotation = sp.rotation;
+
+                        Material mat = manager.GetPlayerMaterial(materialIndex);
+
+                        // 即座に初期化を実行
+                        Initialize(actorNumber, mat, materialIndex);
+
+                        // DiceGameManager の辞書に登録（他プレイヤーのダイス）
+                        if (!manager.playerDiceObjects.ContainsKey(actorNumber))
+                        {
+                            manager.playerDiceObjects.Add(actorNumber, this);
+                        }
+
+                        Debug.Log($"Remote Dice Initialized for Actor: {actorNumber}");
+                    }
+                }
+            }
         }
     }
 }

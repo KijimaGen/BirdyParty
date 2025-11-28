@@ -25,6 +25,9 @@ public class PlayerInfomation:MonoBehaviour{
     //自分の色
     private Color myColor;
 
+    //自分のマテリアル
+    private int materialIndex = 0;
+
     //自身のフォトンビュー
     PhotonView photonView;
    
@@ -245,6 +248,9 @@ public class PlayerInfomation:MonoBehaviour{
     //Color
 
     public Color GetMyColor() { return myColor; }
+
+    public int GetMaterialIndex() { return this.materialIndex; }
+    public void SetMaterialIndex(int index) { this.materialIndex = index; }
 
     #endregion
 }

@@ -203,18 +203,18 @@ MonoBehaviour:
   isRolling: 0
   resultNumber: -1
   faces:
-  - upDirection: {x: 0, y: 0, z: 0}
-    value: 0
-  - upDirection: {x: 0, y: 0, z: 0}
-    value: 0
-  - upDirection: {x: 0, y: 0, z: 0}
-    value: 0
-  - upDirection: {x: 0, y: 0, z: 0}
-    value: 0
-  - upDirection: {x: 0, y: 0, z: 0}
-    value: 0
-  - upDirection: {x: 0, y: 0, z: 0}
-    value: 0
+  - upDirection: {x: 0, y: 0, z: 1}
+    value: 1
+  - upDirection: {x: 0, y: 0, z: -1}
+    value: 6
+  - upDirection: {x: 0, y: 1, z: 0}
+    value: 2
+  - upDirection: {x: 0, y: -1, z: 0}
+    value: 5
+  - upDirection: {x: 1, y: 0, z: 0}
+    value: 4
+  - upDirection: {x: -1, y: 0, z: 0}
+    value: 3
 --- !u!1 &2418113870696635013
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,7 +282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 5
-  diceParent: {fileID: 0}
+  diceParent: {fileID: 462675842041297150}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -353,7 +353,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 2
-  diceParent: {fileID: 0}
+  diceParent: {fileID: 462675842041297150}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -424,7 +424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 3
-  diceParent: {fileID: 0}
+  diceParent: {fileID: 462675842041297150}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -495,7 +495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 1
-  diceParent: {fileID: 0}
+  diceParent: {fileID: 462675842041297150}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -566,7 +566,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 6
-  diceParent: {fileID: 0}
+  diceParent: {fileID: 462675842041297150}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -637,7 +637,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceNumber: 4
-  diceParent: {fileID: 0}
+  diceParent: {fileID: 462675842041297150}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64

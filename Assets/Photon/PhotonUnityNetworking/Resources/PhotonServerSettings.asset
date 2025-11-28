@@ -96,6 +96,11 @@ MonoBehaviour:
   - ShowMessage
   - SyncFullGameState
   - SyncEndGameResult
+  - SyncTurnResult
+  - SyncPlayerRank
+  - SyncPlayerScoreAndUI
+  - AutoRollDice
+  - SyncTurnTimer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

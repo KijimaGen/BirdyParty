@@ -195,49 +195,73 @@ public class DiceObject : MonoBehaviourPun, IPunInstantiateMagicCallback
 
     public void OnPhotonInstantiate(PhotonMessageInfo info)
     {
-        // DiceGameManager が初期化を完了し、activePlayers リストが設定された後に処理を実行
-        if (!info.Sender.IsLocal)
+        // ダイスを生成したプレイヤーのアクター番号を取得
+        this.actorNumber = info.Sender.ActorNumber;
+
+        // 【重要】
+        // ここで DiceGameManager から、そのプレイヤーID（actorNumber）に対応する
+        // マテリアルインデックスと初期位置情報を取得し、Initialize()を呼び出す必要があります。
+
+        // 例：DiceGameManagerに以下のメソッドがある場合
+        DiceGameManager manager = DiceGameManager.instance;
+        if (manager != null)
         {
-            // ローカルクライアントが生成したダイスではない（他プレイヤーのダイス）
+            // PunctualDiceInstantiation() のような生成メソッド内で、
+            // CustomPropertiesに MaterialIndex と SpawnIndex を設定し、
+            // ここでそれを読み取るのが最も堅牢です。
 
-            // 生成時に渡されたデータ（object[] data）を取得
-            object[] instantiationData = this.photonView.InstantiationData;
+            // **暫定的な対応として、以下のようにマテリアルと位置を初期化するロジックを実装してください。**
+            // (PlayerInfomationが正しい情報を保持していることを前提とします)
 
-            if (instantiationData != null && instantiationData.Length >= 2)
+            PlayerInfomation p = manager.FindPlayerInfo(this.actorNumber); // Helper関数 FindPlayerInfo が必要
+            if (p != null)
             {
-                int actorNumber = (int) instantiationData[0];
-                int materialIndex = (int) instantiationData[1];
+                // PlayerInfomationから設定されているマテリアルや位置情報を取得
+                int materialIndex = p.GetMaterialIndex(); // PlayerInfomationにGetMaterialIndexが必要
+                Transform sp = manager.GetSpawnPoint(this.actorNumber); // DiceGameManagerにGetSpawnPointが必要
 
-                // ダイス生成位置は、DiceGameManager の activePlayers リスト順序から取得する
-                DiceGameManager manager = DiceGameManager.instance;
-                if (manager != null)
+                if (sp != null)
                 {
-                    // activePlayers のリストが全クライアントで一致していることを前提とする
-                    PlayerInfomation p = manager.activePlayers.Find(ap => ap.GetComponent<PhotonView>().OwnerActorNr == actorNumber);
-
-                    if (p != null)
-                    {
-                        int playerIndex = manager.activePlayers.IndexOf(p);
-                        Transform sp = manager.spawnPoints[playerIndex % manager.spawnPoints.Length];
-
-                        this.InitialPosition = sp.position;
-                        this.InitialRotation = sp.rotation;
-
-                        Material mat = manager.GetPlayerMaterial(materialIndex);
-
-                        // 即座に初期化を実行
-                        Initialize(actorNumber, mat, materialIndex);
-
-                        // DiceGameManager の辞書に登録（他プレイヤーのダイス）
-                        if (!manager.playerDiceObjects.ContainsKey(actorNumber))
-                        {
-                            manager.playerDiceObjects.Add(actorNumber, this);
-                        }
-
-                        Debug.Log($"Remote Dice Initialized for Actor: {actorNumber}");
-                    }
+                    this.InitialPosition = sp.position;
+                    this.InitialRotation = sp.rotation;
                 }
+
+                Material mat = manager.GetPlayerMaterial(materialIndex); // DiceGameManagerにGetPlayerMaterialが必要
+
+                // 初期化実行
+                Initialize(this.actorNumber, mat, materialIndex);
+
+                Debug.Log($"Dice Initialized for Actor: {this.actorNumber}");
             }
+        }
+    }
+
+    /// <summary>
+    /// ダイスが停止するのを待ち、結果をDiceGameManagerに報告します。
+    /// </summary>
+    public IEnumerator WaitForRollCompletionAndReport(int actorNumber)
+    {
+        // 1. ダイスが停止するのを待つ (isRollingがfalseになるまで)
+        // Roll() メソッド内で isRolling = true に設定し、
+        // Update() などで速度チェックを行い isRolling = false に戻す処理が必要です。
+        while (isRolling)
+        {
+            yield return null;
+        }
+
+        // 2. 結果を確定させる (GetResultNumber() が正しい出目を返す)
+        int result = GetResultNumber();
+
+        if (DiceGameManager.instance != null)
+        {
+            // 3. DiceGameManagerに結果を報告するRPCを呼ぶ
+            // このRPCは全クライアントに対して呼び出され、マスタークライアントが結果を収集しターンを進行させます。
+            DiceGameManager.instance.photonView.RPC(
+                nameof(DiceGameManager.instance.ReportDiceResult), // ReportDiceResult RPCを呼ぶ
+                RpcTarget.All,
+                actorNumber,
+                result
+            );
         }
     }
 }

@@ -2638,6 +2638,7 @@ MonoBehaviour:
   minPlayersToStart: 2
   maxPlayers: 4
   dicePrefab: {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+  playerInfo: {fileID: 8418899593631541544, guid: ec19ec01d49419e4e832bcc7030e2659, type: 3}
   spawnPoints:
   - {fileID: 2075429780}
   - {fileID: 367879513}

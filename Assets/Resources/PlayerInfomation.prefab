@@ -354,20 +354,44 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+      propertyPath: faces.Array.data[0].upDirection.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
       propertyPath: faces.Array.data[1].upDirection.y
       value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+      propertyPath: faces.Array.data[1].upDirection.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
       propertyPath: faces.Array.data[2].upDirection.x
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+      propertyPath: faces.Array.data[2].upDirection.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
       propertyPath: faces.Array.data[3].upDirection.x
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+      propertyPath: faces.Array.data[3].upDirection.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+      propertyPath: faces.Array.data[4].upDirection.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
       propertyPath: faces.Array.data[4].upDirection.z
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+      propertyPath: faces.Array.data[5].upDirection.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 462675842041297150, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
       propertyPath: faces.Array.data[5].upDirection.z

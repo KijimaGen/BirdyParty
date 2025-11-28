@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using TMPro; // TextMeshProを使用する場合
 using UnityEngine.InputSystem;
 using System.Linq;
+using System.Text;
 
 /**
  * @file DiceGameManager.cs
@@ -41,26 +42,28 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
     [Header("参照")]
     [SerializeField] private GameObject dicePrefab; // プレイヤーダイスのPrefab（オフライン時はPlayerInfomation内の既存オブジェクトを優先）
-    [SerializeField] public Transform[] spawnPoints; // プレイヤーごとのダイス生成位置 (Size=4)
+    [SerializeField] private GameObject playerInfo;
+    [SerializeField] private Transform[] spawnPoints; // プレイヤーごとのダイス生成位置 (Size=4)
     [SerializeField] private Material[] playerMaterials; // プレイヤー識別用マテリアル (Size=4)
     [SerializeField] private Material babaMaterial; // BABAダイス用マテリアル (UI表示用として残す)
 
     [Header("UI")]
-    [SerializeField] private Image[] playerResultImages; // プレイヤーの出目表示用UI (Size=4)
-    [SerializeField] private Image babaResultImage; // BABAダイスの出目表示用UI
-    [SerializeField] private Sprite[] diceSprites; // 1~6のサイコロ画像
-    [SerializeField] private TextMeshProUGUI infoText; // ゲーム状態表示テキスト
-    [SerializeField] private TextMeshProUGUI timerText; // タイマー表示
-    [SerializeField] private TextMeshProUGUI[] playerScoreTexts; 
+    [SerializeField] private Image[] playerResultImages;          // プレイヤーの出目表示用UI (Size=4)
+    [SerializeField] private Image babaResultImage;               // BABAダイスの出目表示用UI
+    [SerializeField] private Sprite[] diceSprites;                // 1~6のサイコロ画像
+    [SerializeField] private TextMeshProUGUI infoText;            // ゲーム状態表示テキスト
+    [SerializeField] private TextMeshProUGUI timerText;           // タイマー表示
+    [SerializeField] private TextMeshProUGUI[] playerScoreTexts;  // スコア表示用テキスト
 
     // 内部変数
     private int currentTurn = 0;
     private int activePlayerCount = 0;
     private float currentTimer = 0f;
     private bool waitingForRoll = false;
+    private int currentActivePlayerIndex = 0;
 
     // キー: ActorNumber(オフライン時はPlayerIndex), 値: DiceObject
-    public Dictionary<int, DiceObject> playerDiceObjects = new Dictionary<int, DiceObject>();
+    private Dictionary<int, DiceObject> playerDiceObjects = new Dictionary<int, DiceObject>();
 
     // キー: ActorNumber, 値: 今回の出目
     private Dictionary<int, int> currentTurnResults = new Dictionary<int, int>();
@@ -69,7 +72,7 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     private int currentBabaNumber = -1;
 
     // プレイヤー情報リスト（脱落していない人）
-    public List<PlayerInfomation> activePlayers = new List<PlayerInfomation>();
+    private List<PlayerInfomation> activePlayers = new List<PlayerInfomation>();
 
     // 初期化完了フラグ
     private bool isInitialized = false;
@@ -109,32 +112,12 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             yield break;
         }
 
-        if (!GameManager.instance.IsOnline())
-        {
-            // 既存の activePlayers リストをクリア
-            activePlayers.Clear();
-
-            // ダミーの PlayerInfomation を必要な数だけ生成・設定
-            for (int i = 0; i < maxPlayers; i++)
-            {
-                // ここで PlayerInfomation のインスタンスを生成し、activePlayers に追加
-                // 例: シーン上のプレハブから生成、または新しいGameObjectにコンポーネントを追加
-
-                GameObject playerGO = new GameObject($"Player {i + 1} (Offline)");
-                PlayerInfomation pi = playerGO.AddComponent<PlayerInfomation>();
-                pi.myNumber = i + 1; // 1から順にIDを設定
-                                     // オフラインなので Destroy を確実にするためにシーンを汚染しないように親オブジェクトを設定するなど
-
-                activePlayers.Add(pi);
-            }
-        }
-
         if (GameManager.instance.IsOnline())
         {
             // マスタークライアントのみがダイスを生成
             if (PhotonNetwork.IsMasterClient)
             {
-                
+                SpawnDiceOnline();
             }
 
             currentGameState = GameState.Lobby;
@@ -154,122 +137,9 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         }
 
         yield return new WaitForEndOfFrame();
-        
+
         isInitialized = true;
-
-        if (GameManager.instance.IsOnline())
-        {
-            SpawnLocalDiceOnline();
-        }
-        else
-        {
-            SpawnLocalDiceOffline();
-        }
-
         Debug.Log("Game Initialization Complete. Entering Lobby State.");
-    }
-
-    /// <summary>
-    /// オンラインモードでローカルプレイヤーのダイスを生成し初期設定する。
-    /// </summary>
-    public void SpawnLocalDiceOnline()
-    {
-        if (!GameManager.instance.IsOnline() || PhotonNetwork.LocalPlayer == null) return;
-
-        int myActorNum = PhotonNetwork.LocalPlayer.ActorNumber;
-
-        // 自分の PlayerInfomation を見つける
-        PlayerInfomation p = activePlayers.Find(ap => ap.GetComponent<PhotonView>().OwnerActorNr == myActorNum);
-
-        if (p == null)
-        {
-            Debug.LogError($"PlayerInfomation not found for ActorNumber: {myActorNum}");
-            return;
-        }
-
-        int playerIndex = activePlayers.IndexOf(p);
-
-        // スポーン位置・マテリアルの決定
-        Vector3 pos = spawnPoints[playerIndex % spawnPoints.Length].position;
-        Quaternion rot = spawnPoints[playerIndex % spawnPoints.Length].rotation;
-        int materialIndex = playerIndex % playerMaterials.Length;
-
-        object[] data = new object[] { myActorNum, materialIndex };
-
-        // 各クライアントが自身のダイスを生成する (オーナーシップは自動的に自分になる)
-        GameObject diceObj = PhotonNetwork.Instantiate(dicePrefab.name, pos, rot, 0, data);
-
-        // 生成されたダイスに初期情報を設定
-        DiceObject diceScript = diceObj.GetComponent<DiceObject>();
-
-        // SetupDiceRPC の内容を直接実行 (自分自身で設定するため RPC は不要)
-        Material mat = playerMaterials[materialIndex];
-
-        diceScript.InitialPosition = pos;
-        diceScript.InitialRotation = rot;
-
-        // ローカルで即座に初期化
-        diceScript.Initialize(myActorNum, mat, materialIndex);
-
-        if (!playerDiceObjects.ContainsKey(myActorNum))
-        {
-            playerDiceObjects.Add(myActorNum, diceScript);
-        }
-
-        Debug.Log($"Local Dice Spawned and Initialized for Actor: {myActorNum}");
-    }
-
-    /// <summary>
-    /// オフラインモードでローカルプレイヤー（全員）のダイスを生成し初期設定する。
-    /// </summary>
-    public void SpawnLocalDiceOffline()
-    {
-        if (GameManager.instance.IsOnline()) return; // オンライン時は実行しない
-
-        // 既存のダイスをクリア (再開時などのために)
-        foreach (var kvp in playerDiceObjects)
-        {
-            if (kvp.Value != null)
-            {
-                Destroy(kvp.Value.gameObject);
-            }
-        }
-        playerDiceObjects.Clear();
-
-
-        for (int i = 0; i < activePlayers.Count; i++)
-        {
-            PlayerInfomation p = activePlayers[i];
-            int myNumber = p.myNumber; // オフライン時のプレイヤー識別番号
-            int playerIndex = i;
-
-            // スポーン位置・マテリアルの決定
-            Vector3 pos = spawnPoints[playerIndex % spawnPoints.Length].position;
-            Quaternion rot = spawnPoints[playerIndex % spawnPoints.Length].rotation;
-            int materialIndex = playerIndex % playerMaterials.Length;
-
-            // ローカルでの生成 (Instantiate)
-            GameObject diceObj = Instantiate(dicePrefab, pos, rot);
-
-            // 生成されたダイスに初期情報を設定
-            DiceObject diceScript = diceObj.GetComponent<DiceObject>();
-
-            Material mat = playerMaterials[materialIndex];
-
-            diceScript.InitialPosition = pos;
-            diceScript.InitialRotation = rot;
-
-            // 初期化を実行 (オフラインでは ViewID や ActorNumber は不要だが、PlayerIDとして myNumber を渡す)
-            // DiceObject.Initialize メソッドが引数を受け取れるように調整が必要です。
-            diceScript.Initialize(myNumber, mat, materialIndex);
-
-            if (!playerDiceObjects.ContainsKey(myNumber))
-            {
-                playerDiceObjects.Add(myNumber, diceScript);
-            }
-
-            Debug.Log($"Offline Dice Spawned and Initialized for Player Number: {myNumber}");
-        }
     }
 
     private bool CheckAuthority()
@@ -277,81 +147,60 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         return !GameManager.instance.IsOnline() || PhotonNetwork.IsMasterClient;
     }
 
-    #region 生成処理
+    #region 生成処理 (変更なし - BABAダイス関連の修正は前回実施済み)
 
     private void SpawnDiceOnline()
     {
-        // このメソッドはマスタークライアントのみが呼び出すが、
-        // ここではダイス生成は行わず、全てのプレイヤーに生成を促すRPCを呼び出す役割に変更します。
-        // ※ 現在のコードでは、このメソッドが呼ばれるのは InitializeGameFlow() 内で、
-        //    activePlayers の情報がまだ同期されていないため、この RPC は使用しません。
+        for (int i = 0; i < activePlayers.Count; i++)
+        {
+            PlayerInfomation p = activePlayers[i];
+            int actorNum = p.GetComponent<PhotonView>().OwnerActorNr;
+            Vector3 pos = spawnPoints[i % spawnPoints.Length].position;
+            Quaternion rot = spawnPoints[i % spawnPoints.Length].rotation;
 
-        // 従来のマスタークライアントによる一括生成ロジックを削除し、
-        // 代わりに各クライアントの Start() または OnJoinedRoom() で実行するように変更します。
+            object[] data = new object[] { actorNum };
 
-        // --- 変更点: ここでは何も行わないか、または削除する ---
-        // 後の手順で、InitializeGameFlow から SpawnDiceOnline() の呼び出しを削除します。
+            GameObject diceObj = PhotonNetwork.InstantiateRoomObject(dicePrefab.name, pos, rot, 0, data);
+
+            // セットアップRPC
+            diceObj.GetComponent<PhotonView>().RPC(nameof(SetupDiceRPC), RpcTarget.AllBuffered, diceObj.GetComponent<PhotonView>().ViewID, actorNum, i, pos, rot);
+        }
     }
 
     private void SpawnDiceOffline()
     {
-        // 1. 既存のダイスをクリア（リセット時などに備えて）
-        // オフラインなので、辞書に登録されているオブジェクトを破棄します。
-        foreach (var kvp in playerDiceObjects)
-        {
-            if (kvp.Value != null)
-            {
-                Destroy(kvp.Value.gameObject);
-            }
-        }
-        playerDiceObjects.Clear();
-
-        // 2. プレハブが割り当てられているかチェック
-        if (dicePrefab == null)
-        {
-            Debug.LogError("Dice Prefab is NOT assigned in the Inspector! Cannot spawn dice offline.");
-            return;
-        }
-
-
         for (int i = 0; i < activePlayers.Count; i++)
         {
             PlayerInfomation p = activePlayers[i];
-            int id = p.myNumber; // オフライン時のプレイヤー識別番号
-            int playerIndex = i;
+            int id = p.myNumber;
 
-            // スポーン位置・マテリアルの決定
-            Vector3 pos = spawnPoints[playerIndex % spawnPoints.Length].position;
-            Quaternion rot = spawnPoints[playerIndex % spawnPoints.Length].rotation;
-            int materialIndex = playerIndex % playerMaterials.Length;
+            GameObject diceObj = p.dicePlayer;
+            DiceObject diceScript = null;
 
-            // 👇 ローカルでの生成 (Instantiate)
-            // Scene上のオブジェクトではなく、dicePrefabから新しく生成します。
-            GameObject diceObj = Instantiate(dicePrefab, pos, rot);
+            if (diceObj == null)
+            {
+                Debug.LogError($"Player {id}: dicePlayer is null. Skipping dice setup for this player. Ensure dicePlayer is assigned in the Inspector.");
+                continue;
+            }
 
-            // 生成されたダイスに初期情報を設定
-            DiceObject diceScript = diceObj.GetComponent<DiceObject>();
-
-            // DiceObjectコンポーネントがない場合は追加
+            diceScript = diceObj.GetComponent<DiceObject>();
             if (diceScript == null)
             {
                 diceScript = diceObj.AddComponent<DiceObject>();
             }
 
-            Material mat = playerMaterials[materialIndex];
+            // プレイヤーダイスもスポーンポイントの位置・回転を使用
+            Transform sp = spawnPoints[i % spawnPoints.Length];
+            diceObj.transform.position = sp.position;
+            diceObj.transform.rotation = sp.rotation;
 
-            diceScript.InitialPosition = pos;
-            diceScript.InitialRotation = rot;
+            // DiceObjectに初期位置を設定
+            diceScript.InitialPosition = sp.position;
+            diceScript.InitialRotation = sp.rotation;
 
-            // 初期化を実行
-            diceScript.Initialize(id, mat, materialIndex);
+            diceScript.Initialize(id, playerMaterials[i % playerMaterials.Length], i);
 
-            if (!playerDiceObjects.ContainsKey(id))
-            {
-                playerDiceObjects.Add(id, diceScript);
-            }
-
-            Debug.Log($"Offline Dice Spawned and Initialized for Player Number: {id}");
+            playerDiceObjects.Add(id, diceScript);
         }
     }
 
@@ -376,9 +225,67 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    [PunRPC]
+    public void SetupDiceRPC(int viewID, int actorNumber, int materialIndex, Vector3 pos, Quaternion rot)
+    {
+        PhotonView view = PhotonView.Find(viewID);
+        if (view != null)
+        {
+            DiceObject d = view.GetComponent<DiceObject>();
+            Material mat = playerMaterials[materialIndex % playerMaterials.Length];
+
+            d.InitialPosition = pos;
+            d.InitialRotation = rot;
+
+            d.Initialize(actorNumber, mat, materialIndex);
+
+            if (!playerDiceObjects.ContainsKey(actorNumber))
+            {
+                playerDiceObjects.Add(actorNumber, d);
+            }
+        }
+    }
+
+    [PunRPC]
+    public void SetupBabaDiceRPC(int viewID, Vector3 pos, Quaternion rot)
+    {
+        // BABAダイスは物理オブジェクトとして生成しなくなるため、このRPCは使用されません。
+    }
+
     public Material GetPlayerMaterial(int index)
     {
         if (index >= 0 && index < playerMaterials.Length) return playerMaterials[index];
+        return null;
+    }
+
+    public Transform GetSpawnPoint(int actorNumber)
+    {
+        // プレイヤー情報オブジェクト（PlayerInfomation）を検索
+        // activePlayersリストがmyNumberまたはActorNumber順にソートされていることが理想
+        PlayerInfomation targetPlayer = activePlayers.Find(p =>
+            (GameManager.instance.IsOnline()
+                ? p.GetComponent<PhotonView>().OwnerActorNr
+                : p.myNumber) == actorNumber);
+
+        if (targetPlayer != null)
+        {
+            // activePlayersリスト内のインデックスを取得
+            // activePlayersがプレイヤー順にソートされていれば、インデックスはスポーン位置のインデックスと一致します
+            int playerIndex = activePlayers.IndexOf(targetPlayer);
+
+            // 配列の範囲チェック
+            if (spawnPoints != null && spawnPoints.Length > playerIndex)
+            {
+                return spawnPoints[playerIndex];
+            }
+            else
+            {
+                Debug.LogError($"SpawnPointが未設定、またはプレイヤーインデックス({playerIndex})が範囲外です。SpawnPoints Length: {spawnPoints?.Length ?? 0}");
+                return null;
+            }
+        }
+
+        Debug.LogError($"ActorNumber {actorNumber} に対応するPlayerInfomationが見つかりません。");
         return null;
     }
 
@@ -431,21 +338,72 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         {
             HandleLobbyState();
         }
-        else if (currentGameState == GameState.Rolling)
+
+        if (currentGameState == GameState.Rolling)
         {
-            // ダイスを振る時間制限の処理
-            if (waitingForRoll)
+            // 【重要】マスタークライアントのみがタイマーを減算し、0になったらターンを進める
+            if (PhotonNetwork.IsMasterClient)
             {
                 currentTimer -= Time.deltaTime;
-                if (timerText) timerText.text = currentTimer.ToString("F1");
 
-                // 時間切れで自動ロール
-                if (CheckAuthority() && currentTimer <= 0)
+                // 全クライアントにタイマー値を同期するRPC (頻繁に呼ばれるため、この方法のパフォーマンスに注意)
+                // もし頻繁なRPCを避けたい場合は、マスタークライアントのカスタムプロパティで同期します。
+                photonView.RPC(nameof(SyncTurnTimer), RpcTarget.Others, currentTimer);
+
+                // タイムオーバー処理
+                if (currentTimer <= 0f)
                 {
-                    ForceRollAll();
+                    // ここでタイマーをリセットし、自動ロール＆次のターンへ進めるRPCを呼ぶ
+                    currentTimer = timeLimit; // 次のターンのためにリセット
+
+                    // 【重要】自動ロール処理を呼び出す
+                    photonView.RPC(nameof(AutoRollDice), RpcTarget.MasterClient);
                 }
             }
+            else
+            {
+                // 非マスタークライアントは、マスタークライアントから送られてきた値でタイマーを更新します
+                // ローカルな減算は停止してください。
+            }
+
+            // UIの更新 (ローカルで実行)
+            UpdateTimerUI(currentTimer);
         }
+    }
+
+    /// <summary>
+    /// 制限時間のUIを更新します。
+    /// </summary>
+    private void UpdateTimerUI(float timeRemaining)
+    {
+        if (timerText != null)
+        {
+            // 残り時間を秒単位でフォーマットして表示
+            // Mathf.Max(0f, timeRemaining) でマイナス値が表示されないようにします。
+            timerText.text = $"Time: {Mathf.Max(0f, timeRemaining):F1}s";
+        }
+    }
+
+    [PunRPC]
+    public void SyncTurnTimer(float timerValue)
+    {
+        // 非マスタークライアントはこのRPCでタイマー値を受け取る
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            currentTimer = timerValue;
+        }
+    }
+
+    [PunRPC]
+    private void AutoRollDice()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // 現在のプレイヤーのダイスを強制的にロールするロジック
+        // ... 例：ForceRollCurrentPlayerDice();
+
+        // ロールが完了したら、StartTurn()の最後に進むロジック（次のプレイヤーへ）を実行
+        StartTurn();
     }
 
     private void HandleLobbyState()
@@ -462,22 +420,16 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
         int currentPlayers = GameManager.instance.IsOnline() ? PhotonNetwork.CurrentRoom.PlayerCount : activePlayers.Count;
 
-        // 2. 自動開始チェック (最大人数到達) - 時間切れによる自動開始は任意開始のため削除
-        // MaxPlayers に達したら強制開始するロジックは残します。
-        bool autoStartCondition = currentPlayers >= maxPlayers;
+        // 2. 自動開始チェック (最大人数到達 or 時間切れ)
+        bool autoStartCondition = currentPlayers >= maxPlayers || currentLobbyTimer <= 0;
 
         // 3. 手動開始チェック (Enter/Spaceキー)
         bool manualStartInput = Keyboard.current != null &&
                                 (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame);
 
-        // 4. 開始条件判定:
-        // **最低開始人数は無視し、プレイヤーが1人以上いる場合** に、
-        // (最大人数到達 OR ホストによる手動入力) で開始を許可します。
-        if (currentPlayers >= 1 && (autoStartCondition || manualStartInput))
+        // 4. 開始条件判定
+        if (currentPlayers >= minPlayersToStart && (autoStartCondition || manualStartInput))
         {
-            // ただし、ゲーム開始時のチェック (StartTurn) で人数不足により即終了する可能性はあるため、
-            // ロビーでは最低開始人数に満たない場合の警告表示を UI に出す程度にとどめます。
-
             ManualStartGame();
             return;
         }
@@ -498,34 +450,28 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         int currentPlayers = GameManager.instance.IsOnline() ? PhotonNetwork.CurrentRoom.PlayerCount : activePlayers.Count;
 
         string statusText;
-        // タイマー表示は、ロビー制限時間を撤廃するなら削除しても良いですが、今回はそのままにしておきます。
-        string timerDisplay = "";
-
-        statusText = $"参加者: {currentPlayers}人 / 最大: {maxPlayers}人\n";
+        string timerDisplay = currentLobbyTimer > 0 ? currentLobbyTimer.ToString("F0") : "待機中";
 
         if (currentPlayers < minPlayersToStart)
         {
-            statusText += $"⚠️ 推奨: 最低 {minPlayersToStart} 人\n";
-        }
-
-        if (CheckAuthority())
-        {
-            if (currentPlayers >= 1)
-            {
-                statusText += $"[Enter/Space]キーでゲームを開始できます。";
-            }
-            else
-            {
-                statusText += "プレイヤーを待機中...";
-            }
+            statusText = $"プレイヤー待ち... ({currentPlayers}/{minPlayersToStart}人)\n最低{minPlayersToStart}人必要です。";
         }
         else
         {
-            statusText += "ホストのゲーム開始操作を待っています...";
+            statusText = $"参加者: {currentPlayers}人\n";
+            if (CheckAuthority())
+            {
+                statusText += $"[Enter/Space]キーで開始\nまたは制限時間まで待機: ";
+            }
+            else
+            {
+                statusText += "ホストの開始操作、または時間切れを待っています: ";
+            }
+
         }
 
         if (infoText) infoText.text = statusText;
-        if (timerText) timerText.text = timerDisplay; // タイマー表示は空にするか、ロビータイマーの機能自体を削除しても良いです。
+        if (timerText) timerText.text = timerDisplay;
     }
 
     private void ManualStartGame()
@@ -550,14 +496,8 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     // Photonのコールバックで、プレイヤーが入室したことを検知し、自動開始条件をチェック (オンライン時のみ)
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        // activePlayersリストを更新する必要がある場合は、ここで更新ロジックを追加する必要がありますが、
-        // 現在のコードでは StartCoroutine(InitializeGameFlow()) でしか初期化されていません。
-        // 途中参加プレイヤーのダイス生成・activePlayersへの追加ロジックは、このスコープでは複雑になるため、
-        // 一旦「途中参加はロビーでのみ可能で、ゲームが始まると途中参加は不可」という前提で進めます。
-
         if (CheckAuthority() && currentGameState == GameState.Lobby)
         {
-            // 最大人数に達した場合のみ、自動でゲームを開始します
             if (PhotonNetwork.CurrentRoom.PlayerCount >= maxPlayers)
             {
                 ManualStartGame();
@@ -568,18 +508,6 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     private void StartTurn()
     {
         if (!CheckAuthority() || currentGameState != GameState.Rolling) return;
-
-        if (currentTurn == 0) // 最初のターン開始前
-        {
-            int currentPlayers = GameManager.instance.IsOnline() ? PhotonNetwork.CurrentRoom.PlayerCount : activePlayers.Count;
-            if (currentPlayers < minPlayersToStart)
-            {
-                // プレイヤー数が不足しているためゲーム終了を通知
-                if (infoText) infoText.text = "Error: Not enough players to start the game (Min: " + minPlayersToStart + ")";
-                EndGame();
-                return;
-            }
-        }
 
         if (currentTurn > 0 && activePlayerCount <= 1)
         {
@@ -665,11 +593,23 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     // 自分のダイスを振る入力（変更なし）
     public void OnRollInput()
     {
+        // ★ 1. ゲーム状態と待機状態のチェック
         if (currentGameState != GameState.Rolling || !waitingForRoll) return;
 
         if (GameManager.instance.IsOnline())
         {
+            // ★ 2. ターン所有権のチェックを追加
+            if (!IsMyTurn())
+            {
+                Debug.LogWarning("Roll input ignored: It's not your turn.");
+                return;
+            }
+
             int myID = PhotonNetwork.LocalPlayer.ActorNumber;
+            // RPC名を前回の提案と合わせるなら RequestRoll ではなく RollDiceRequest が推奨
+            // photonView.RPC(nameof(RollDiceRequest), RpcTarget.MasterClient, myID);
+
+            // 現在のコードに合わせて RequestRoll を使用
             photonView.RPC(nameof(RequestRoll), RpcTarget.MasterClient, myID);
         }
         else
@@ -689,7 +629,7 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RequestRoll(int actorNumber)
     {
-        if (!CheckAuthority()) return; // マスタークライアントのみ実行
+        if (!CheckAuthority()) return;
 
         if (playerDiceObjects.ContainsKey(actorNumber))
         {
@@ -697,18 +637,19 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
             if (!d.isRolling && d.GetResultNumber() == -1)
             {
-                // マスタークライアントがダイスオブジェクトの所有権を要求
-                // これにより、マスタークライアントが物理演算を実行できるようになる
-                d.GetComponent<PhotonView>().RequestOwnership();
-
-                // 権限の取得は即座ではないため、少し待ってから実行するか、
-                // DiceObject内でOnOwnershipTransferedコールバックを使用するのが理想ですが、
-                // シンプルなゲームプレイのためにここでは直後に実行を試みます。
-
                 d.Roll();
+
+                // ★ 修正 1: 入力待ち状態を解除
+                waitingForRoll = false;
+
+                // ★ 修正 2: ダイスオブジェクトに結果報告を要求
+                // Rollが完了したら、DiceObjectがDiceGameManagerに結果を通知するように設定
+                StartCoroutine(d.WaitForRollCompletionAndReport(actorNumber)); // 新しいコルーチンを呼び出す
             }
         }
     }
+
+    
 
     private void ForceRollAll()
     {
@@ -721,6 +662,24 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
                 kvp.Value.Roll();
             }
         }
+    }
+
+    /// <summary>
+    /// 現在のターンがローカルクライアントのターンであるか判定します。
+    /// </summary>
+    private bool IsMyTurn()
+    {
+        if (activePlayers.Count == 0) return false;
+
+        // 現在のターンプレイヤーIDとローカルプレイヤーIDを比較
+        // currentTurnPlayerID は現在ターンを持っているプレイヤーのID（myNumber または ActorNumber）である必要があります。
+        // 例:
+        int localPlayerID = PhotonNetwork.LocalPlayer.ActorNumber;
+        int currentActivePlayerID = GameManager.instance.IsOnline()
+            ? activePlayers[currentActivePlayerIndex].GetComponent<PhotonView>().OwnerActorNr
+            : activePlayers[currentActivePlayerIndex].myNumber;
+
+        return localPlayerID == currentActivePlayerID;
     }
 
     #endregion
@@ -804,17 +763,16 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
 
     private IEnumerator ProcessTurnResult()
     {
-        // 状態をProcessingResultに一時的に変更して、誤ったロールを防止
         currentGameState = GameState.ProcessingResult;
-
         yield return new WaitForSeconds(2.0f);
 
-        List<int> droppedPlayers = new List<int>();
+        List<int> droppedPlayersIds = new List<int>();
 
-        // 👇 脱落していないプレイヤーのIDとスコアを一時的に保持
-        Dictionary<int, int> turnScoreUpdates = new Dictionary<int, int>();
+        // 現在のターンで脱落していない、生き残っているプレイヤーのリスト
+        List<PlayerInfomation> survivorsThisTurn = new List<PlayerInfomation>(activePlayers);
 
-        foreach (var player in activePlayers)
+        // --- 1. スコア加算と脱落プレイヤーの識別 ---
+        foreach (var player in survivorsThisTurn) // activePlayersのコピーに対して処理
         {
             int id = GameManager.instance.IsOnline() ? player.GetComponent<PhotonView>().OwnerActorNr : player.myNumber;
 
@@ -822,48 +780,58 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
             {
                 if (roll == currentBabaNumber)
                 {
-                    // 脱落！
-                    droppedPlayers.Add(id);
-                    // 脱落したプレイヤーはスコア加算なし
+                    // **脱落！**
+                    droppedPlayersIds.Add(id);
                     Debug.Log($"Player {id} Dropped! (BABA: {currentBabaNumber})");
                 }
                 else
                 {
-                    // セーフ！点数加算
-                    int currentPoint = player.GetPoint();
-                    int newScore = currentPoint + roll;
+                    // **スコア加算**
+                    int newScore = player.GetPoint() + roll; // GetPoint()がCurrentScoreを返す前提
 
-                    // スコアを PlayerInfomation に一時保存し、ターン終了時に全員に同期
-                    player.SetPoint(newScore);
-                    turnScoreUpdates.Add(id, newScore);
+                    // ここで player.SetPoint(newScore) を呼ぶのではなく、
+                    // RPCでスコア同期を行う方が安全です。
+                    if (GameManager.instance.IsOnline())
+                    {
+                        photonView.RPC(nameof(SyncPlayerScoreAndUI), RpcTarget.All, id, newScore);
+                    }
+                    else
+                    {
+                        // オフラインでは直接反映とUI更新
+                        player.SetPoint(newScore);
+                        UpdateScoreUI(id, newScore);
+                    }
                 }
             }
         }
 
-        // ターン終了後のスコア変更を全クライアントに同期
-        if (CheckAuthority())
-        {
-            foreach (var kvp in turnScoreUpdates)
-            {
-                // オンラインならRPCで、オフラインなら直接反映
-                if (GameManager.instance.IsOnline())
-                {
-                    photonView.RPC(nameof(SyncPlayerScore), RpcTarget.All, kvp.Key, kvp.Value);
-                }
-                else
-                {
-                    SyncPlayerScore(kvp.Key, kvp.Value);
-                }
-            }
-        }
+        // --- 2. 脱落プレイヤーのリストからの削除と順位確定 ---
 
-        // 脱落プレイヤーを activePlayers リストから削除
+        // 現在の低い順位（4位、3位、...）を取得するために、残りの空き順位をカウント
+        int nextLowestRank = 4; // maxPlayersを動的に取得するのが理想的
+
         for (int i = activePlayers.Count - 1; i >= 0; i--)
         {
             int id = GameManager.instance.IsOnline() ? activePlayers[i].GetComponent<PhotonView>().OwnerActorNr : activePlayers[i].myNumber;
-            if (droppedPlayers.Contains(id))
+
+            if (droppedPlayersIds.Contains(id))
             {
-                activePlayers.RemoveAt(i);
+                // 脱落処理と順位確定
+                PlayerInfomation droppedPlayer = activePlayers[i];
+
+                // 順位を確定し、全員に同期（オンライン時）
+                if (GameManager.instance.IsOnline())
+                {
+                    photonView.RPC(nameof(SyncPlayerRank), RpcTarget.All, id, nextLowestRank);
+                }
+                else
+                {
+                    // オフライン時の順位設定メソッド（PlayerInfomationに実装されている必要があります）
+                    droppedPlayer.SetRank(nextLowestRank);
+                }
+
+                activePlayers.RemoveAt(i); // アクティブリストから削除
+                nextLowestRank--;          // 次の脱落者は一つ上の順位
             }
         }
 
@@ -875,105 +843,204 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
     }
 
     /// <summary>
-    /// プレイヤーのスコアを同期し、UIを更新するRPC
+    /// プレイヤーのスコアを同期し、UIを更新するRPC (変更)
     /// </summary>
     [PunRPC]
-    public void SyncPlayerScore(int targetId, int score)
+    public void SyncPlayerScoreAndUI(int targetId, int score)
     {
+        // スコアの更新
         PlayerInfomation targetPlayer = activePlayers.Find(p =>
             (GameManager.instance.IsOnline() ? p.GetComponent<PhotonView>().OwnerActorNr : p.myNumber) == targetId);
 
         if (targetPlayer != null)
         {
-            // PlayerInfomation のスコアを更新
-            targetPlayer.SetPoint(score);
+            targetPlayer.SetPoint(score); // SetPointはCurrentScoreを更新する
 
-            // スコアUIを更新
-            int playerIndex = activePlayers.IndexOf(targetPlayer);
-
-            if (playerIndex >= 0 && playerIndex < playerScoreTexts.Length && playerScoreTexts[playerIndex] != null)
-            {
-                playerScoreTexts[playerIndex].text = score.ToString();
-            }
-        }
-    }
-
-    private void EndGame()
-    {
-        if (infoText) infoText.text = "GAME FINISHED!";
-        currentGameState = GameState.Finished;
-
-        if (!CheckAuthority()) return; // 順位決定はマスタークライアント/オフラインホストのみで行う
-
-        // **順位決定ロジック**
-
-        // 1. 全プレイヤーの情報を取得（脱落者を含む）
-        // activePlayers は脱落者を既に除外しているので、FindObjectsOfTypeで全プレイヤーを取得し直す
-        PlayerInfomation[] allPlayers = FindObjectsOfType<PlayerInfomation>();
-
-        // 2. プレイヤーをスコアに基づいて並び替える
-        // スコア降順 (高いスコアが上)、同点の場合は myNumber 昇順 (後からそのスコアになった順の代用)
-        // ※厳密な「後からそのスコアになった順」の実現には、スコア到達時間の記録が必要ですが、ここでは myNumber で代用します。
-        var rankedPlayers = new List<PlayerInfomation>(allPlayers);
-
-        // 脱落者は最下位から順位を付ける
-        // myNumberはPlayerInfomationの識別番号（オフライン時）、ActorNumber（オンライン時）として使われています。
-        // ここでは便宜的に myNumber (PlayerInfomationに付与された番号) を比較に使用します。
-
-        // 厳密な順位付けロジック
-        // 1. まず、脱落していないプレイヤーをスコア降順で並び替える
-        // 2. 次に、脱落したプレイヤーを（今回は脱落時の低い順位という条件がないため）残りの順位を埋める
-
-        // 実際に残ったプレイヤーのリスト: activePlayers (脱落者以外)
-        // 全プレイヤーのリスト: allPlayers
-
-        // 脱落していないプレイヤーをスコアでソート (降順)
-        var nonDroppedPlayers = activePlayers.OrderByDescending(p => p.GetPoint()).ToList();
-
-        // 脱落したプレイヤーのリスト (全プレイヤーから残ったプレイヤーを除いたもの)
-        var droppedPlayers = allPlayers.Except(activePlayers).ToList();
-
-        // 最終的な順位リストを構築
-        List<PlayerInfomation> finalRankings = new List<PlayerInfomation>();
-        finalRankings.AddRange(nonDroppedPlayers);
-
-        // 脱落者は残りの順位を埋める (脱落時の順位変動がないため、今回は myNumber 昇順で順位を埋めます)
-        droppedPlayers.Sort((a, b) => a.myNumber.CompareTo(b.myNumber)); // 小さい myNumber を優先
-        finalRankings.AddRange(droppedPlayers);
-
-        // 順位表示文字列の作成
-        string rankingText = "--- FINAL RANKING ---\n";
-        for (int i = 0; i < finalRankings.Count; i++)
-        {
-            string status = activePlayers.Contains(finalRankings[i]) ? " (SAFE)" : " (DROPPED)";
-            rankingText += $"{i + 1}位: Player {finalRankings[i].myNumber} - Score: {finalRankings[i].GetPoint()}{status}\n";
-        }
-
-        if (infoText) infoText.text += "\n" + rankingText;
-
-        // オンラインの場合は、この結果を全クライアントに同期するRPCを呼び出す
-        if (GameManager.instance.IsOnline())
-        {
-            // シンプルな同期のために文字列で送信
-            photonView.RPC(nameof(SyncEndGameResult), RpcTarget.All, rankingText);
+            // UIの更新
+            UpdateScoreUI(targetId, score);
         }
     }
 
     /// <summary>
-    /// ゲーム終了時の順位結果を同期し、UIを更新するRPC
+    /// プレイヤーの確定順位を同期するRPC
     /// </summary>
     [PunRPC]
-    private void SyncEndGameResult(string resultText)
+    public void SyncPlayerRank(int targetId, int rank)
     {
-        if (infoText)
+        PlayerInfomation targetPlayer = FindPlayerInfo(targetId);
+        if (targetPlayer != null)
         {
-            // ゲーム終了メッセージに結果を追加
-            if (!infoText.text.Contains("FINAL RANKING"))
+            targetPlayer.SetRank(rank); // PlayerInfomationに SetFinalRank メソッドが必要です
+
+            // 順位確定時の特別なUI更新（例：脱落表示など）
+            Debug.Log($"Player {targetId} final rank set to {rank}");
+        }
+    }
+
+    /// <summary>
+    /// スコアUIを更新する
+    /// </summary>
+    private void UpdateScoreUI(int actorNumber, int score)
+    {
+        // UI配列のインデックスを決定
+        int playerIndex = FindPlayerIndex(actorNumber);
+
+        if (playerIndex != -1 && playerIndex < playerScoreTexts.Length)
+        {
+            if (playerScoreTexts[playerIndex] != null)
             {
-                infoText.text += "\n" + resultText;
+                playerScoreTexts[playerIndex].text = $"{score}";
             }
         }
+    }
+
+    /// <summary>
+    /// ActorNumberまたはmyNumberからプレイヤー配列のインデックスを取得するヘルパー
+    /// </summary>
+    private int FindPlayerIndex(int actorNumber)
+    {
+        // activePlayersリストは常に myNumber または ActorNumber 順にソートされていることが望ましい
+        for (int i = 0; i < activePlayers.Count; i++)
+        {
+            int id = GameManager.instance.IsOnline() ? activePlayers[i].GetComponent<PhotonView>().OwnerActorNr : activePlayers[i].myNumber;
+            if (id == actorNumber) return i;
+        }
+
+        // もしアクティブリストから削除されたプレイヤーの場合、全プレイヤー情報から探す
+        PlayerInfomation targetPlayer = FindObjectsOfType<PlayerInfomation>(true)
+            .Where(p => (GameManager.instance.IsOnline() ? p.GetComponent<PhotonView>().OwnerActorNr : p.myNumber) == actorNumber)
+            .FirstOrDefault();
+
+        if (targetPlayer != null)
+        {
+            // 全プレイヤーリスト（activePlayersのベースとなったもの）からインデックスを取得
+            List<PlayerInfomation> allPlayers = FindObjectsOfType<PlayerInfomation>().ToList();
+            allPlayers.Sort((a, b) => a.myNumber.CompareTo(b.myNumber));
+            return allPlayers.IndexOf(targetPlayer);
+        }
+
+        return -1;
+    }
+
+    // 共通でプレイヤー情報を見つけるヘルパー関数
+    public PlayerInfomation FindPlayerInfo(int targetId)
+    {
+        return FindObjectsOfType<PlayerInfomation>(true).ToList().Find(p =>
+            (GameManager.instance.IsOnline() ? p.GetComponent<PhotonView>().OwnerActorNr : p.myNumber) == targetId);
+    }
+
+    private void EndGame()
+    {
+        if (infoText) infoText.text = "GAME FINISHED! Calculating Final Ranks...";
         currentGameState = GameState.Finished;
+
+        // 既にマスタークライアント（またはオフラインホスト）でのみ実行されているはず
+        if (CheckAuthority())
+        {
+            CalculateFinalRanks();
+        }
+    }
+
+    private void CalculateFinalRanks()
+    {
+        // 1. 生き残っているプレイヤーをスコア降順でソート
+        // (同点の場合は、後からそのスコアになった順 => myNumber/ActorNumberの小さい順で暫定的に決定)
+        activePlayers.Sort((a, b) =>
+        {
+            int scoreComparison = b.GetPoint().CompareTo(a.GetPoint());
+            if (scoreComparison != 0) return scoreComparison; // スコアが違う場合はスコアで比較
+
+            // スコアが同じ場合は、PlayerInfomationの識別番号(myNumber/ActorNumber)で比較
+            int aId = GameManager.instance.IsOnline() ? a.GetComponent<PhotonView>().OwnerActorNr : a.myNumber;
+            int bId = GameManager.instance.IsOnline() ? b.GetComponent<PhotonView>().OwnerActorNr : b.myNumber;
+            return aId.CompareTo(bId); // IDが小さいプレイヤーを上位と見なす
+        });
+
+        // 2. 確定していない最高順位を取得 (脱落者によってスキップされている可能性がある)
+        int highestRankTaken = 0;
+
+        // 全プレイヤー情報から、既に確定している最高順位を探す
+        foreach (var player in FindObjectsOfType<PlayerInfomation>())
+        {
+            // PlayerInfomationに GetFinalRank メソッドが必要です
+            int rank = player.GetRank();
+            if (rank != 0) // 0は未確定順位と仮定
+            {
+                if (highestRankTaken == 0 || rank < highestRankTaken)
+                {
+                    highestRankTaken = rank;
+                }
+            }
+        }
+
+        // 生き残ったプレイヤーの順位を、未確定の最高の順位から順に割り当てる
+        int currentRank = (highestRankTaken > 1) ? 1 : 1; // 常に1位から始める
+
+        // 既に確定した順位を避ける
+        List<int> usedRanks = FindObjectsOfType<PlayerInfomation>().Select(p => p.GetRank()).ToList();
+
+        foreach (var player in activePlayers)
+        {
+            while (usedRanks.Contains(currentRank))
+            {
+                currentRank++;
+            }
+
+            // 最終順位を確定し、全員に同期
+            if (GameManager.instance.IsOnline())
+            {
+                int id = GameManager.instance.IsOnline() ? player.GetComponent<PhotonView>().OwnerActorNr : player.myNumber;
+                photonView.RPC(nameof(SyncPlayerRank), RpcTarget.All, id, currentRank);
+            }
+            else
+            {
+                player.SetRank(currentRank);
+            }
+
+            currentRank++;
+        }
+
+        // 最終結果表示ロジックへ
+        DisplayFinalResults();
+    }
+
+    /// <summary>
+    /// 最終的な順位とスコアをUIに表示する
+    /// </summary>
+    private void DisplayFinalResults()
+    {
+        // すべてのプレイヤー情報を取得（脱落者を含む）
+        List<PlayerInfomation> allPlayers = FindObjectsOfType<PlayerInfomation>(true).ToList();
+
+        // 確定順位（GetFinalRank()）に基づいてソート
+        allPlayers.Sort((a, b) =>
+        {
+            // 順位が未確定(0)の場合は最後に、確定済みの順位(1, 2, 3...)でソート
+            int rankA = a.GetRank();
+            int rankB = b.GetRank();
+
+            if (rankA == 0 && rankB == 0) return 0; // 両方未確定なら順序変更なし
+            if (rankA == 0) return 1;              // Aが未確定ならBより後
+            if (rankB == 0) return -1;             // Bが未確定ならAより後
+
+            return rankA.CompareTo(rankB); // 確定順位が若い順にソート
+        });
+
+        // 順位表示用の文字列を作成
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("=== FINAL RESULTS ===");
+
+        foreach (var player in allPlayers)
+        {
+            // PlayerInfomationに GetFinalRank()とGetPoint() が実装されている前提
+            sb.AppendLine($"{player.GetRank()}位: Player {player.myNumber} - Score: {player.GetPoint()}");
+        }
+
+        // infoText（または専用の最終結果UI）に表示
+        if (infoText != null)
+        {
+            infoText.text = sb.ToString();
+        }
     }
 
     // Photonのコールバックで、プレイヤーが退出したときにアクティブプレイヤーリストから削除（同期を容易にするため、マスターのみ実行）

@@ -6,6 +6,7 @@
  */
 
 using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -139,5 +140,13 @@ public class CommonModule {
         return (T) Enum.ToObject(typeof(T), targetNo);
     }
 
+    /// <summary>
+    /// オンラインかつ自分の物じゃないかを返す
+    /// </summary>
+    /// <param name="PV"></param>
+    /// <returns></returns>
+    public static bool CheckIsOnline(PhotonView PV) {
+        return GameManager.instance.IsOnline() && !PV.IsMine;
+    }
 
 }

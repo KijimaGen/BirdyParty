@@ -80,10 +80,10 @@ public class DiceRoll : MonoBehaviourPun
             {
                 // 自分のダイスが止まったら、結果をRPCで全クライアントに通知
                 //DiceGameManager manager = FindObjectOfType<DiceGameManager>();
-                //if (manager != null && manager.photonView != null)
+                //if (manager != null && manager.PV != null)
                 //{
                 //    // プレイヤーの識別子（NickName）と結果を送信
-                //    manager.photonView.RPC(
+                //    manager.PV.RPC(
                 //        "SyncPlayerDiceResult",
                 //        RpcTarget.All,
                 //        PhotonNetwork.LocalPlayer.NickName,

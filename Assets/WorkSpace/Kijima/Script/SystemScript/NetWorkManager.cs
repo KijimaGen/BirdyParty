@@ -49,8 +49,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
     //自身の名前
     private string playerName = "未登録";
-    //自身の名前を取得するためのオブジェクト
-    private GameObject nameInputField;
+    
     
 
     void Awake() {
@@ -434,8 +433,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// </summary>
     private void MakeName() {
         //自身の名前をインプットフィールドから取得
-        if(nameInputField != null)
-            playerName = nameInputField.GetComponent<TMP_InputField>().text;
+        if(ButtonManager.instance != null) {
+            playerName = ButtonManager.instance.GetNameInput();
+            PhotonNetwork.LocalPlayer.NickName = playerName;
+            
+        }
+
         //名前がない時は名無しにする
         if (playerName == "") {
             playerName = "名無しトリ";
@@ -482,8 +485,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         Debug.Log("Photonに接続中...");
         UpdateConnectionStatus("Photonに接続中...");
         PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
-
-        //インプットフィールド取得
-        nameInputField = GameObject.Find("MakeNameInput");
+        
     }
 }

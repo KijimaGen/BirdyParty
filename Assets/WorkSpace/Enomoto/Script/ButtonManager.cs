@@ -46,6 +46,13 @@ public class ButtonManager : MonoBehaviour
     private const string DropGameExplanationText = "４つのパネルのうち１つのパネルは\r\n通ることが出来ます。\r\n正しいパネルを見つけて\r\nゴールを目指しましょう。" +
         "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
 
+    [Header("名前入力欄")]
+    [SerializeField]
+    private TMP_InputField _nameInputField;
+
+    //自身のインスタンス
+    public static ButtonManager instance;
+
     private void Start()
     {
         // ゲームから戻ってきたかどうかでUIを切り替え
@@ -73,6 +80,8 @@ public class ButtonManager : MonoBehaviour
             uiHistory.Clear();
             uiHistory.Push(titleUI);
         }
+        //参照の取得
+        instance = this;
     }
 
     public void Open(GameObject openUI)
@@ -419,5 +428,13 @@ public class ButtonManager : MonoBehaviour
                 break;
             
         }
+    }
+
+    /// <summary>
+    /// 名前を取る
+    /// </summary>
+    /// <returns></returns>
+    public string GetNameInput() {
+        return _nameInputField.text;
     }
 }

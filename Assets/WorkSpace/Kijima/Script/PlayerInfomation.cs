@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using static GameConst;
 
-public class PlayerInfomation:MonoBehaviour{
+public class PlayerInfomation:MonoBehaviourPunCallbacks{
     //今持っているポイント
     public int point;
     //現在の順位
@@ -26,7 +26,7 @@ public class PlayerInfomation:MonoBehaviour{
     private Color myColor;
 
     //自身のフォトンビュー
-    PhotonView photonView;
+    PhotonView PV;
    
     //レースゲームのプレイヤー
     [SerializeField]
@@ -52,7 +52,7 @@ public class PlayerInfomation:MonoBehaviour{
         //ポイントを初期化
         point = 0;
         //自身のフォトンビュー取得
-        photonView = GetComponent<PhotonView>();
+        PV = GetComponent<PhotonView>();
         //プレイヤー管理クラスに登録
         PlayerManager.instance.AddPlayer(this);
         //自身の番号を取得
@@ -72,10 +72,6 @@ public class PlayerInfomation:MonoBehaviour{
             myName = NetworkManager.instance.GetName();
         }
 
-        //エントリーしましたテキストを作る
-        if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
-            GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
-
         //オンラインだったらエントリーを行う
         if (GameDataManager.instance != null
             && GameManager.instance.IsOnline()
@@ -83,6 +79,12 @@ public class PlayerInfomation:MonoBehaviour{
             Entry();
         }
 
+        //エントリーしましたテキストを作る
+        if (GameManager.instance.IsOnline() && GameDataManager.instance != null) {
+            GameDataManager.instance.GetComponent<PhotonView>().
+                RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, PhotonNetwork.LocalPlayer.NickName);
+        }
+        
         //自身の色を決める
         myColor = PLAYER_COLOR[myNumber];
 
@@ -103,7 +105,8 @@ public class PlayerInfomation:MonoBehaviour{
     }
 
     //自身が消えるときにコールバックを止める
-    private void OnDisable() {
+    public override void OnDisable() {
+        base.OnDisable();
         // 忘れずに解除
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
@@ -247,5 +250,7 @@ public class PlayerInfomation:MonoBehaviour{
     public Color GetMyColor() { return myColor; }
 
     #endregion
+
+    
 }
 

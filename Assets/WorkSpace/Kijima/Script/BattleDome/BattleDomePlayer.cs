@@ -35,7 +35,10 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
     private GameObject _axisR;
 
     //マイナンバー
-    private int myNumber;
+    private int _myNumber;
+
+    //マイフォトンビュー
+    PhotonView _photonview;
 
     private void Awake() {
         //ヒンジジョイントを受け取る
@@ -46,31 +49,66 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
         jL = hjL.spring;
         jR = hjR.spring;
 
+        //自身のフォトンビューの取得
+        _photonview = GetComponent<PhotonView>();
+
         //エントリー
         _=EntryToManager();
     }
+
+    public void TryFlipLeft(InputAction.CallbackContext context) {
+        //ぬるちぇっく
+        if (hjL == null || hjR == null) return;
+        //オンラインカツ、自分の物かチェック
+        if (GameManager.instance.IsOnline() && !_photonview.IsMine) return;
+
+        //contextからboolに変換(オンラインでcontext送れないらしい)
+        bool isFlip = context.performed;
+
+        //オンラインかオフラインかで処理を変える
+        if(GameManager.instance.IsOnline()) {
+            photonView.RPC(nameof(FlipLeft),RpcTarget.All, isFlip); return;
+        }
+        else {
+            FlipLeft(isFlip);
+        }
+    }
+
 
     /// <summary>
     /// 左フリップの入力検知
     /// </summary>
     /// <param name="context"></param>
-    public void FlipLeft(InputAction.CallbackContext context) {
+    [PunRPC]
+    public void FlipLeft(bool context) {
+        //HingeJointを取ってSpringの値を弄り、動かす
+        if (context) {
+            jL.spring = spring;
+            jL.targetPosition = openAngle;
+            hjL.spring = jL;
+        }
+        else {
+            jL.spring = spring;
+            jL.targetPosition = closeAngle;
+            hjL.spring = jL;
+        }
+    }
+
+    public void TryFlipRight(InputAction.CallbackContext context) {
         //ぬるちぇっく
         if (hjL == null || hjR == null) return;
-        switch (context.phase) {
-            //HingeJointを取ってSpringの値を弄り、動かす
-            //押している間
-            case InputActionPhase.Performed:
-                jL.spring = spring;
-                jL.targetPosition = openAngle;
-                hjL.spring = jL;
-                break;
-            //離した瞬間
-            case InputActionPhase.Canceled:
-                jL.spring = spring;
-                jL.targetPosition = closeAngle;
-                hjL.spring = jL;
-                break;
+        //オンラインカツ、自分の物かチェック
+        if (GameManager.instance.IsOnline() && !_photonview.IsMine) return;
+
+        //contextからboolに変換(オンラインでcontext送れないらしい)
+        bool isFlip = context.performed;
+
+        //オンラインかオフラインかで処理を変える
+        if (GameManager.instance.IsOnline()) {
+            photonView.RPC(nameof(FlipRight), RpcTarget.All, isFlip); return;
+        }
+        else {
+            FlipRight(isFlip);
         }
     }
 
@@ -78,29 +116,26 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
     /// 右フリップの入力検知
     /// </summary>
     /// <param name="context"></param>
-    public void FlipRight(InputAction.CallbackContext context) {
-        //ぬるちぇっく
-        if (hjL == null || hjR == null) return;
-
-        switch (context.phase) {
-            //HingeJointを取ってSpringの値を弄り、動かす
-            //押している間
-            case InputActionPhase.Performed:
-                jR.spring = spring;
-                jR.targetPosition = openAngle;
-                hjR.spring = jR;
-                break;
-            //離した瞬間
-            case InputActionPhase.Canceled:
-                jR.spring = spring;
-                jR.targetPosition = closeAngle;
-                hjR.spring = jR;
-
-
-                break;
+    [PunRPC]
+    public void FlipRight(bool context) {
+        //HingeJointを取ってSpringの値を弄り、動かす
+        if (context) {
+            jR.spring = spring;
+            jR.targetPosition = openAngle;
+            hjR.spring = jR;
+        }
+        else {
+            jR.spring = spring;
+            jR.targetPosition = closeAngle;
+            hjR.spring = jR;
         }
     }
 
+
+    /// <summary>
+    /// プレイヤーマネージャーにエントリーさせてもらう
+    /// </summary>
+    /// <returns></returns>
     public async UniTask EntryToManager() {
         //プレイヤーマネージャーの参照がなかったら出来るまで待つ
         while(BattleDomePlayerManager.instance == null) {
@@ -112,10 +147,20 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
         //エントリーさせてもらう
         PlayerManager.Enty(this);
         //マイナンバー取得
-        myNumber = PlayerManager.GetPlayerNumber(this);
+        if (GameManager.instance.IsOnline()) {
+            _myNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+            //アクターナンバー直入れだとズレるのでマイナスする
+            _myNumber--;
+        }
+        else {
+            _myNumber = PlayerManager.GetPlayerNumber(this);
+        }
+
+
         //位置調整
-        transform.position = PlayerManager.GetPlayerPosition(myNumber);
+        transform.position = PlayerManager.GetPlayerPosition(_myNumber);
         //角度調整
-        transform.rotation = Quaternion.Euler(PlayerManager.GetPlayerRotation(myNumber));
+        transform.rotation = Quaternion.Euler(PlayerManager.GetPlayerRotation(_myNumber));
     }
+
 }

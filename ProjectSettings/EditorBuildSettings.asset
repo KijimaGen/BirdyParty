@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/WorkSpace/Kijima/Scene/BattleDome.unity
+    guid: 99e9f920a1edfde44922f152c9e3905d
+  - enabled: 1
     path: Assets/WorkSpace/Enomoto/Scene/Title.unity
     guid: 244b457b4997ce247961246c27c782ec
   - enabled: 1

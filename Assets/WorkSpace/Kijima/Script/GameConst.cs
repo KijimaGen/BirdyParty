@@ -43,14 +43,20 @@ public static class GameConst {
     //１秒
     public const int _DELAY_SECOND = 1000;
 
+    public enum BattleDomeBallVariation {
+        Yellow,
+        Black
+    }
+
     #region シーン名一覧
     public static readonly string TITLE_SCENE_NAME = "Title";
     public static readonly string RACEGAME_SCENE_NAME = "Race"; 
     public static readonly string DROPGAME_SCENE_NAME = "DropBird";
     public static readonly string DICE_SCENE_NAME = "DiceGame";
+    public static readonly string BATTLEDOME_SCENE_NAME = "BattleDome";
     #endregion
 
-    #region ミニゲームのアクション名マップ一覧
+    #region ミニゲームのアクションマップ一覧
     public static readonly string DROPGAME_ACTION_NAME = "DropGame";
     #endregion
 

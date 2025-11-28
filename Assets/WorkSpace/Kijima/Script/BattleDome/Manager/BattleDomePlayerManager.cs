@@ -6,6 +6,7 @@
 */
 
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using static CommonModule;
 
@@ -22,6 +23,12 @@ public class BattleDomePlayerManager : BattleDomeManagerOrigin {
     private List<BattleDomePlayer> _playerList = new List<BattleDomePlayer>();
     //プレイヤーの最大値
     private const int _PLAYER_MAX = 4;
+    //プレイヤーのスコア管理リスト
+    private List<BattleDomePlayerScoreManager> _playerScoreList = new List<BattleDomePlayerScoreManager>();
+
+    //-------------------------------------------------------------------------------
+    //↑変数宣言部
+    //-------------------------------------------------------------------------------
 
     /// <summary>
     /// 初期化処理
@@ -37,7 +44,7 @@ public class BattleDomePlayerManager : BattleDomeManagerOrigin {
     /// </summary>
     private void InitializePlayerPosition() {
         _playerPositionList.Add(new Vector3(-1f, -1.4f, -2.8f));
-        _playerPositionList.Add(new Vector3(-0.9f, -1.8f, -4.3f));
+        _playerPositionList.Add(new Vector3(1f, -1.8f, 4f));
         _playerPositionList.Add(new Vector3(2.5f, -1.3f, -1.3f));
         _playerPositionList.Add(new Vector3(-2.7f, -1.4f, 0.8f));
     }
@@ -138,5 +145,39 @@ public class BattleDomePlayerManager : BattleDomeManagerOrigin {
         //指定された番号のところに加算
         _playerList[number].gameObject.GetComponent<BattleDomePlayerScoreManager>().AddPoint(point);
     }
+
+    ///プレイヤーリストをあげる
+    public List<BattleDomePlayer> GetPlayerList() { return _playerList; }
+
+    public void ScoreEnty(BattleDomePlayerScoreManager entryPlayer) {
+        //これ途中参加限定だからそのうち変えると思う
+        //プレイヤーの最大値確認
+        if (_playerScoreList.Count == _PLAYER_MAX) return;
+
+        //エントリー重複確認
+        if (IsScoreEntry(entryPlayer)) return;
+        //プレイヤーリストに登録
+        _playerScoreList.Add(entryPlayer);
+    }
+
+    /// <summary>
+    /// 引数に来たプレイヤーがエントリー済みかどうか返す
+    /// </summary>
+    /// <param name="player"></param>
+    public bool IsScoreEntry(BattleDomePlayerScoreManager player) {
+        //リストの空っぽかチェック
+        if (IsEmpty(_playerScoreList)) return false;
+
+        for (int i = 0, max = _playerScoreList.Count; i < max; i++) {
+            //リストの中に居たらエントリーしてる
+            if (_playerScoreList[i] == player) return true;
+        }
+
+        //for文を抜ける = エントリーしてない
+        return false;
+    }
+
+    //プレイヤーのスコアリスト
+    public List<BattleDomePlayerScoreManager> GetPlayerScoreList() { return _playerScoreList; }
 
 }

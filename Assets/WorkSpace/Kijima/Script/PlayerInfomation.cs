@@ -167,10 +167,14 @@ public class PlayerInfomation:MonoBehaviour{
 
     //ダイスゲームのシーンが読み込まれたときに呼ぶ
     private void LoadDiceGameScene(){
-        PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
-        playerInput.SwitchCurrentActionMap("DiceGame");
-        Debug.Log("ダイスゲームスタート");
         dicePlayer.SetActive(true);
+
+        var pi = GetComponent<PlayerInput>();
+        if (pi != null)
+        {
+            pi.SwitchCurrentActionMap("DiceGame");
+            Debug.Log($"[Input] Switched to DiceGame : P{myNumber}");
+        }
     }
 
     //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)

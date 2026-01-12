@@ -101,6 +101,15 @@ MonoBehaviour:
   - SyncPlayerScoreAndUI
   - AutoRollDice
   - SyncTurnTimer
+  - RpcApplyDiceResult
+  - SetupPlayerInfoDiceRPC
+  - RPC_ForceAutoRoll
+  - RPC_GameEnd
+  - RPC_GameStart
+  - RPC_ReportRoll
+  - RPC_RevealSingleRoll
+  - RPC_SyncParticipants
+  - RPC_TurnStart
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

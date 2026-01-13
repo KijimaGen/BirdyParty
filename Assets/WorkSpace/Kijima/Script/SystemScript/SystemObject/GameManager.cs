@@ -15,7 +15,7 @@ public class GameManager : SystemObject{
     //オンラインかどうか
     [SerializeField]
     private bool isOnline;
-    //
+    //自身のインスタンス
     public static GameManager instance;
     //オンラインマネージャーとオフラインマネージャー
     [SerializeField]
@@ -24,6 +24,8 @@ public class GameManager : SystemObject{
     private GameObject OfflineManager;
     //インプットマネージャー
     PlayerInput playerInput;
+    //パーティモードかどうか
+    public bool IsPartyMode { get; private set; }
     public override async UniTask Initialize() {
         
         instance = this;

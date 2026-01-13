@@ -93,7 +93,5 @@ public class ScoreboardUI : MonoBehaviourPunCallbacks {
                 scoreTexts[i].text = $"{i}P : {score}";
             }
         }
-
-        
     }
 }

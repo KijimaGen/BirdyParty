@@ -45,6 +45,9 @@ public class ButtonManager : MonoBehaviour
     //ドロップゲームの説明テキスト
     private const string DropGameExplanationText = "４つのパネルのうち１つのパネルは\r\n通ることが出来ます。\r\n正しいパネルを見つけて\r\nゴールを目指しましょう。" +
         "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
+    //ダイスゲームの説明テキスト
+    private const string DiceGameExplanationText = "５ターン制のダイスゲームです。\r\n一斉にダイスを転がし、\r\n指定されるBABAを当てないようにしましょう。" +
+        "\r\n--------------------------------------\r\n操作説明\r\nA：ダイスを振る";
 
     private void Start()
     {
@@ -417,7 +420,9 @@ public class ButtonManager : MonoBehaviour
             case "DropBird":
                 ExplanationText.text = DropGameExplanationText;
                 break;
-            
+            case "DiceGame":
+                ExplanationText.text = DiceGameExplanationText;
+                break;
         }
     }
 }

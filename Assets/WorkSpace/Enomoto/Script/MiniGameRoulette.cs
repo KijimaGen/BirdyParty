@@ -52,9 +52,6 @@ public class MiniGameRoulette : MonoBehaviour
     [SerializeField] private float holdTime = 0.6f;
     [SerializeField] private float popOutTime = 0.12f;
 
-    [Header("ランダム表示の時間")]
-    [SerializeField] private Vector2 randomSelectDelayRange = new Vector2(3.0f, 6.0f);
-
     [Header("UI Switch (ルーレット後は必ず GameReadyUI へ)")]
     [SerializeField] private GameObject rouletteUIRoot;
     [SerializeField] private GameObject gameReadyUI;
@@ -68,6 +65,10 @@ public class MiniGameRoulette : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private bool stopRouletteOnDecide = true;
 
+    [Header("ゲームの内部抽選")]
+    [SerializeField] private bool preselectOnStart = true;
+    [SerializeField] private float spinTimeBeforeShow = 3.0f;
+
     private Dictionary<Sprite, MiniGameType> spriteMap;
     private bool isRunning;
     private bool isPopping;
@@ -75,6 +76,8 @@ public class MiniGameRoulette : MonoBehaviour
 
     private Coroutine flowCo;
     private Coroutine randomPickCo;
+
+    private Sprite preselectedSprite;
 
     private void Start()
     {
@@ -86,6 +89,10 @@ public class MiniGameRoulette : MonoBehaviour
     public void StartRoulette()
     {
         if (isRunning) return;
+
+        if (preselectOnStart)
+            PreselectResult();
+
         isRunning = true;
 
         flowCo = StartCoroutine(FlowLoop());
@@ -215,20 +222,33 @@ public class MiniGameRoulette : MonoBehaviour
         return max;
     }
 
+    // 抽選結果を必ず表示
     private IEnumerator RandomPickLoop()
     {
-        while (isRunning)
-        {
-            float wait = UnityEngine.Random.Range(randomSelectDelayRange.x, randomSelectDelayRange.y);
-            yield return new WaitForSeconds(wait);
+        yield return new WaitForSeconds(spinTimeBeforeShow);
 
-            if (!isRunning) yield break;
-            if (isPopping || isSwitchingUI) continue;
+        if (!isRunning) yield break;
+        if (isPopping || isSwitchingUI) yield break;
 
-            var selected = sprites[UnityEngine.Random.Range(0, sprites.Length)];
-            yield return StartCoroutine(PopBig(selected));
-        }
+        if (preselectedSprite == null)
+            PreselectResult();
+
+        yield return StartCoroutine(PopBig(preselectedSprite));
     }
+
+    // 画像の内部抽選
+    private void PreselectResult()
+    {
+        if (sprites == null || sprites.Length == 0)
+        {
+            preselectedSprite = null;
+            return;
+        }
+
+        preselectedSprite = sprites[UnityEngine.Random.Range(0, sprites.Length)];
+        Debug.Log($"[Roulette] Preselected: {preselectedSprite.name}");
+    }
+
 
     private IEnumerator PopBig(Sprite selected)
     {

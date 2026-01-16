@@ -8341,7 +8341,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &813492590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8494,7 +8494,6 @@ MonoBehaviour:
   popInTime: 0.12
   holdTime: 10
   popOutTime: 0.12
-  randomSelectDelayRange: {x: 3, y: 6}
   rouletteUIRoot: {fileID: 813492589}
   gameReadyUI: {fileID: 1464178680}
   batoStacleUI: {fileID: 1251824733}
@@ -8502,6 +8501,8 @@ MonoBehaviour:
   babaDiceUI: {fileID: 637280922}
   fadeDuration: 0.5
   stopRouletteOnDecide: 1
+  preselectOnStart: 1
+  spinTimeBeforeShow: 5
 --- !u!1 &813617252
 GameObject:
   m_ObjectHideFlags: 0
@@ -21714,7 +21715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 699627945578106912, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: modeUI

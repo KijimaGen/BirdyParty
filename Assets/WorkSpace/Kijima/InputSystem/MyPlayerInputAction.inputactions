@@ -325,22 +325,13 @@
             ]
         },
         {
-            "name": "BattleDome",
-            "id": "6b21a7ae-b0ba-41b9-b44f-d2fd800efb3c",
+            "name": "EggGame",
+            "id": "6951c222-909f-422b-8b82-906aa195d214",
             "actions": [
                 {
-                    "name": "FlippLeft",
+                    "name": "Fire",
                     "type": "Button",
-                    "id": "7c7926e8-12c3-4a24-838a-79026afd5bae",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "FlippRight",
-                    "type": "Button",
-                    "id": "06d763d5-05af-430a-91ca-8e01c3b3b9c5",
+                    "id": "6e143de5-1a90-4f5d-8e3e-b93f81f1bb2d",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -350,111 +341,23 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "9f63100b-7986-46cd-a9bd-703f0045c36e",
-                    "path": "<Keyboard>/leftShift",
+                    "id": "1fea42a7-7b60-4c6b-83be-4336a3f355b4",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "FlippLeft",
+                    "action": "Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "7b616b5b-f624-435a-82b5-f835b815b4cf",
-                    "path": "<Gamepad>/leftShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippLeft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d5704f76-51c9-436d-9ddd-573fd33f9798",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippLeft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "31487a21-4609-475f-a9c5-11cbb2302e7d",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippLeft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fce7a161-bafa-469c-b2ff-25d3699d883d",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippLeft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1631152d-5306-44f9-9f56-7618dd579ba1",
-                    "path": "<Keyboard>/rightShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippRight",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "383d369f-5cf6-435d-8d96-b0a02d3f3972",
-                    "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippRight",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d2e54861-6657-41b1-8050-7eaeaf1f777c",
+                    "id": "f7d3de95-13a4-4b76-a143-813d9cc0f257",
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "FlippRight",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "6c811cfd-218d-4bb9-96dd-53031583821a",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippRight",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "21785d69-57b8-4f6a-adc6-b35d93daa30a",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "FlippRight",
+                    "action": "Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

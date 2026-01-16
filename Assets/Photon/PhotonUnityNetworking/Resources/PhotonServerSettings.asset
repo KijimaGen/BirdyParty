@@ -54,8 +54,62 @@ MonoBehaviour:
   - SyncPlayerScore
   - SyncBabaDiceValue
   - SyncPlayerDiceResult
-  - FlipLeft
-  - FlipRight
+  - ReceiveScoreAddition
+  - HandlePlayerRollInput
+  - ForceRoll
+  - ForceStopRolling
+  - ReportRollResult
+  - ResetDice
+  - ShowFinalResult
+  - ShowTurnResultRPC
+  - StartTurnRPC
+  - UpdateTimerUI
+  - RPC_InitializeDice
+  - RPC_RequestRoll
+  - RPC_SyncTurnStart
+  - RPC_TurnResult
+  - InitializeDice
+  - RollDice
+  - SyncBabaNumber
+  - SyncTurnResults
+  - ReportDiceResult
+  - SetGameStateRPC
+  - UpdateTurnTextRPC
+  - RollDiceRPC
+  - MasterClient_StartDiceRolling
+  - RequestRoll
+  - SetupBabaDiceRPC
+  - SetupDiceRPC
+  - ShowDiceUI
+  - SyncMaterialIndex
+  - SyncTurnState
+  - SyncBabaResult
+  - SyncGameState
+  - SyncLobbyTimer
+  - SetPlayerEntryStatusRPC
+  - SyncPlayerEntry
+  - AddScoreRPC
+  - EndGame
+  - RequestRollDice
+  - SetBabaNumber
+  - ShowDiceResultUI
+  - ShowMessage
+  - SyncFullGameState
+  - SyncEndGameResult
+  - SyncTurnResult
+  - SyncPlayerRank
+  - SyncPlayerScoreAndUI
+  - AutoRollDice
+  - SyncTurnTimer
+  - RpcApplyDiceResult
+  - SetupPlayerInfoDiceRPC
+  - RPC_ForceAutoRoll
+  - RPC_GameEnd
+  - RPC_GameStart
+  - RPC_ReportRoll
+  - RPC_RevealSingleRoll
+  - RPC_SyncParticipants
+  - RPC_TurnStart
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

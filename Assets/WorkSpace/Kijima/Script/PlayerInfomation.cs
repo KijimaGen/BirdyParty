@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using static GameConst;
 
-public class PlayerInfomation:MonoBehaviourPunCallbacks{
+public class PlayerInfomation:MonoBehaviour{
     //今持っているポイント
     public int point;
     //現在の順位
@@ -25,8 +25,11 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
     //自分の色
     private Color myColor;
 
+    //自分のマテリアル
+    private int materialIndex = 0;
+
     //自身のフォトンビュー
-    PhotonView PV;
+    PhotonView photonView;
    
     //レースゲームのプレイヤー
     [SerializeField]
@@ -36,7 +39,7 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
     private GameObject dropPlayer;
     // ダイスのプレイヤー
     [SerializeField]
-    private GameObject dicePlayer;
+    public GameObject dicePlayer;
 
     //エントリ～したかどうか
     [SerializeField]
@@ -52,7 +55,7 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
         //ポイントを初期化
         point = 0;
         //自身のフォトンビュー取得
-        PV = GetComponent<PhotonView>();
+        photonView = GetComponent<PhotonView>();
         //プレイヤー管理クラスに登録
         PlayerManager.instance.AddPlayer(this);
         //自身の番号を取得
@@ -72,19 +75,17 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
             myName = NetworkManager.instance.GetName();
         }
 
+        //エントリーしましたテキストを作る
+        if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
+            GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
+
         //オンラインだったらエントリーを行う
-        if (GameDataManager.instance != null
+        if (GameDataManager.instance != null 
             && GameManager.instance.IsOnline()
             && GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
             Entry();
         }
 
-        //エントリーしましたテキストを作る
-        if (GameManager.instance.IsOnline() && GameDataManager.instance != null) {
-            GameDataManager.instance.GetComponent<PhotonView>().
-                RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, PhotonNetwork.LocalPlayer.NickName);
-        }
-        
         //自身の色を決める
         myColor = PLAYER_COLOR[myNumber];
 
@@ -105,8 +106,7 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
     }
 
     //自身が消えるときにコールバックを止める
-    public override void OnDisable() {
-        base.OnDisable();
+    private void OnDisable() {
         // 忘れずに解除
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
@@ -131,7 +131,7 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
             LoadDropGameScene();
         }
 
-        if (scene.name == DICE_SCENE_NAME){
+        if (scene.name == DICEGAME_SCENE_NAME){
             LoadDiceGameScene();
         }
 
@@ -160,17 +160,21 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
-        //自身のアクションマップの切り替え麺
         PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
         playerInput.SwitchCurrentActionMap("DropGame");
-        //ドロップゲームの子オブジェクトを起動
         dropPlayer.SetActive(true);
     }
 
     //ダイスゲームのシーンが読み込まれたときに呼ぶ
     private void LoadDiceGameScene(){
-       
         dicePlayer.SetActive(true);
+
+        var pi = GetComponent<PlayerInput>();
+        if (pi != null)
+        {
+            pi.SwitchCurrentActionMap("DiceGame");
+            Debug.Log($"[Input] Switched to DiceGame : P{myNumber}");
+        }
     }
 
     //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)
@@ -249,8 +253,9 @@ public class PlayerInfomation:MonoBehaviourPunCallbacks{
 
     public Color GetMyColor() { return myColor; }
 
-    #endregion
+    public int GetMaterialIndex() { return this.materialIndex; }
+    public void SetMaterialIndex(int index) { this.materialIndex = index; }
 
-    
+    #endregion
 }
 

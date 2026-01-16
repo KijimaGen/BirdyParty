@@ -349,6 +349,7 @@ GameObject:
   - component: {fileID: 1455925853623716186}
   - component: {fileID: 5794883655419320835}
   - component: {fileID: 6059927626064569745}
+  - component: {fileID: 6701088386041309693}
   m_Layer: 0
   m_Name: 4P_Dice
   m_TagString: Untagged
@@ -496,6 +497,28 @@ MonoBehaviour:
   dice5: {fileID: 1459104735343886930}
   dice6: {fileID: 9131741539361675614}
   UseDice: {fileID: 8813499932898797297}
+--- !u!114 &6701088386041309693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8813499932898797297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &9064148667661071195
 GameObject:
   m_ObjectHideFlags: 0

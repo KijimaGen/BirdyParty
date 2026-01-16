@@ -5,6 +5,7 @@
  * @date 2026/01/13
  */
 using Photon.Pun;
+using Photon.Pun.Demo.Cockpit;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,9 +17,14 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
     private List<int> gameIndexs;
     //何回抽選を行うか
     private int randomCount;
+    //一応インスタンス
+    public static PartyModeGamePicker instance;
 
     private void Start() {
         Initialize();
+        SetRandomCount(3);
+        gameIndexs = BuildGameIndexs(randomCount);
+        CheckGameList();
     }
 
     /// <summary>
@@ -31,6 +37,9 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
             if (PhotonNetwork.IsMasterClient) return;
             Destroy(gameObject);
         }
+
+        //インスタンスの作成
+        instance = this;
     }
 
     /// <summary>
@@ -50,13 +59,19 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
     /// <param name="PickUpCount">
     /// 抽選を行う回数
     /// </param>
-    public void BuildGameIndexs(int PickUpCount) {
-        for(int i = 0; i < PickUpCount; i++) {
-            //抽選する値をキャッシュ
+    public List<int> BuildGameIndexs(int PickUpCount) {
+        //被り無しのリストを作成
+        var cashIndexs = new HashSet<int>();
+
+        //指定された数分埋まるまで抽選
+        while(cashIndexs.Count < PickUpCount) {
             int randomIndex = PickUpIndex();
-            //ゲームの選出リストに追加
-            gameIndexs.Add(randomIndex);
+            cashIndexs.Add(randomIndex);
         }
+
+        //値を変換してから返す
+        List<int> returnIndexs = new List<int>(cashIndexs);
+        return returnIndexs;
     }
 
     /// <summary>
@@ -81,5 +96,14 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
     /// <param name="setCount"></param>
     public void SetRandomCount(int setCount) {
         randomCount = setCount;
+    }
+
+    /// <summary>
+    /// デバッグチェック
+    /// </summary>
+    public void CheckGameList() {
+        for(int i = 0,max = gameIndexs.Count; i < max; i++) {
+            Debug.Log("選ばれたゲームは : "+ gameSceneNames[gameIndexs[i]]);
+        } 
     }
 }

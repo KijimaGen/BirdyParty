@@ -5,9 +5,10 @@
  * @date 2025/4/10
  */
 using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using UnityEngine;
 
-public abstract class SystemObject : MonoBehaviour {
+public abstract class SystemObject : MonoBehaviourPunCallbacks {
     /// <summary>
     /// ‰Šú‰»ˆ—
     /// </summary>

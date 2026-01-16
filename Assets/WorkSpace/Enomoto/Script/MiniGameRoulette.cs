@@ -24,65 +24,50 @@ public class MiniGameRoulette : MonoBehaviour
         public MiniGameType gameType;
     }
 
-    // =========================
-    // Sprites (配列で追加OK)
-    // =========================
-    [Header("Sprites (配列で追加OK)")]
+    [Header("画像を貼り付ける場所設定")]
     [SerializeField] private Sprite[] sprites;
 
-    [Header("Sprite -> GameType (当選画像ごとの行き先)")]
+    [Header("出た画像のUI切り替え先設定")]
     [SerializeField] private SpriteToGame[] spriteToGames;
 
-    // =========================
-    // Flow (流れる3枚)
-    // =========================
-    [Header("Flow (流れる3枚)")]
+    [Header("流れる画像の設定（現在3枚）")]
     [SerializeField] private RectTransform flowArea;
     [SerializeField] private Image[] slots = new Image[3];
 
-    [Header("Spawn / Despawn Points (始点/終点)")]
+    [Header("ループの開始点・終了点")]
     [SerializeField] private RectTransform startPoint; // 右側の出現地点
     [SerializeField] private RectTransform endPoint;   // 左側の消滅地点
 
-    [Header("Loop Settings")]
+    [Header("ループ設定")]
     [SerializeField] private float speed = 450f;     // px/sec
     [SerializeField] private float spacing = 80f;    // 各画像の間隔
     [SerializeField] private float slotWidth = 520f; // 画像1枚の横幅(実サイズに合わせる)
 
     private float Step => slotWidth + spacing;
 
-    // =========================
-    // Big Overlay (ドン！)
-    // =========================
-    [Header("Big Overlay (ドン！)")]
+    [Header("ルーレット後拡大表示")]
     [SerializeField] private Image bigOverlay;
     [SerializeField] private float bigPopScale = 2.2f;
     [SerializeField] private float popInTime = 0.12f;
     [SerializeField] private float holdTime = 0.6f;
     [SerializeField] private float popOutTime = 0.12f;
 
-    [Header("Random Select Timing")]
+    [Header("ランダム表示の時間")]
     [SerializeField] private Vector2 randomSelectDelayRange = new Vector2(3.0f, 6.0f);
 
-    // =========================
-    // UI Switch (あなたの要件)
-    // =========================
     [Header("UI Switch (ルーレット後は必ず GameReadyUI へ)")]
     [SerializeField] private GameObject rouletteUIRoot;
     [SerializeField] private GameObject gameReadyUI;
 
-    [Header("GameReadyUI 内の子 (当選に応じて出し分け)")]
+    [Header("GameReadyUI内のゲームごとに切り替え")]
     [SerializeField] private GameObject batoStacleUI;
     [SerializeField] private GameObject dropBirdUI;
     [SerializeField] private GameObject babaDiceUI;
 
-    [Header("Fade")]
+    [Header("フェードイン・アウト用")]
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private bool stopRouletteOnDecide = true;
 
-    // =========================
-    // internal
-    // =========================
     private Dictionary<Sprite, MiniGameType> spriteMap;
     private bool isRunning;
     private bool isPopping;
@@ -98,9 +83,6 @@ public class MiniGameRoulette : MonoBehaviour
         StartRoulette();
     }
 
-    // -------------------------
-    // 公開API
-    // -------------------------
     public void StartRoulette()
     {
         if (isRunning) return;
@@ -205,8 +187,6 @@ public class MiniGameRoulette : MonoBehaviour
             {
                 var rt = slots[i].rectTransform;
 
-                // 「画像の左端」が終点より左に行ったら…みたいにしたい場合は、
-                // endX - slotWidth などで調整してください。
                 if (rt.anchoredPosition.x <= endX)
                 {
                     float rightMost = GetRightMostX();
@@ -235,9 +215,6 @@ public class MiniGameRoulette : MonoBehaviour
         return max;
     }
 
-    // -------------------------
-    // 裏抽選：一定間隔でドン！
-    // -------------------------
     private IEnumerator RandomPickLoop()
     {
         while (isRunning)
@@ -268,7 +245,6 @@ public class MiniGameRoulette : MonoBehaviour
         // pop in
         yield return Scale(rt, 0.1f, bigPopScale, popInTime);
 
-        // ここで「当選 → GameReadyUIへ切替（フェード付き）」
         InvokeBySprite(selected);
 
         // hold
@@ -305,9 +281,6 @@ public class MiniGameRoulette : MonoBehaviour
         rt.localScale = Vector3.one * to;
     }
 
-    // -------------------------
-    // 当選Spriteに応じてGameReadyUIを出し分け
-    // -------------------------
     private void InvokeBySprite(Sprite selected)
     {
         if (selected == null) return;
@@ -322,9 +295,8 @@ public class MiniGameRoulette : MonoBehaviour
         _ = SwitchToGameReadyAsync(MiniGameType.BatoStacle);
     }
 
-    // -------------------------
     // FadeManager対応：フェードして切替
-    // -------------------------
+
     private async UniTask SwitchToGameReadyAsync(MiniGameType gameType)
     {
         if (isSwitchingUI) return;

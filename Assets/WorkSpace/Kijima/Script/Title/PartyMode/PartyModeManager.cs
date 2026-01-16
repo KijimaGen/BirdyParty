@@ -5,9 +5,9 @@
  * @date 2026/01/14
  */
 using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 public class PartyModeManager : SystemObject {
     //抽選されたシーン
@@ -34,6 +34,7 @@ public class PartyModeManager : SystemObject {
         // 初期化
         await createObject.Initialize();
 
+        //デバッグでゲームリストを作成
         MakeGameList();
 
         //UniTaskの使命
@@ -48,6 +49,34 @@ public class PartyModeManager : SystemObject {
         PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
         //選ばれたゲームのリストをもらう
         ChoicedSceneList = PartyModeGamePicker.instance.BuildGameIndexs();
+        for(int i = 0,max = ChoicedSceneList.Count; i < max; i++) {
+            Debug.Log("選ばれたシーン名" + ChoicedSceneList[i]);
+        }
+
+        //オンラインだったら
+        if (!GameManager.instance.IsOnline()) return;
+        //オンラインカツ自分がホストだったら
+        if (!PhotonNetwork.IsMasterClient) return;
+        //全体プレイヤーに抽選結果の上書きを要請
+        photonView.RPC(nameof(SetChoicedGameList), RpcTarget.All);
+
+    }
+
+    /// <summary>
+    /// 指定された引数でシーンのリストを上書き
+    /// </summary>
+    /// <param name="ChoicedGameList">
+    /// 上書きするリスト
+    /// </param>
+    [PunRPC]
+    public void SetChoicedGameList(List<string> ChoicedGameList) {
+        for(int i = 0,max = ChoicedGameList.Count;i < max;i++) {
+            ChoicedSceneList.Add(ChoicedGameList[i]);
+        }
+        Debug.Log("リストを上書きしました");
+        for (int i = 0, max = ChoicedSceneList.Count; i < max; i++) {
+            Debug.Log("選ばれたシーン名" + ChoicedSceneList[i]);
+        }
     }
 
 }

@@ -4,13 +4,15 @@
  * @author Sum1r3
  * @date 2026/01/13
  */
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using Photon.Pun.Demo.Cockpit;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
+public class PartyModeGamePicker : SystemObject{
     //ゲーム名のシーンの配列
     private string[] gameSceneNames = new string[] { "Race", "DropBird" , "DiceGame" };
     //どのゲームを選んだかの配列
@@ -20,17 +22,11 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
     //一応インスタンス
     public static PartyModeGamePicker instance;
 
-    private void Start() {
-        Initialize();
-        SetRandomCount(3);
-        gameIndexs = BuildGameIndexs(randomCount);
-        CheckGameList();
-    }
 
     /// <summary>
     /// 最初に行う処理
     /// </summary>
-    public void Initialize() {
+    public override async UniTask Initialize() {
         //オンラインかつマスターじゃなかったら破壊
         if (GameManager.instance.IsOnline()) {
             //マスターだったらreturn
@@ -40,6 +36,8 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
 
         //インスタンスの作成
         instance = this;
+        //UniTaskの使命
+        await UniTask.CompletedTask;
     }
 
     /// <summary>
@@ -59,19 +57,27 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
     /// <param name="PickUpCount">
     /// 抽選を行う回数
     /// </param>
-    public List<int> BuildGameIndexs(int PickUpCount) {
+    public List<string> BuildGameIndexs() {
         //被り無しのリストを作成
         var cashIndexs = new HashSet<int>();
 
         //指定された数分埋まるまで抽選
-        while(cashIndexs.Count < PickUpCount) {
+        while(cashIndexs.Count < randomCount) {
             int randomIndex = PickUpIndex();
             cashIndexs.Add(randomIndex);
         }
 
         //値を変換してから返す
         List<int> returnIndexs = new List<int>(cashIndexs);
-        return returnIndexs;
+        //数値型から文字列型に変換してから渡す
+        List<string> returnSceneNames = new List<string>(returnIndexs.Count);
+        //順々に変換
+        for(int i = 0,max  = returnIndexs.Count;i<max;i++) {
+            returnSceneNames.Add(null);
+            returnSceneNames[i] = gameSceneNames[returnIndexs[i]];
+        }
+        //変換し終わったものを引き渡す
+        return returnSceneNames;
     }
 
     /// <summary>
@@ -106,4 +112,6 @@ public class PartyModeGamePicker : MonoBehaviourPunCallbacks{
             Debug.Log("選ばれたゲームは : "+ gameSceneNames[gameIndexs[i]]);
         } 
     }
+
+    
 }

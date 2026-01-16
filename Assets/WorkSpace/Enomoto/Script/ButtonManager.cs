@@ -98,12 +98,9 @@ public class ButtonManager : MonoBehaviour
         openUI.SetActive(true);
         uiHistory.Push(openUI);
 
-        if (openUI == modeUI)
-        {
+        if (openUI == modeUI){
             GameDataManager.instance.playOnline = false;
-        }
-        else
-        {
+        }else{
             GameDataManager.instance.playOnline = true;
         }
     }

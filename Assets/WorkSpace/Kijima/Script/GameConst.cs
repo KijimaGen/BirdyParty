@@ -52,7 +52,7 @@ public static class GameConst {
     public static readonly string TITLE_SCENE_NAME = "Title";
     public static readonly string RACEGAME_SCENE_NAME = "Race"; 
     public static readonly string DROPGAME_SCENE_NAME = "DropBird";
-    public static readonly string DICE_SCENE_NAME = "DiceGame";
+    public static readonly string DICEGAME_SCENE_NAME = "DiceGame";
     public static readonly string BATTLEDOME_SCENE_NAME = "BattleDome";
     #endregion
 

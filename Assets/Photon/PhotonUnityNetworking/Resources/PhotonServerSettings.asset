@@ -110,6 +110,8 @@ MonoBehaviour:
   - RPC_RevealSingleRoll
   - RPC_SyncParticipants
   - RPC_TurnStart
+  - FlipLeft
+  - FlipRight
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

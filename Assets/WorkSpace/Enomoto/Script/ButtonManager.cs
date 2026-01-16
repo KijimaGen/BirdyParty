@@ -12,6 +12,7 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject titleUI;
     [SerializeField] private GameObject modeUI;
     [SerializeField] private GameObject minigameSelectUI;
+    [SerializeField] private GameObject partyModeUI;
     [SerializeField] private GameObject optionUI;
     [SerializeField] private GameObject netWorkUI;
     [SerializeField] private GameObject onlineUI;
@@ -27,6 +28,13 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private UnityEngine.UI.Button createRoomButton; // ルーム作成ボタン
     [SerializeField] private UnityEngine.UI.Button joinRoomButton; // ルーム参加ボタン
 
+
+    [Header("パーティモードの時に消すボタン")]
+    [SerializeField] private GameObject backButton;
+
+    [Header("ミニゲーム・パーティモードアイコン")]
+    [SerializeField] private GameObject minigameIcon;
+    [SerializeField] private GameObject partyIcon;
 
     // 開いたUIを保存して戻れるように
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
@@ -105,6 +113,15 @@ public class ButtonManager : MonoBehaviour
         else
         {
             GameDataManager.instance.playOnline = true;
+        }
+
+        if (openUI == partyModeUI)
+        {
+            ChangePartyMode();
+        }
+        else
+        {
+            ChangeMinigameMode();
         }
     }
 
@@ -395,6 +412,35 @@ public class ButtonManager : MonoBehaviour
     public void GoPlayerSelectUI() {
         //次へボタンを見せなくする
         TitleManager.instance.SetActiveNextButton(false);
+    }
+
+    /// <summary>
+    /// パーティモードの使用に変更
+    /// </summary>
+    public void ChangePartyMode()
+    {
+        // パーティモード時はReadyUIから戻るボタン削除
+        if (!GameManager.instance.isPartyMode) 
+            backButton.SetActive(false);
+
+        // ミニゲームアイコンを非表示
+        minigameIcon.SetActive(false);
+
+        // アイコンをパーティモードに
+        partyIcon.SetActive(true);
+    }
+
+    public void ChangeMinigameMode()
+    {
+        // パーティモード時はReadyUIから戻るボタン削除
+        if (GameManager.instance.isPartyMode)
+            backButton.SetActive(true);
+
+        // ミニゲームアイコンを非表示
+        minigameIcon.SetActive(true);
+
+        // アイコンをパーティモードに
+        partyIcon.SetActive(false);
     }
 
     /// <summary>

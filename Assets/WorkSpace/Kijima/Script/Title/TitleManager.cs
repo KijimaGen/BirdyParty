@@ -16,6 +16,7 @@ public class TitleManager : MonoBehaviour{
     //次へボタン
     [SerializeField]
     private GameObject NextButton;
+
     //自身のインスタンス
     public static TitleManager instance;
 
@@ -39,6 +40,7 @@ public class TitleManager : MonoBehaviour{
     public void SetActiveNextButton(bool isActive) {
         NextButton.SetActive(isActive);
     }
+
 
 
     private void Awake() {

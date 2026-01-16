@@ -25,7 +25,7 @@ public class GameManager : SystemObject{
     //インプットマネージャー
     PlayerInput playerInput;
     //パーティモードかどうか
-    public bool IsPartyMode { get; private set; }
+    public bool isPartyMode { get; private set; }
     public override async UniTask Initialize() {
         
         instance = this;

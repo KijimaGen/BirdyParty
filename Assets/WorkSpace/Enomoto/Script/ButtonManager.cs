@@ -485,4 +485,14 @@ public class ButtonManager : MonoBehaviour
     public string GetNameInput() {
         return _nameInputField.text;
     }
+
+    /// <summary>
+    /// パーティモードのボタンが押されたときの処理
+    /// </summary>
+    public void PressPartyModeButton() {
+        if(PartyModeManager.instance != null) {
+            //パーティモードマネージャーがゲームリストを作成
+            PartyModeManager.instance.MakeGameList();
+        } 
+    }
 }

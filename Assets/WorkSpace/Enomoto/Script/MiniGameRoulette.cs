@@ -230,6 +230,10 @@ public class MiniGameRoulette : MonoBehaviour
         if (!isRunning) yield break;
         if (isPopping || isSwitchingUI) yield break;
 
+        //ここで事前に決めてあった抽選結果を反映させる
+        preselectedSprite = sprites[ReflectNextGame()];
+
+        //抽選結果がなかった場合、自らランダムに作成
         if (preselectedSprite == null)
             PreselectResult();
 
@@ -367,4 +371,13 @@ public class MiniGameRoulette : MonoBehaviour
             break;
         }
     }
+
+    /// <summary>
+    /// 次のゲームをもらってくる
+    /// </summary>
+    private int ReflectNextGame() {
+        return PartyModeManager.instance.NowGameIndex;
+    }
+
+    
 }

@@ -733,6 +733,7 @@ MonoBehaviour:
   - {fileID: 8574227437450017124}
   - {fileID: 1846076934332996350}
   - {fileID: 5146115681240815729}
+  NextVariationUI: {fileID: 0}
 --- !u!114 &7687749645527120184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -771,7 +772,7 @@ MonoBehaviour:
   m_SynchronizePosition: 1
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
-  m_UseLocal: 1
+  m_UseLocal: 0
 --- !u!1 &4001951240873569812
 GameObject:
   m_ObjectHideFlags: 0

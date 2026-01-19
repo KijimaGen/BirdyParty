@@ -6,22 +6,35 @@
  */
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class DebugScript : MonoBehaviour{
-    // Start is called before the first frame update
-    void Start()
-    {
+    public TextMeshProUGUI firstGameName;
+    public TextMeshProUGUI secondGameName;
+    public TextMeshProUGUI thirdGameName;
+    public TextMeshProUGUI NowGameCount;
+
+    public List<string> GameNames = new List<string>();
+
+    void Start(){
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    void Update(){
+        GameNames = PartyModeManager.instance.GetChoicedGameList();
+        if(GameNames.Count < 3) {
+            GameNames.Add("A");
+            GameNames.Add("B");
+            GameNames.Add("C");
+        }
+
+        firstGameName.text = GameNames[0];
+        secondGameName.text = GameNames[1];
+        thirdGameName.text = GameNames[2];
+
+        NowGameCount.text = PartyModeManager.instance.NowGameIndex.ToString();
     }
 
-    private async UniTask Uni() {
-        await UniTask.Delay(TimeSpan.FromSeconds(2f));
-    }
 }

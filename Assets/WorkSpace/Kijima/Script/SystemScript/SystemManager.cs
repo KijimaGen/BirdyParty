@@ -6,6 +6,7 @@
  */
 
 using Cysharp.Threading.Tasks;
+using Photon.Pun;
 using UnityEngine;
 
 public class SystemManager : MonoBehaviour {
@@ -36,6 +37,7 @@ public class SystemManager : MonoBehaviour {
         for (int i = 0, max = _systemObjectList.Length; i < max; i++) {
             SystemObject origin = _systemObjectList[i];
             if (origin == null) continue;
+
             // システムオブジェクト生成
             SystemObject createObject = Instantiate(origin, transform);
             // 初期化

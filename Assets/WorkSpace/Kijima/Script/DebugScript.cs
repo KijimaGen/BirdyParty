@@ -11,30 +11,43 @@ using TMPro;
 using UnityEngine;
 
 public class DebugScript : MonoBehaviour{
-    public TextMeshProUGUI firstGameName;
-    public TextMeshProUGUI secondGameName;
-    public TextMeshProUGUI thirdGameName;
-    public TextMeshProUGUI NowGameCount;
+    public TextMeshProUGUI firstPlayerPoint;
+    public TextMeshProUGUI secondPlayerPoint;
+    public TextMeshProUGUI thirdPlayerPoint;
+    public TextMeshProUGUI forthPlayerPoint;
+   
 
-    public List<string> GameNames = new List<string>();
+    public List<PlayerInfomation> Players = new List<PlayerInfomation>();
+    public List<int> PlayerPoints = new List<int>();
 
     void Start(){
         
     }
 
     void Update(){
-        GameNames = PartyModeManager.instance.GetChoicedGameList();
-        if(GameNames.Count < 3) {
-            GameNames.Add("A");
-            GameNames.Add("B");
-            GameNames.Add("C");
+        
+        Players = PartyModeManager.instance.GetPlayerRankList();
+        
+        for(int i = 0,max = Players.Count; i< max; i++) {
+            if (Players[i] == null)
+                continue;
+            PlayerPoints[i] = Players[i].point;
         }
 
-        firstGameName.text = GameNames[0];
-        secondGameName.text = GameNames[1];
-        thirdGameName.text = GameNames[2];
+        if(PlayerPoints.Count < 4) {
+            PlayerPoints.Add(0);
+            PlayerPoints.Add(0);
+            PlayerPoints.Add(0);
+            PlayerPoints.Add(0);
+        }
 
-        NowGameCount.text = PartyModeManager.instance.NowGameIndex.ToString();
+        firstPlayerPoint.text =  PlayerPoints[0].ToString();
+        secondPlayerPoint.text = PlayerPoints[1].ToString();
+        thirdPlayerPoint.text =  PlayerPoints[2].ToString();
+        forthPlayerPoint.text =  PlayerPoints[2].ToString();
+
+
+        
     }
 
 }

@@ -115,4 +115,12 @@ public class PartyModeManager : SystemObject {
     public void SetNextSceneName() {
         ButtonManager.instance.SetNextSceneName(ChoicedSceneList[NowGameIndex]);
     }
+
+    /// <summary>
+    /// プレイヤーリストをあげる
+    /// </summary>
+    /// <returns></returns>
+    public List<PlayerInfomation> GetPlayerRankList() {
+        return playerRankingList;
+    }
 }

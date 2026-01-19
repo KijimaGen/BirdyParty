@@ -16,7 +16,7 @@ public class PartyModeGamePicker : SystemObject{
     //ゲーム名のシーンの配列
     private string[] gameSceneNames = new string[] { "Race", "DropBird" , "DiceGame" };
     //どのゲームを選んだかの配列
-    private List<int> gameIndexs;
+    private List<int> gameIndexList;
     //何回抽選を行うか
     private int randomCount;
     //一応インスタンス
@@ -69,6 +69,8 @@ public class PartyModeGamePicker : SystemObject{
 
         //値を変換してから返す
         List<int> returnIndexs = new List<int>(cashIndexs);
+        //渡す用に用意していたリストに数字型のリストを反映させる
+        gameIndexList = returnIndexs;
         //数値型から文字列型に変換してから渡す
         List<string> returnSceneNames = new List<string>(returnIndexs.Count);
         //順々に変換
@@ -108,10 +110,12 @@ public class PartyModeGamePicker : SystemObject{
     /// デバッグチェック
     /// </summary>
     public void CheckGameList() {
-        for(int i = 0,max = gameIndexs.Count; i < max; i++) {
-            Debug.Log("選ばれたゲームは : "+ gameSceneNames[gameIndexs[i]]);
+        for(int i = 0,max = gameIndexList.Count; i < max; i++) {
+            Debug.Log("選ばれたゲームは : "+ gameSceneNames[gameIndexList[i]]);
         } 
     }
 
-    
+    public List<int> GetGameIndexList() {
+        return gameIndexList;
+    }
 }

@@ -101,4 +101,18 @@ public class PartyModeManager : SystemObject {
     public void IncreaseNowGameIndex() {
         NowGameIndex++;
     }
+
+    /// <summary>
+    /// 今のミニゲームの番目はリストの何番目なのかを返す
+    /// </summary>
+    public int GetNextGameIndex() {
+        return PartyModeGamePicker.instance.GetGameIndexList()[NowGameIndex];
+    }
+
+    /// <summary>
+    /// ボタンマネージャーの
+    /// </summary>
+    public void SetNextSceneName() {
+        ButtonManager.instance.SetNextSceneName(ChoicedSceneList[NowGameIndex]);
+    }
 }

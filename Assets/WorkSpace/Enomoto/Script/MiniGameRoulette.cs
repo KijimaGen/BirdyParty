@@ -232,6 +232,8 @@ public class MiniGameRoulette : MonoBehaviour
 
         //ここで事前に決めてあった抽選結果を反映させる
         preselectedSprite = sprites[ReflectNextGame()];
+        //ボタンマネージャーの次のゲームの設定をしてもらう
+        PartyModeManager.instance.SetNextSceneName();
 
         //抽選結果がなかった場合、自らランダムに作成
         if (preselectedSprite == null)
@@ -376,7 +378,7 @@ public class MiniGameRoulette : MonoBehaviour
     /// 次のゲームをもらってくる
     /// </summary>
     private int ReflectNextGame() {
-        return PartyModeManager.instance.NowGameIndex;
+        return PartyModeManager.instance.GetNextGameIndex();
     }
 
     

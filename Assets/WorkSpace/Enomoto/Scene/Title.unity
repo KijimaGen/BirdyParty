@@ -22530,6 +22530,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1832276886}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: BABADiceImage
+      value: 
+      objectReference: {fileID: 637280922}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: DropBirdImage
+      value: 
+      objectReference: {fileID: 1930586220}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: joinRoomButton
       value: 
       objectReference: {fileID: 879131437}
@@ -22537,6 +22545,10 @@ PrefabInstance:
       propertyPath: playerSelectUI
       value: 
       objectReference: {fileID: 1650817816}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: BatoStacleImage
+      value: 
+      objectReference: {fileID: 1251824733}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: ExplanationText
       value: 
@@ -22561,6 +22573,22 @@ PrefabInstance:
       propertyPath: connectionStatusText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: MiniGameImage.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: MiniGameImage.Array.data[0]
+      value: 
+      objectReference: {fileID: 1251824733}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: MiniGameImage.Array.data[1]
+      value: 
+      objectReference: {fileID: 1930586220}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: MiniGameImage.Array.data[2]
+      value: 
+      objectReference: {fileID: 637280922}
     - target: {fileID: 8133398928993597140, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_LocalPosition.x
       value: 883.99603

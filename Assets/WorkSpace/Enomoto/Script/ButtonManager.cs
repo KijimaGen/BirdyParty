@@ -64,6 +64,11 @@ public class ButtonManager : MonoBehaviour
     //自身のインスタンス
     public static ButtonManager instance;
 
+    [Header("ミニゲームの説明オブジェクト一覧")]
+    [SerializeField]
+    private List<GameObject> MiniGameImage;
+    
+
     private void Start()
     {
         // ゲームから戻ってきたかどうかでUIを切り替え
@@ -457,6 +462,7 @@ public class ButtonManager : MonoBehaviour
     public void SetNextSceneName(string nextName) {
         NextSceneText = nextName;
         SetExplanationText();
+        SetIsActiveMinigameImage();
     }
 
     /// <summary>
@@ -474,6 +480,31 @@ public class ButtonManager : MonoBehaviour
                 break;
             case "DiceGame":
                 ExplanationText.text = DiceGameExplanationText;
+                break;
+        }
+    }
+    /// <summary>
+    /// 次のシーンに合わせて説明画像を変える
+    /// </summary>
+    public void SetIsActiveMinigameImage() {
+        //一度全部アクティブを切る
+        for(int i = 0;i<MiniGameImage.Count;i++) {
+            MiniGameImage[i].SetActive(false);
+        }
+
+        //シーンの名前に合わせたイメージを点灯
+        switch(NextSceneText) {
+            //レース
+            case "Race":
+                MiniGameImage[0].SetActive(true);
+                break;
+                //ドロップ
+            case "DropBird":
+                MiniGameImage[1].SetActive(true);
+                break;
+                //ダイス
+            case "DiceGame":
+                MiniGameImage[2].SetActive(true);
                 break;
         }
     }

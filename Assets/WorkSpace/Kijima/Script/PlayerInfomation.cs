@@ -40,6 +40,9 @@ public class PlayerInfomation:MonoBehaviour{
     // ダイスのプレイヤー
     [SerializeField]
     public GameObject dicePlayer;
+    // ダイスのプレイヤー
+    [SerializeField]
+    public GameObject battleDomePlayer;
 
     //エントリ～したかどうか
     [SerializeField]
@@ -135,6 +138,10 @@ public class PlayerInfomation:MonoBehaviour{
             LoadDiceGameScene();
         }
 
+        if (scene.name == BATTLEDOME_SCENE_NAME){
+            LoadBattleDomeScene();
+        }
+
         if (scene.name == TITLE_SCENE_NAME) {
             LoadTitleScene();
         }
@@ -163,6 +170,13 @@ public class PlayerInfomation:MonoBehaviour{
         PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
         playerInput.SwitchCurrentActionMap("DropGame");
         dropPlayer.SetActive(true);
+    }
+
+    //バトルドームのシーンが読み込まれたときに呼ぶ
+    public void LoadBattleDomeScene() {
+        PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
+        playerInput.SwitchCurrentActionMap("BattleDome");
+        battleDomePlayer.SetActive(true);
     }
 
     //ダイスゲームのシーンが読み込まれたときに呼ぶ

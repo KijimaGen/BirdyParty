@@ -71,7 +71,7 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
     }
 
     /// <summary>
-    /// 制限時間を測る
+    /// 制限時間を減らす
     /// </summary>
     /// <returns></returns>
     private async UniTask CountTime() {
@@ -87,7 +87,10 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
             UpdateLimitTimeUI();
 
         }
+        //制限時間終了の効果音
         await AudioManager.instance.PlaySE(5);
+        //一定時間結果表示の時間を取る
+        _ = ShowPointRanking();
     }
 
     /// <summary>
@@ -163,8 +166,15 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
             _ballMakeCount++;
     }
 
-    //デバッグ用、サーバーに接続完了したときに部屋を作るorはいる
-    public override void OnConnectedToMaster() {
-        PhotonNetwork.JoinOrCreateRoom("BattleDomeDebugRoom", new RoomOptions { MaxPlayers = 4 }, TypedLobby.Default);
+    /// <summary>
+    /// 結果発表
+    /// </summary>
+    private async UniTask ShowPointRanking() {
+        //結果発表を行うキャンバスを表示
+
+        //10秒まつ
+        await UniTask.Delay(10000);
+        //シーン遷移
+        PhotonNetwork.LoadLevel("Title");
     }
 }

@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3368612246590674150
 Transform:
   m_ObjectHideFlags: 0
@@ -68,6 +68,7 @@ Transform:
   - {fileID: 5364460227865065968}
   - {fileID: 8245009610623708576}
   - {fileID: 3368612246590674150}
+  - {fileID: 7541388473115220819}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4493471762524714440
@@ -90,6 +91,7 @@ MonoBehaviour:
   racePlayer: {fileID: 4699986196022682442}
   dropPlayer: {fileID: 8730219227733571354}
   dicePlayer: {fileID: 5395308920231397157}
+  battleDomePlayer: {fileID: 5842441339536088099}
   isEntry: 0
 --- !u!114 &2120973022606344110
 MonoBehaviour:
@@ -182,6 +184,42 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9174aa53-d4f6-402d-adb4-f8de797f7cc8
     m_ActionName: DiceGame/Roll[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6e143de5-1a90-4f5d-8e3e-b93f81f1bb2d
+    m_ActionName: EggGame/Fire[/Keyboard/space,/XInputControllerWindows/buttonEast]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7923202820144939433}
+        m_TargetAssemblyTypeName: BattleDomePlayer, Assembly-CSharp
+        m_MethodName: TryFlipRight
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: c0c5b4ec-85ed-4fa6-8f7d-1fb6aca3ff74
+    m_ActionName: BattleDome/Right[/Keyboard/rightArrow,/Keyboard/d,/XInputControllerWindows/rightShoulder]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7923202820144939433}
+        m_TargetAssemblyTypeName: BattleDomePlayer, Assembly-CSharp
+        m_MethodName: TryFlipLeft
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 074f65bb-6d60-4c1d-b797-eeef6311dcad
+    m_ActionName: BattleDome/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: RaceGame
@@ -567,6 +605,144 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 4580251086169072577, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
   m_PrefabInstance: {fileID: 5291992219464392789}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6881268501503483168
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7341292437162570131}
+    m_Modifications:
+    - target: {fileID: 984072924022123411, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ConnectedAnchor.x
+      value: -0.010751095
+      objectReference: {fileID: 0}
+    - target: {fileID: 984072924022123411, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: 0.0027600022
+      objectReference: {fileID: 0}
+    - target: {fileID: 984072924022123411, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ConnectedAnchor.z
+      value: -0.0004799991
+      objectReference: {fileID: 0}
+    - target: {fileID: 1039109199585870083, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_Name
+      value: BattleDomePlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1039109199585870083, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2452777713029733093, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ConnectedAnchor.y
+      value: 0.002819997
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9427039
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.33363062
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -38.979
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_DefaultActionMap
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_ActionId
+      value: 6e143de5-1a90-4f5d-8e3e-b93f81f1bb2d
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[6].m_ActionId
+      value: c0c5b4ec-85ed-4fa6-8f7d-1fb6aca3ff74
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_ActionId
+      value: 074f65bb-6d60-4c1d-b797-eeef6311dcad
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_ActionName
+      value: EggGame/Fire[/Keyboard/space,/XInputControllerWindows/buttonEast]
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[6].m_ActionName
+      value: BattleDome/Right[/Keyboard/rightArrow,/Keyboard/d,/XInputControllerWindows/rightShoulder]
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_ActionName
+      value: BattleDome/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[6].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+--- !u!1 &5842441339536088099 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1039109199585870083, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+  m_PrefabInstance: {fileID: 6881268501503483168}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7541388473115220819 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4023766028725061235, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+  m_PrefabInstance: {fileID: 6881268501503483168}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7923202820144939433 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3642272739117489289, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+  m_PrefabInstance: {fileID: 6881268501503483168}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5842441339536088099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71df50fc9f8a4b24d9950ef7b59e975c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6889811713931179606
 PrefabInstance:
   m_ObjectHideFlags: 0

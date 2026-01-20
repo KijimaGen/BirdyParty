@@ -40,7 +40,7 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
     //マイフォトンビュー
     PhotonView _photonview;
 
-    private void Awake() {
+    private void Start() {
         //ヒンジジョイントを受け取る
         hjL = _axisL.GetComponent<HingeJoint>();
         hjR = _axisR.GetComponent<HingeJoint>();
@@ -54,6 +54,9 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
 
         //エントリー
         _=EntryToManager();
+
+        //色設定
+        SetMyColor();
     }
 
     public void TryFlipLeft(InputAction.CallbackContext context) {
@@ -161,6 +164,20 @@ public class BattleDomePlayer : MonoBehaviourPunCallbacks {
         transform.position = PlayerManager.GetPlayerPosition(_myNumber);
         //角度調整
         transform.rotation = Quaternion.Euler(PlayerManager.GetPlayerRotation(_myNumber));
+
+    }
+
+    /// <summary>
+    /// 自身のいろをかえる
+    /// </summary>
+    public void SetMyColor() {
+        Color myColor = GetComponentInParent<PlayerInfomation>().GetMyColor();
+        
+        _axisL.GetComponent<Renderer>().material.color = myColor;
+        _axisL.transform.GetChild(0).GetComponent<Renderer>().material.color = myColor;
+        _axisR.GetComponent<Renderer>().material.color = myColor;
+        _axisR.transform.GetChild(0).GetComponent<Renderer>().material.color = myColor;
+
     }
 
 }

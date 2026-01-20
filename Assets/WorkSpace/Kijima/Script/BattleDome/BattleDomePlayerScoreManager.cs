@@ -38,10 +38,12 @@ public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
     // 初期化
     private void Start() {
         // 自分のプレイヤーだけスコアを初期化
-        if (photonView.IsMine) {
-            SetScore(0);
+        if(photonView != null) {
+            if (photonView.IsMine) {
+                SetScore(0);
+            }
         }
-
+        
         BattleDomePlayerManager.instance.ScoreEnty(this);
     }
 

@@ -43,13 +43,14 @@ public class TitleManager : MonoBehaviour{
 
 
 
-    private void Awake() {
+    private void Start() {
         //インスタンスの作成
         if(instance == null) {
             instance = this;
         }else {
             Destroy(gameObject);
         }
+        AudioManager.instance.PlayBGM(0);
     }
 
 }

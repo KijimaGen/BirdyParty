@@ -180,4 +180,9 @@ public class BattleDomePlayerManager : BattleDomeManagerOrigin {
     //プレイヤーのスコアリスト
     public List<BattleDomePlayerScoreManager> GetPlayerScoreList() { return _playerScoreList; }
 
+    //渡されたプレイヤーはリストの何番目なのかを返す
+    public int GetNumberToPlayer(BattleDomePlayerScoreManager player) {
+        return _playerScoreList.IndexOf(player);
+    }
+
 }

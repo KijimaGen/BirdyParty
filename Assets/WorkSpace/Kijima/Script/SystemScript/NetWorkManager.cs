@@ -49,8 +49,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
     //自身の名前
     private string playerName = "未登録";
-    
-    
+
+    //[デバッグ用]ホストかどうか
+    [SerializeField]
+    private TextMeshProUGUI IsHost;
+    //[デバッグ用]自分のプレイヤーナンバーはいくつ？
+    [SerializeField]
+    private TextMeshProUGUI myNumber;
 
     void Awake() {
         // シングルトン設定
@@ -70,7 +75,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         if (autoConnectOnStart) {
             ConnectingServer();
         }
-           
     }
 
     /// <summary>
@@ -214,7 +218,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(-2, 2), 0, UnityEngine.Random.Range(-2, 2));
             PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, Quaternion.Euler(0, -90, 0));
         }
+
+        //UIを更新
+        if(PhotonNetwork.IsMasterClient) {
+            IsHost.text = "ホストです";
+        }
+        else {
+            IsHost.text = "ホストではないです";
+        }
+        //UIを更新
+        myNumber.text = PhotonNetwork.LocalPlayer.ActorNumber.ToString();
         
+        
+        
+
         // フラグをリセット
         isCreatingRoom = false;
         isJoiningRoom = false;

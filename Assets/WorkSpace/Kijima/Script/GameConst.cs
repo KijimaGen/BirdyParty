@@ -62,6 +62,6 @@ public static class GameConst {
     #endregion
 
     //プレイヤーの色のマテリアル一覧
-    public static List<Material> PlayerColors = new List<Material>();
+    public static List<Material> PLAYER_MATERIAL = new List<Material>();
 
 }

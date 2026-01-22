@@ -51,6 +51,8 @@ public class PlayerInfomation:MonoBehaviour{
     //自分のコントローラーの入力値
     Vector2 myInputLeftStickValue = Vector2.zero;
 
+    
+
     /// <summary>
     /// スタート
     /// </summary>
@@ -62,7 +64,13 @@ public class PlayerInfomation:MonoBehaviour{
         //プレイヤー管理クラスに登録
         PlayerManager.instance.AddPlayer(this);
         //自身の番号を取得
-        myNumber = PlayerManager.instance.GetPlayerNumber(this);
+        if (GameManager.instance.IsOnline()) {
+            //オンラインの場合、Photonに番号の管理を任せる
+            myNumber = PhotonNetwork.LocalPlayer.ActorNumber -1; //<-Photonは１から番号がスタートするので-1
+        }else {
+            //オフラインだったらローカルのマネージャーに
+            myNumber = PlayerManager.instance.GetPlayerNumber(this);
+        }
         // シーン読み込み時のコールバック登録
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -91,6 +99,7 @@ public class PlayerInfomation:MonoBehaviour{
 
         //自身の色を決める
         myColor = PLAYER_COLOR[myNumber];
+        
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);

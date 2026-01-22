@@ -260,6 +260,8 @@ public class RacePlayer : MonoBehaviour {
         foreach(Transform child in transform) {
             if (child.name == "LeftEye" || child.name == "RightEye") continue;
             if (child.name == "hat" || child.name == "Canvas") continue;
+            if (child.name == "LeftReg" || child.name == "RightReg") continue;
+            if (child.name == "UnderMouse" || child.name == "UpMouse") continue;
 
             child.GetComponent<Renderer>().material.color = myColor;
         }

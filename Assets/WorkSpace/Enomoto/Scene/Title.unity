@@ -2405,7 +2405,7 @@ Transform:
   m_GameObject: {fileID: 262953729}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 773.34863, y: 491.60648, z: 183558.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -18189,6 +18189,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: HideRoomCodePlate
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1764134658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20223,6 +20235,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1569012578}
         m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
         m_MethodName: ReconnectServer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: ShowRoomCodePlate
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -22599,6 +22623,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1925219916}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: RoomNumberPlate
+      value: 
+      objectReference: {fileID: 1393000004}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: _nameInputField
       value: 
       objectReference: {fileID: 558585641}
@@ -22623,6 +22651,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: RoomNumberPlate.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: MiniGameImage.Array.data[0]
       value: 
       objectReference: {fileID: 1251824733}
@@ -22634,6 +22666,10 @@ PrefabInstance:
       propertyPath: MiniGameImage.Array.data[2]
       value: 
       objectReference: {fileID: 637280922}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: RoomNumberPlate.Array.data[0]
+      value: 
+      objectReference: {fileID: 1393000004}
     - target: {fileID: 8133398928993597140, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: m_LocalPosition.x
       value: 883.99603

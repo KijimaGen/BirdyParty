@@ -67,7 +67,11 @@ public class ButtonManager : MonoBehaviour
     [Header("ミニゲームの説明オブジェクト一覧")]
     [SerializeField]
     private List<GameObject> MiniGameImage;
-    
+
+    [Header("ルームナンバーを表示する看板")]
+    [SerializeField]
+    private GameObject RoomNumberPlate;
+
 
     private void Start()
     {
@@ -525,5 +529,19 @@ public class ButtonManager : MonoBehaviour
             //パーティモードマネージャーがゲームリストを作成
             PartyModeManager.instance.MakeGameList();
         } 
+    }
+
+    /// <summary>
+    /// ローカルモードの時にルームコードの表示をなくす
+    /// </summary>
+    public void HideRoomCodePlate() {
+        RoomNumberPlate.SetActive(false);
+    }
+
+    /// <summary>
+    /// オンラインモードの時にルームコードの表示を出す
+    /// </summary>
+    public void ShowRoomCodePlate() {
+        RoomNumberPlate.SetActive(true);
     }
 }

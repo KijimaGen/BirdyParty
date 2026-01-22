@@ -34,7 +34,13 @@ public class PartyModeManager : SystemObject {
     //初期化処理
     public override async UniTask Initialize() {
         //インスタンスを作成
+        if(instance != null) {
+            Destroy(this.gameObject);
+            return;
+        }
+        
         instance = this;
+
         //NowGameIndexの初期化
         NowGameIndex = 0;
         // ゲーム選択アイテム生成
@@ -42,6 +48,7 @@ public class PartyModeManager : SystemObject {
         // 初期化
         await createObject.Initialize();
         //フォトンビューの参照の取得
+        if(GameManager.instance.IsOnline())
         pv = GetComponent<PhotonView>();
         //自身を非破壊オブジェクトに
         DontDestroyOnLoad(gameObject);

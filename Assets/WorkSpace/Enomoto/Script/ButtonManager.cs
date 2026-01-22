@@ -51,7 +51,7 @@ public class ButtonManager : MonoBehaviour
     private const string RaceGameExplanationText = "レーンを走って1位を競います。\r\nダッシュ板に乗ると加速、\r\nハードルに当たると減速です。" +
         "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
     //ドロップゲームの説明テキスト
-    private const string DropGameExplanationText = "４つのパネルのうち１つのパネルは\r\n通ることが出来ます。\r\n正しいパネルを見つけて\r\nゴールを目指しましょう。" +
+    private const string DropGameExplanationText = "４つのパネルのうち１つのパネルは\r\n通ることが出来ます。\r\n正解のパネルに飛び込んで\r\n得点を手に入れましょう。" +
         "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
     //ダイスゲームの説明テキスト
     private const string DiceGameExplanationText = "５ターン制のダイスゲームです。\r\n一斉にダイスを転がし、\r\n指定されるBABAを当てないようにしましょう。" +

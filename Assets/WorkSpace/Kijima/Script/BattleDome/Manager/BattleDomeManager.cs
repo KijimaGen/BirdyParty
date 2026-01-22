@@ -27,6 +27,7 @@ public class BattleDomeManager : MonoBehaviour{
             // ‰Šú‰»
             createObject.Initialize();
         }
+        AudioManager.instance.PlayBGM(1);
     }
 
 }

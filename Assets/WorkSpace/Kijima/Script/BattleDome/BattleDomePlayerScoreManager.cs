@@ -12,7 +12,9 @@ using static CommonModule;
 public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
     //自身の持つ得点
     //[SerializeField]
-    public int myPoint = 0;
+    public int myPoint { get; private set; } = 0;
+    //自身の番号
+    public int myNumber { get; private set; }
     
 
     /// <summary>
@@ -44,7 +46,10 @@ public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
             }
         }
         
+        //エントリ―してマイナンバーももらう
         BattleDomePlayerManager.instance.ScoreEnty(this);
+        myNumber = BattleDomePlayerManager.instance.GetNumberToPlayer(this);
+
     }
 
     // 内部でCustomPropertiesを更新（全員に共有される）

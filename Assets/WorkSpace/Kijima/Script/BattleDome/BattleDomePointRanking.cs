@@ -5,12 +5,16 @@
  * @date 2026/1/20
  */
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class BattleDomePointRanking : MonoBehaviour{
     
     //プレイヤーのランキングのリスト
     List<BattleDomePlayerScoreManager> playerRanking;
+    //表示するランキングのテキスト
+    [SerializeField]
+    private TextMeshProUGUI _rankingText;
 
     /// <summary>
     /// ランキングを並び替える
@@ -26,6 +30,6 @@ public class BattleDomePointRanking : MonoBehaviour{
     /// 自身の持っているキャンバスに反映
     /// </summary>
     public void ShowRank() {
-
+        _rankingText.text = ("ランキング\n1位\n" + playerRanking[0].myNumber + "P : " + playerRanking[0].myPoint);
     }
 }

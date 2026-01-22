@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/WorkSpace/Kijima/Scene/BattleDome.unity
-    guid: 99e9f920a1edfde44922f152c9e3905d
-  - enabled: 1
     path: Assets/WorkSpace/Enomoto/Scene/Title.unity
     guid: 244b457b4997ce247961246c27c782ec
   - enabled: 1
@@ -20,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/WorkSpace/Enomoto/Scene/DiceGame.unity
     guid: 85dd212aebf56ba4d82247a3cf1f196c
+  - enabled: 1
+    path: Assets/WorkSpace/Kijima/Scene/BattleDome.unity
+    guid: 99e9f920a1edfde44922f152c9e3905d
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 68e444f9dd426d44395b462a7ef2390c, type: 3}

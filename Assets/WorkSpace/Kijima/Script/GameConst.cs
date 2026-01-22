@@ -4,6 +4,7 @@
 * @author Sum1r3
 * @date 2025/10/6
 */
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameConst {
@@ -59,5 +60,8 @@ public static class GameConst {
     #region ミニゲームのアクションマップ一覧
     public static readonly string DROPGAME_ACTION_NAME = "DropGame";
     #endregion
+
+    //プレイヤーの色のマテリアル一覧
+    public static List<Material> PlayerColors = new List<Material>();
 
 }

@@ -6,6 +6,7 @@
  */
 
 using Photon.Pun;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -19,6 +20,10 @@ public class TitleManager : MonoBehaviour{
 
     //自身のインスタンス
     public static TitleManager instance;
+
+    //プレイヤーの名前を書き込む先のリスト
+    [SerializeField]
+    private List<TextMeshProUGUI> _playerNameList;
 
     /// <summary>
     /// ルームコードのセット
@@ -53,4 +58,13 @@ public class TitleManager : MonoBehaviour{
         AudioManager.instance.PlayBGM(0);
     }
 
+
+    /// <summary>
+    /// 対象のリストの名前をプレイヤーの物にする
+    /// </summary>
+    /// <param name="PlayerIndex"></param>
+    /// <param name="PlayerName"></param>
+    public void SetPlayerNameList(int PlayerIndex,string PlayerName) {
+        _playerNameList[PlayerIndex].text = PlayerName;
+    }
 }

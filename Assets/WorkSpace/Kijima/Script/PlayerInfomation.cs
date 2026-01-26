@@ -63,14 +63,17 @@ public class PlayerInfomation:MonoBehaviour{
         photonView = GetComponent<PhotonView>();
         //プレイヤー管理クラスに登録
         PlayerManager.instance.AddPlayer(this);
-        //自身の番号を取得
-        if (GameManager.instance.IsOnline()) {
-            //オンラインの場合、Photonに番号の管理を任せる
-            myNumber = PhotonNetwork.LocalPlayer.ActorNumber -1; //<-Photonは１から番号がスタートするので-1
-        }else {
-            //オフラインだったらローカルのマネージャーに
-            myNumber = PlayerManager.instance.GetPlayerNumber(this);
+
+        //自身の番号をもらってくる
+        SetMyNumber();
+
+        //オンラインだったらエントリーを行う
+        if (GameDataManager.instance != null
+            && GameManager.instance.IsOnline()
+            && GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
+            Entry();
         }
+
         // シーン読み込み時のコールバック登録
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -81,21 +84,21 @@ public class PlayerInfomation:MonoBehaviour{
         if(VirtualMouseManager.instance != null)
             VirtualMouseManager.instance.OnPlayerJoined(playerInput);
 
+        //オンラインだったら
         if (GameManager.instance.IsOnline()) {
             //名前の取得
-            myName = NetworkManager.instance.GetName();
+            var player = PhotonNetwork.PlayerList[myNumber];
+            myName = player.NickName;
+            //タイトルマネージャーのヌルチェック
+            if (TitleManager.instance != null) {
+                //タイトルマネージャーに名前の表示を依頼
+                TitleManager.instance.SetPlayerNameList(myNumber, myName);
+            }
         }
 
         //エントリーしましたテキストを作る
         if(GameManager.instance.IsOnline() && GameDataManager.instance != null)
             GameDataManager.instance.GetComponent<PhotonView>().RPC(nameof(GameDataManager.instance.InstantiateNameBox), RpcTarget.All, myName);
-
-        //オンラインだったらエントリーを行う
-        if (GameDataManager.instance != null 
-            && GameManager.instance.IsOnline()
-            && GameDataManager.instance.GetToriFromNumber(myNumber) != null) {
-            Entry();
-        }
 
         //自身の色を決める
         myColor = PLAYER_COLOR[myNumber];
@@ -252,6 +255,22 @@ public class PlayerInfomation:MonoBehaviour{
         GameDataManager.instance.EntryPlayer(this);
     }
 
+    /// <summary>
+    /// プレイヤーナンバーを他のところからもらってくる
+    /// </summary>
+    private void SetMyNumber() {
+        //自身の番号を取得
+        if (GameManager.instance.IsOnline()) {
+            //オンラインの場合、Photonに番号の管理を任せる
+            var pv = GetComponent<PhotonView>();
+            myNumber = pv.ControllerActorNr-1; //<-Photonは１から番号がスタートするので-1
+        }
+        else {
+            //オフラインだったらローカルのマネージャーに
+            myNumber = PlayerManager.instance.GetPlayerNumber(this);
+        }
+    }
+
     #region 各種ゲッターとセッター
     // Point
     public int GetPoint() { return point; }
@@ -280,5 +299,7 @@ public class PlayerInfomation:MonoBehaviour{
     public void SetMaterialIndex(int index) { this.materialIndex = index; }
 
     #endregion
+
+
 }
 

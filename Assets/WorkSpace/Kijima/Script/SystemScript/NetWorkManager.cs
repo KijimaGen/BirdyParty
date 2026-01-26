@@ -179,6 +179,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     public override void OnCreatedRoom() {
         Debug.Log($"ルーム作成成功: {currentRoomCode}");
         OnRoomCodeGenerated?.Invoke(currentRoomCode); // UIにルームコードを通知
+
+        //ルームコードを表示させる
         if(TitleManager.instance != null) {
             TitleManager.instance.SetRoomCode();
         }
@@ -228,9 +230,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         }
         //UIを更新
         myNumber.text = PhotonNetwork.LocalPlayer.ActorNumber.ToString();
-        
-        
-        
+        //ルームコードを表示させる
+        if (TitleManager.instance != null) {
+            TitleManager.instance.SetRoomCode();
+        }
+
+
 
         // フラグをリセット
         isCreatingRoom = false;
@@ -453,7 +458,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         if(ButtonManager.instance != null) {
             playerName = ButtonManager.instance.GetNameInput();
             PhotonNetwork.LocalPlayer.NickName = playerName;
-            
         }
 
         //名前がない時は名無しにする

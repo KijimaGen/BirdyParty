@@ -99,7 +99,7 @@ public class RacePlayer : MonoBehaviour {
         RaceManager_PUN.instance.TryStartCountDown();
 
         //向きの固定
-        transform.Rotate(0, -90, 0);
+        transform.Rotate(0, 0, 0);
         //色の設定
         SetMyColor();
 

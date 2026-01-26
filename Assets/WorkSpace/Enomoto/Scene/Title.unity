@@ -4898,7 +4898,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &469623193
 Transform:
   m_ObjectHideFlags: 0
@@ -12095,6 +12095,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomCodeText: {fileID: 496841852}
   NextButton: {fileID: 1939314449}
+  _playerNameList:
+  - {fileID: 1250340404}
+  - {fileID: 1125440106}
+  - {fileID: 635871111}
+  - {fileID: 944743987}
 --- !u!4 &1090465621
 Transform:
   m_ObjectHideFlags: 0

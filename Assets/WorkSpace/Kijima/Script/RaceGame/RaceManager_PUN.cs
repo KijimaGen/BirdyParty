@@ -192,8 +192,10 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <returns></returns>
     private async UniTask AfterGoal() {
+
         //五秒ほど待って
         await UniTask.Delay(5000);
+
         //画面遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }

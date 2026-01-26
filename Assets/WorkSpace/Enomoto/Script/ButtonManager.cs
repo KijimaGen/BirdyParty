@@ -32,6 +32,9 @@ public class ButtonManager : MonoBehaviour
     [Header("パーティモードの時に消すボタン")]
     [SerializeField] private GameObject backButton;
 
+    [Header("ルームコードUI（プレイヤーエントリー）")]
+    [SerializeField] private GameObject roomCodeUI;
+
     [Header("ミニゲーム・パーティモードアイコン")]
     [SerializeField] private GameObject minigameIcon;
     [SerializeField] private GameObject partyIcon;
@@ -40,12 +43,15 @@ public class ButtonManager : MonoBehaviour
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
     //ホストかどうか
     private bool isHost;
+    // オンラインモードか？
+    private bool isOnlineMode = false;
     //次に行くシーンの名前
     private string NextSceneText;
     [Header("説明テキスト")]
     //説明テキスト
     [SerializeField]
     private TextMeshProUGUI ExplanationText;
+
 
     //レースゲームの説明テキスト
     private const string RaceGameExplanationText = "レーンを走って1位を競います。\r\nダッシュ板に乗ると加速、\r\nハードルに当たると減速です。" +
@@ -74,6 +80,8 @@ public class ButtonManager : MonoBehaviour
         // ゲームから戻ってきたかどうかでUIを切り替え
         if (GameDataManager.instance != null && GameDataManager.instance.comeBackFromGame)
         {
+            Debug.Log("ゲームがおわったからミニゲーム選択にきたよ");
+
             titleUI.SetActive(false);
             modeUI.SetActive(false);
             minigameSelectUI.SetActive(true);
@@ -89,6 +97,8 @@ public class ButtonManager : MonoBehaviour
         }
         else
         {
+            Debug.Log("タイトルにきたよ");
+
             titleUI.SetActive(true);
             modeUI.SetActive(false);
             minigameSelectUI.SetActive(false);
@@ -365,6 +375,7 @@ public class ButtonManager : MonoBehaviour
     public void SetOnline() {
         if (GameManager.instance != null && GameManager.instance.gameObject != null) {
             GameManager.instance.SetIsOnline(true);
+            isOnlineMode = true;
         }
         else {
             Debug.LogWarning("GameManager が破壊されています");
@@ -377,6 +388,7 @@ public class ButtonManager : MonoBehaviour
     public void SetOffline() {
         if (GameManager.instance != null && GameManager.instance.gameObject != null) {
             GameManager.instance.SetIsOnline(false);
+            isOnlineMode = false;
         }
         else {
             Debug.LogWarning("GameManager が破壊されています");
@@ -414,6 +426,21 @@ public class ButtonManager : MonoBehaviour
     public void GoPlayerSelectUI() {
         //次へボタンを見せなくする
         TitleManager.instance.SetActiveNextButton(false);
+    }
+
+    /// <summary>
+    /// ルームコードUIをオンラインモードの時は表示、オフラインは非表示に
+    /// </summary>
+    public void DisplayRoomCode()
+    {
+        if (isOnlineMode)
+        {
+            roomCodeUI.SetActive(true);
+        }
+        else
+        {
+            roomCodeUI.SetActive(false);
+        }
     }
 
     /// <summary>

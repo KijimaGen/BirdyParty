@@ -48,7 +48,7 @@ public class UITextMover : MonoBehaviour
 
         // テキストを画面右端からスタート
         Vector3 worldPos = textTransform.position;
-        worldPos.x = screenRightX + 1000.0f;
+        worldPos.x = screenRightX + 1500.0f;
         textTransform.position = worldPos;
     }
 

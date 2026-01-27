@@ -27,8 +27,8 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     [SerializeField]
     private Transform myCanvas;
 
-    void Awake() {
-        //インスタンスの設定
+    void Awake()
+    {
         instance = this;
     }
 

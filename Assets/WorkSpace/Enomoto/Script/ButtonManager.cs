@@ -81,8 +81,37 @@ public class ButtonManager : MonoBehaviour
 
     private void Start()
     {
+
+        bool backToPartyRoulette = PlayerPrefs.GetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0) == 1;
+
+        bool comeBack = PlayerPrefs.GetInt("ComeBackFromGame", 0) == 1;
+
         // ゲームから戻ってきたかどうかでUIを切り替え
-        if (GameDataManager.instance != null && GameDataManager.instance.comeBackFromGame)
+        if (backToPartyRoulette)
+        {
+            Debug.Log("パーティモード：ゲーム終了→ルーレットに戻ったよ");
+
+            titleUI.SetActive(false);
+            modeUI.SetActive(false);
+            minigameSelectUI.SetActive(false);
+
+            partyModeUI.SetActive(true);
+
+            uiHistory.Clear();
+            uiHistory.Push(titleUI);
+            uiHistory.Push(modeUI);
+            uiHistory.Push(partyModeUI);
+
+            PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+            PlayerPrefs.Save();
+
+            PlayStyle();
+
+            instance = this;
+            return;
+        }
+
+        if (comeBack)
         {
             Debug.Log("ゲームがおわったからミニゲーム選択にきたよ");
 
@@ -95,21 +124,25 @@ public class ButtonManager : MonoBehaviour
             uiHistory.Push(modeUI);
             uiHistory.Push(minigameSelectUI);
 
-            GameDataManager.instance.comeBackFromGame = false;
+            PlayerPrefs.SetInt("ComeBackFromGame", 0);
+            PlayerPrefs.Save();
 
             PlayStyle();
-        }
-        else
-        {
-            Debug.Log("タイトルにきたよ");
 
-            titleUI.SetActive(true);
-            modeUI.SetActive(false);
-            minigameSelectUI.SetActive(false);
-
-            uiHistory.Clear();
-            uiHistory.Push(titleUI);
+            instance = this;
+            return;
         }
+
+        
+        Debug.Log("タイトルにきたよ");
+
+        titleUI.SetActive(true);
+        modeUI.SetActive(false);
+        minigameSelectUI.SetActive(false);
+
+        uiHistory.Clear();
+        uiHistory.Push(titleUI);
+        
         //参照の取得
         instance = this;
     }
@@ -430,6 +463,16 @@ public class ButtonManager : MonoBehaviour
     public void GoPlayerSelectUI() {
         //次へボタンを見せなくする
         TitleManager.instance.SetActiveNextButton(false);
+    }
+
+    /// <summary>
+    /// ミニゲームを選択した場合はミニゲーム選択画面に戻ってくるように
+    /// </summary>
+    public void MiniGameSelect()
+    {
+        Debug.Log("Save comoBackFromGame = 1");
+        PlayerPrefs.SetInt("ComeBackFromGame", 1);
+        PlayerPrefs.Save();
     }
 
     /// <summary>

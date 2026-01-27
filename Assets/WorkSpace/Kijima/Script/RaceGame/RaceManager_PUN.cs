@@ -196,6 +196,13 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         //五秒ほど待って
         await UniTask.Delay(5000);
 
+        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null)
+        {
+            // パーティ：次へ進めてルーレット（タイトル）へ戻す
+            PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
+            return;
+        }
+        
         //画面遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }

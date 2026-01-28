@@ -89,7 +89,7 @@ public class ButtonManager : MonoBehaviour
         // ゲームから戻ってきたかどうかでUIを切り替え
         if (backToPartyRoulette)
         {
-            Debug.Log("パーティモード：ゲーム終了→ルーレットに戻ったよ");
+            Debug.Log("パーティモード：ゲーム終了→ルーレット");
 
             titleUI.SetActive(false);
             modeUI.SetActive(false);
@@ -115,7 +115,7 @@ public class ButtonManager : MonoBehaviour
 
         if (comeBack)
         {
-            Debug.Log("ゲームがおわったからミニゲーム選択にきたよ");
+            Debug.Log("ミニゲームモード：ゲーム終了→選択画面");
 
             titleUI.SetActive(false);
             modeUI.SetActive(false);
@@ -138,7 +138,7 @@ public class ButtonManager : MonoBehaviour
         }
 
         
-        Debug.Log("タイトルにきたよ");
+        Debug.Log("タイトルに移動");
 
         titleUI.SetActive(true);
         modeUI.SetActive(false);

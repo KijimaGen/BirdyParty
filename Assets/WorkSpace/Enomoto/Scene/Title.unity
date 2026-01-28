@@ -2577,7 +2577,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 2649.1, y: -19.100006}
+  m_AnchoredPosition: {x: 2649.1, y: -19.099976}
   m_SizeDelta: {x: 2798.9219, y: 28.571}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &292994623
@@ -3030,7 +3030,7 @@ Transform:
   m_GameObject: {fileID: 318993803}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.120955154, z: 0, w: 0.992658}
-  m_LocalPosition: {x: 28, y: 45, z: 36}
+  m_LocalPosition: {x: 28.46, y: 45.16, z: 35.9}
   m_LocalScale: {x: 0.897, y: 0.897, z: 0.897}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3611,7 +3611,7 @@ Transform:
   m_GameObject: {fileID: 351074725}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 25, y: 45, z: 35}
+  m_LocalPosition: {x: 24.94, y: 45.18, z: 34.95}
   m_LocalScale: {x: 0.897, y: 0.897, z: 0.897}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5503,7 +5503,7 @@ Transform:
   m_GameObject: {fileID: 518979554}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.120955154, z: 0, w: 0.992658}
-  m_LocalPosition: {x: 27, y: 45, z: 35}
+  m_LocalPosition: {x: 26.6, y: 45.14, z: 35.52}
   m_LocalScale: {x: 0.897, y: 0.897, z: 0.897}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5832,18 +5832,6 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1569012578}
-        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: OpenObject
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 966610766}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -9909,7 +9897,7 @@ Transform:
   m_GameObject: {fileID: 897014384}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.120955154, z: 0, w: 0.992658}
-  m_LocalPosition: {x: 30, y: 45, z: 36}
+  m_LocalPosition: {x: 30.06, y: 45.12, z: 36.17}
   m_LocalScale: {x: 0.897, y: 0.897, z: 0.897}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15435,18 +15423,6 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1569012578}
-        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
-        m_MethodName: OpenObject
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 966610766}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -21529,7 +21505,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1999702105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22290,7 +22266,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -318.5, y: -19.100006}
+  m_AnchoredPosition: {x: -318.5, y: -19.099976}
   m_SizeDelta: {x: -693.7223, y: 28.568695}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2085583344

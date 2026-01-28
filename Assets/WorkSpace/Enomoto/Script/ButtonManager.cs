@@ -102,6 +102,8 @@ public class ButtonManager : MonoBehaviour
             uiHistory.Push(modeUI);
             uiHistory.Push(partyModeUI);
 
+            ChangePartyMode();
+
             PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
             PlayerPrefs.Save();
 
@@ -123,6 +125,8 @@ public class ButtonManager : MonoBehaviour
             uiHistory.Push(titleUI);
             uiHistory.Push(modeUI);
             uiHistory.Push(minigameSelectUI);
+
+            ChangeMinigameMode();
 
             PlayerPrefs.SetInt("ComeBackFromGame", 0);
             PlayerPrefs.Save();
@@ -496,7 +500,7 @@ public class ButtonManager : MonoBehaviour
     public void ChangePartyMode()
     {
         // パーティモード時はReadyUIから戻るボタン削除
-        if (!GameManager.instance.isPartyMode) 
+        if (GameManager.instance.isPartyMode) 
             backButton.SetActive(false);
 
         // ミニゲームアイコンを非表示
@@ -509,7 +513,7 @@ public class ButtonManager : MonoBehaviour
     public void ChangeMinigameMode()
     {
         // パーティモード時はReadyUIから戻るボタン削除
-        if (GameManager.instance.isPartyMode)
+        if (!GameManager.instance.isPartyMode)
             backButton.SetActive(true);
 
         // ミニゲームアイコンを非表示
@@ -595,7 +599,17 @@ public class ButtonManager : MonoBehaviour
     /// パーティモードのボタンが押されたときの処理
     /// </summary>
     public void PressPartyModeButton() {
-        if(PartyModeManager.instance != null) {
+
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.SetPartyMode(true);
+        }
+
+        // ついでに PlayerPrefs のパーティ中フラグも立てておく（保険）
+        //PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_RUNNING, 1);
+        //PlayerPrefs.Save();
+
+        if (PartyModeManager.instance != null) {
             //パーティモードマネージャーがゲームリストを作成
             PartyModeManager.instance.MakeGameList();
         } 

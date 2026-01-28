@@ -26,6 +26,14 @@ public class GameManager : SystemObject{
     PlayerInput playerInput;
     //パーティモードかどうか
     public bool isPartyMode { get; private set; }
+
+    public const string PREF_PARTY_RUNNING = "PartyModeRunning";
+
+    private void Awake()
+    {
+        isPartyMode = PlayerPrefs.GetInt(PREF_PARTY_RUNNING, 0) == 1;
+    }
+
     public override async UniTask Initialize() {
         
         instance = this;
@@ -79,5 +87,12 @@ public class GameManager : SystemObject{
             GameDataManager.instance.comeBackFromGame = true;
 
         SceneManager.LoadScene("Title");
+    }
+
+    public void SetPartyMode(bool enabled)
+    {
+        isPartyMode = enabled;
+        PlayerPrefs.SetInt(PREF_PARTY_RUNNING, enabled ? 1 : 0);
+        PlayerPrefs.Save();
     }
 }

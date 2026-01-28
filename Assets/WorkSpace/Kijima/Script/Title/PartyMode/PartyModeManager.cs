@@ -84,6 +84,11 @@ public class PartyModeManager : SystemObject
         // ここでパーティ開始のたびにindexをリセットしておく（重要）
         NowGameIndex = 0;
 
+        // パーティ開始フラグ
+        PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 1);
+        PlayerPrefs.SetInt(PREF_BACK_TO_PARTY, 0);
+        PlayerPrefs.Save();
+
         // 何回抽選を行うかを設定
         PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
 
@@ -160,24 +165,30 @@ public class PartyModeManager : SystemObject
     {
         NowGameIndex++;
 
-        // 終了判定
-        bool finished = (ChoicedSceneList == null || NowGameIndex >= ChoicedSceneList.Count);
-
-        if (finished)
+        // ★ 全部終わったか？
+        if (NowGameIndex >= ChoicedSceneList.Count)
         {
-            PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 0);
+            // ===== パーティ終了 =====
+            Debug.Log("[PartyMode] Party Finished");
+
+            // ★ここが超重要
+            GameManager.instance?.SetPartyMode(false);
+
+            // パーティ用フラグも消す
             PlayerPrefs.SetInt(PREF_BACK_TO_PARTY, 0);
+            PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 0);
             PlayerPrefs.Save();
 
-            LoadTitleScene();
+            // 通常のタイトルへ
+            SceneManager.LoadScene(TITLE_SCENE_NAME);
             return;
         }
 
-        PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 1);
+        // ===== まだ続く =====
         PlayerPrefs.SetInt(PREF_BACK_TO_PARTY, 1);
         PlayerPrefs.Save();
 
-        LoadTitleScene();
+        SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
 
     private void LoadTitleScene()

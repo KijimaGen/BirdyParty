@@ -19,15 +19,10 @@ public class PartyModeManagerBuilder : MonoBehaviour{
     /// パーティモードマネージャーを作成
     /// </summary>
     public void BuildPartyModeManager() {
-        if (GameManager.instance.IsOnline()) {
-            PhotonNetwork.InstantiateRoomObject( PartyModeManagerOnline.name, 
-            Vector3.zero,
-            Quaternion.identity
-            );
-        }
-        else {
-            Instantiate(PartyModeManagerOffline);
-        }
+        
+       
+        Instantiate(PartyModeManagerOffline);
+        
         Destroy(gameObject);
     }
 }

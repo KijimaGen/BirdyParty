@@ -21,6 +21,7 @@ public class RacePlayer : MonoBehaviour {
     private Rigidbody rb;
 
     //ゴールしたかどうか
+    [SerializeField]
     private bool isGoal;
 
     //各マックスタイム
@@ -64,6 +65,13 @@ public class RacePlayer : MonoBehaviour {
     //デフォルトのY座標
     private const float DefaultYPos = 1.2f;
 
+    //自身のアニメーター
+    private Animator animator;
+    //各種再生速度
+    private const float _SLOW_ANIMATION_SPEED = 0.5f;
+    private const float _BOOST_ANIMATION_SPEED = 1.0f;
+    private const float _NORMAL_ANIMATION_SPEED = 0.75f;
+
     void Start() {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -105,6 +113,11 @@ public class RacePlayer : MonoBehaviour {
 
         //自身のポジションを設定
         RaceManager_PUN.instance.PlayerStartPosSet();
+
+        //自身のアニメーターを取得
+        animator = GetComponent<Animator>();
+        //アニメーションを再生
+        ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
     }
 
     //アップデート
@@ -132,6 +145,8 @@ public class RacePlayer : MonoBehaviour {
             //自身の子オブジェクトの中の特定のオブジェクトを探して破壊する
             Transform child = transform.Find(BOOST_AURA_NAME);
             Destroy(child.gameObject);
+            //アニメーションの再生速度を普通の物に
+            ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
         }
 
         //ここでスロウ時間の確認＆switchの切り替え
@@ -145,8 +160,9 @@ public class RacePlayer : MonoBehaviour {
             //自身の子オブジェクトの中の特定のオブジェクトを探して破壊する
             Transform child = transform.Find(SLOW_AURA_NAME);
             Destroy(child.gameObject);
+            //アニメーションの再生速度を普通の物に
+            ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
         }
-
 
         //移動
         if (!isGoal　&& RaceManager_PUN.instance.isStart) {
@@ -181,6 +197,8 @@ public class RacePlayer : MonoBehaviour {
         if (!photonView.IsMine && GameManager.instance.IsOnline()) return;
 
         _ = AudioManager.instance.PlaySE(1);
+        //アニメーションをゆっくりに
+        ChangeAnimationSpeed(_SLOW_ANIMATION_SPEED);
         slowTime = MAX_TIME;
         if(!isSlow) {
             isSlow = true;
@@ -197,6 +215,8 @@ public class RacePlayer : MonoBehaviour {
         if (!photonView.IsMine && GameManager.instance.IsOnline()) return;
 
         _ = AudioManager.instance.PlaySE(0);
+        //アニメーションを速く
+        ChangeAnimationSpeed(_BOOST_ANIMATION_SPEED);
         boostTime = MAX_TIME;
         if (!isBoost) {
             isBoost = true;
@@ -210,6 +230,18 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     public void Goal() {
         isGoal = true;
+        //アニメーションを止める
+        ChangeAnimationSpeed(0);
+
+        //自身の順位を入れてもらい、値をもらう
+        RaceManager_PUN.instance.AddRanking(this);
+        myRank = RaceManager_PUN.instance.GetRankingCount(this);
+
+        //自身の順位をプレイヤー情報管理クラスに引き渡す
+        GetComponentInParent<PlayerInfomation>().SetRank(myRank);
+
+        //デバッグ
+        Debug.Log(GetComponentInParent<PlayerInfomation>().myName +"がゴールしました");
     }
 
     
@@ -218,15 +250,6 @@ public class RacePlayer : MonoBehaviour {
         if(other.gameObject.tag == "Finish") {
             //ゴールした時の処理を呼ぶ
             Goal();
-            //自身の順位を入れてもらい、値をもらう
-            RaceManager_PUN.instance.AddRanking(this);
-            myRank = RaceManager_PUN.instance.GetRankingCount(this);
-
-            //自身の順位をプレイヤー情報管理クラスに引き渡す
-            GetComponentInParent<PlayerInfomation>().SetRank(myRank);
-
-            //デバッグでランキング表示
-            Debug.Log(this.gameObject.name + "は" + RaceManager_PUN.instance.GetRankingCount(this));
         }
     }
 
@@ -262,8 +285,18 @@ public class RacePlayer : MonoBehaviour {
             if (child.name == "hat" || child.name == "Canvas") continue;
             if (child.name == "LeftReg" || child.name == "RightReg") continue;
             if (child.name == "UnderMouse" || child.name == "UpMouse") continue;
+            if (child.name == "アーマチュア" || child.name == "RacePlayerCanvas") continue;
+            if (child.name == "RacePlayerCanvas" || child.name == "RacePlayerCanvas") continue;
 
             child.GetComponent<Renderer>().material.color = myColor;
         }
+    }
+
+    /// <summary>
+    /// アニメーションの再生速度の変更
+    /// </summary>
+    /// <param name="changeTime"></param>
+    private void ChangeAnimationSpeed(float changeTime) {
+        animator.speed = changeTime;
     }
 }

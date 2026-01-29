@@ -5,6 +5,7 @@
  * @date 2026/01/14
  */
 using Cysharp.Threading.Tasks;
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
@@ -102,9 +103,22 @@ public class PartyModeManager : SystemObject
 
         // オンラインだったら配布
         if (!GameManager.instance.IsOnline()) return;
-        if (!PhotonNetwork.IsMasterClient) return;
+        if (PhotonNetwork.IsMasterClient) {
 
-        pv.RPC(nameof(SetChoicedGameList), RpcTarget.All, ChoicedSceneList.ToArray());
+            //ルームのカスタムプロパティを設定
+            Hashtable props = new Hashtable();
+            props["ChoicedGameList"] = ChoicedSceneList.ToArray();
+
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+        }
+        
+    }
+
+    public override void OnRoomPropertiesUpdate(Hashtable props) {
+        if (props.ContainsKey("ChoicedGameList")) {
+            string[] list = (string[]) props["ChoicedGameList"];
+            ChoicedSceneList = new List<string>(list);
+        }
     }
 
     [PunRPC]

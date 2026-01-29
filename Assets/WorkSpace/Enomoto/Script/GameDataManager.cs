@@ -96,6 +96,24 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
     }
 
     /// <summary>
+    /// プレイヤーの名前を入れる
+    /// </summary>
+    /// <param name="player"></param>
+    public void ReEntryPlayer(PlayerInfomation player,int PlayerIndex) {
+        //名前がないかつオンラインだったらエラーが発生するので行わない
+        if (player.myName != "" && !GameManager.instance.IsOnline()) {
+            //プレイヤーリストにプレイヤーの名前を登録
+            titleToriNameList[player.myNumber].text = player.myName;
+        }
+        //エントリ～したときにプレイヤーの人数が2人以上だったら
+        if (GetEntriedPlayerCount() < 2) return;
+        //オンラインかつホストじゃなかったらリターン
+        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient) return;
+        //オフラインもしくは、オンラインかつマスターだったら
+        TitleManager.instance.SetActiveNextButton(true);
+    }
+
+    /// <summary>
     /// プレイヤーのエントリーを外す
     /// </summary>
     /// <param name="player"></param>

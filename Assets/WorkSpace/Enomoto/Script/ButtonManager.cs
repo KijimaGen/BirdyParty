@@ -236,7 +236,7 @@ public class ButtonManager : MonoBehaviour
     // ミニゲーム開始
     public void StartGame(string sceneName) {
         // プレイヤーがいないのにゲームは始められませんでしょう
-        if (GameDataManager.instance.GetEntriedPlayerCount() == 0) return;
+        //if (GameDataManager.instance.GetEntriedPlayerCount() == 0) return;
 
 
         if (GameDataManager.instance != null) {

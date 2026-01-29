@@ -72,12 +72,30 @@ public class RacePlayer : MonoBehaviour {
     private const float _BOOST_ANIMATION_SPEED = 1.0f;
     private const float _NORMAL_ANIMATION_SPEED = 0.75f;
 
-    void Start() {
+    //キャンバスの参照
+    [SerializeField]
+    private GameObject canvasObject;
+
+    /// <summary>
+    /// 参照取得系
+    /// </summary>
+    private void Awake() {
+
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+
         //親のフォトンビュー取得
         photonView = transform.parent.GetComponent<PhotonView>();
+
+        //スピードのオリジナルを取得
+        originSpeed = moveSpeed;
+    }
+
+
+    void OnEnable() {
+        
+        
 
         //カメラの参照に自身を入れる
         Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
@@ -90,12 +108,13 @@ public class RacePlayer : MonoBehaviour {
             myNumber = RaceManager_PUN.instance.GetPlayerNumber(this);
         }
 
+        //変数初期化
         isGoal = false;
-        //スピードのオリジナルを取得
-        originSpeed = moveSpeed;
+
 
         //自身についているキャンバスの初期化処理を呼び出す
-        GetComponentInChildren<PlayerIndexCanvas>().InitializeCanvas();
+        if(canvasObject != null)
+            canvasObject.GetComponent<PlayerIndexCanvas>().InitializeCanvas();
 
         //自分のフォトンビューを取得して、それが自分の物だったらYouの表示をつける
         if(photonView.IsMine)

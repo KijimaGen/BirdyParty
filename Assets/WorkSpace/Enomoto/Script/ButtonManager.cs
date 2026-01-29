@@ -480,6 +480,15 @@ public class ButtonManager : MonoBehaviour
     }
 
     /// <summary>
+    /// ミニゲーム選択画面から離れた時は戻ってこなくてよし
+    /// </summary>
+    public void MiniGameUnSelect()
+    {
+        PlayerPrefs.SetInt("ComeBackFromGame", 0);
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>
     /// ルームコードUIをオンラインモードの時は表示、オフラインは非表示に
     /// </summary>
     public void DisplayRoomCode()

@@ -669,6 +669,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -1171016355350548195, guid: 4760b499172080c48b9626d570649b65, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ba1fa6dd582edd74da691f20d3d0aa9b, type: 2}
     - target: {fileID: 919132149155446097, guid: 4760b499172080c48b9626d570649b65, type: 3}
       propertyPath: m_Name
       value: OnLineRaceToriPrefab
@@ -677,6 +681,22 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4760b499172080c48b9626d570649b65, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1761070209572000925, guid: 4760b499172080c48b9626d570649b65, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ba1fa6dd582edd74da691f20d3d0aa9b, type: 2}
+    - target: {fileID: 5796306745487204088, guid: 4760b499172080c48b9626d570649b65, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ba1fa6dd582edd74da691f20d3d0aa9b, type: 2}
+    - target: {fileID: 9119245480663462746, guid: 4760b499172080c48b9626d570649b65, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ba1fa6dd582edd74da691f20d3d0aa9b, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -748,11 +768,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 300
+  isGoal: 0
   boostEffect: {fileID: 5589407954798139204, guid: 8aef91ff22719194daeb49deb63cc81c, type: 3}
   slowEffect: {fileID: 765015981913960131, guid: 56d088be2dfd29849b93ba7b8d8f158f, type: 3}
   photonView: {fileID: 0}
   PVIsMine: 0
-  PlayerIsMine: {fileID: 0}
+  PlayerIsMine: {fileID: 6190204762087966220}
 --- !u!114 &564628840877135468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -825,7 +846,7 @@ Animator:
   m_GameObject: {fileID: 5870096095076514414}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: acf4508d54f47d34da72c4cc567ca561, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -938,6 +959,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54ae1204bf8588a428cab27a3188ee0c, type: 3}
+--- !u!1 &6190204762087966220 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 803962128658374256, guid: 54ae1204bf8588a428cab27a3188ee0c, type: 3}
+  m_PrefabInstance: {fileID: 6827519866046765180}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &7257040509647931505 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4212579515786629133, guid: 54ae1204bf8588a428cab27a3188ee0c, type: 3}
@@ -1179,7 +1205,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 90623549d4482f042ade35d8a0758e35, type: 2}
     - target: {fileID: 7923539941931041943, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
       propertyPath: ObservedComponents.Array.size
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7923539941931041943, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
       propertyPath: ObservedComponents.Array.data[1]

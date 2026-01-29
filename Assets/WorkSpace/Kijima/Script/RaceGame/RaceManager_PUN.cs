@@ -60,8 +60,6 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
             for(int i = 0; i < racers.Count; i++) {
                 racers[i].Goal();
             }
-            //ゴール位置にプレイヤーを送る関数
-            PlayerGoalPosSet();
             
             // オンライン時はRPCで同期、オフライン時は直接呼び出し
             if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
@@ -72,6 +70,12 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
                 // オフライン：直接メソッドを呼び出し
                 RPC_SetGoal();
             }
+        }
+
+        //ゴールしてた時にポジションを常にゴール地点に設定
+        if (isGoal) {
+            //ゴール位置にプレイヤーを送る関数
+            PlayerGoalPosSet();
         }
     }
 

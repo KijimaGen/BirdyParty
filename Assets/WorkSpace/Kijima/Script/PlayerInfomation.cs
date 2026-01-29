@@ -205,7 +205,7 @@ public class PlayerInfomation:MonoBehaviour{
 
     //タイトルシーンが読み込まれたときに呼ぶ(今は破壊)
     private void LoadTitleScene() {
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
     //タイトル画面でエントリーしたい

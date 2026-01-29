@@ -86,6 +86,14 @@ public class ButtonManager : MonoBehaviour
 
         bool comeBack = PlayerPrefs.GetInt("ComeBackFromGame", 0) == 1;
 
+        if (GameManager.instance.IsOnline())
+        {
+            if (isHost)
+            {
+
+            }
+        }
+
         // ゲームから戻ってきたかどうかでUIを切り替え
         if (backToPartyRoulette)
         {

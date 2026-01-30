@@ -35,6 +35,10 @@ public class ButtonManager : MonoBehaviour
     [Header("ルームコードUI（プレイヤーエントリー）")]
     [SerializeField] private GameObject roomCodeUI;
 
+    [Header("オンライン時にクライアントに見せるUI")]
+    [SerializeField] private GameObject clientLog;
+    [SerializeField] private GameObject clientUI;
+
     [Header("ミニゲーム・パーティモードアイコン")]
     [SerializeField] private GameObject minigameIcon;
     [SerializeField] private GameObject partyIcon;
@@ -86,77 +90,141 @@ public class ButtonManager : MonoBehaviour
 
         bool comeBack = PlayerPrefs.GetInt("ComeBackFromGame", 0) == 1;
 
-        if (GameManager.instance.IsOnline())
+        // オンライン中かつホストの場合はローカル同様各ゲームによって戻ってきた際にUIを変更
+        if (GameManager.instance.IsOnline() && PhotonNetwork.IsMasterClient)
         {
-            if (isHost)
+            // ゲームから戻ってきたかどうかでUIを切り替え
+            if (backToPartyRoulette)
             {
+                Debug.Log("パーティモード：ゲーム終了→ルーレット");
 
+                titleUI.SetActive(false);
+                modeUI.SetActive(false);
+                minigameSelectUI.SetActive(false);
+
+                partyModeUI.SetActive(true);
+
+                uiHistory.Clear();
+                uiHistory.Push(titleUI);
+                uiHistory.Push(modeUI);
+                uiHistory.Push(partyModeUI);
+
+                ChangePartyMode();
+
+                PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+                PlayerPrefs.Save();
+
+                PlayStyle();
+
+                instance = this;
+                return;
+            }
+
+            if (comeBack)
+            {
+                Debug.Log("ミニゲームモード：ゲーム終了→選択画面");
+
+                titleUI.SetActive(false);
+                modeUI.SetActive(false);
+                minigameSelectUI.SetActive(true);
+
+                uiHistory.Clear();
+                uiHistory.Push(titleUI);
+                uiHistory.Push(modeUI);
+                uiHistory.Push(minigameSelectUI);
+
+                ChangeMinigameMode();
+
+                PlayerPrefs.SetInt("ComeBackFromGame", 0);
+                PlayerPrefs.Save();
+
+                PlayStyle();
+
+                instance = this;
+                return;
             }
         }
-
-        // ゲームから戻ってきたかどうかでUIを切り替え
-        if (backToPartyRoulette)
+        // オンライン中かつクライアントの場合は待機画面を出す
+        else if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("パーティモード：ゲーム終了→ルーレット");
-
             titleUI.SetActive(false);
+            modeUI.SetActive(false);
+            clientUI.SetActive(true);
+
+            uiHistory.Clear();
+            uiHistory.Push(titleUI);
+            uiHistory.Push(modeUI);
+            uiHistory.Push(clientUI);
+
+            instance = this;
+            return;
+        }
+        // ローカルの場合は関係なく戻ってきた際のUIを出す
+        else
+        {
+            // ゲームから戻ってきたかどうかでUIを切り替え
+            if (backToPartyRoulette)
+            {
+                Debug.Log("パーティモード：ゲーム終了→ルーレット");
+
+                titleUI.SetActive(false);
+                modeUI.SetActive(false);
+                minigameSelectUI.SetActive(false);
+
+                partyModeUI.SetActive(true);
+
+                uiHistory.Clear();
+                uiHistory.Push(titleUI);
+                uiHistory.Push(modeUI);
+                uiHistory.Push(partyModeUI);
+
+                ChangePartyMode();
+
+                PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+                PlayerPrefs.Save();
+
+                PlayStyle();
+
+                instance = this;
+                return;
+            }
+
+            if (comeBack)
+            {
+                Debug.Log("ミニゲームモード：ゲーム終了→選択画面");
+
+                titleUI.SetActive(false);
+                modeUI.SetActive(false);
+                minigameSelectUI.SetActive(true);
+
+                uiHistory.Clear();
+                uiHistory.Push(titleUI);
+                uiHistory.Push(modeUI);
+                uiHistory.Push(minigameSelectUI);
+
+                ChangeMinigameMode();
+
+                PlayerPrefs.SetInt("ComeBackFromGame", 0);
+                PlayerPrefs.Save();
+
+                PlayStyle();
+
+                instance = this;
+                return;
+            }
+
+            Debug.Log("タイトルに移動");
+
+            titleUI.SetActive(true);
             modeUI.SetActive(false);
             minigameSelectUI.SetActive(false);
 
-            partyModeUI.SetActive(true);
-
             uiHistory.Clear();
             uiHistory.Push(titleUI);
-            uiHistory.Push(modeUI);
-            uiHistory.Push(partyModeUI);
 
-            ChangePartyMode();
-
-            PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
-            PlayerPrefs.Save();
-
-            PlayStyle();
-
+            //参照の取得
             instance = this;
-            return;
         }
-
-        if (comeBack)
-        {
-            Debug.Log("ミニゲームモード：ゲーム終了→選択画面");
-
-            titleUI.SetActive(false);
-            modeUI.SetActive(false);
-            minigameSelectUI.SetActive(true);
-
-            uiHistory.Clear();
-            uiHistory.Push(titleUI);
-            uiHistory.Push(modeUI);
-            uiHistory.Push(minigameSelectUI);
-
-            ChangeMinigameMode();
-
-            PlayerPrefs.SetInt("ComeBackFromGame", 0);
-            PlayerPrefs.Save();
-
-            PlayStyle();
-
-            instance = this;
-            return;
-        }
-
-        
-        Debug.Log("タイトルに移動");
-
-        titleUI.SetActive(true);
-        modeUI.SetActive(false);
-        minigameSelectUI.SetActive(false);
-
-        uiHistory.Clear();
-        uiHistory.Push(titleUI);
-        
-        //参照の取得
-        instance = this;
     }
 
     public void Open(GameObject openUI)
@@ -218,14 +286,14 @@ public class ButtonManager : MonoBehaviour
     }
 
     // ログオープン
-    public void OpenObject(GameObject openLog){
-        openLog.SetActive(true);
+    public void OpenObject(GameObject openObj){
+        openObj.SetActive(true);
     }
 
     // ログクローズ
-    public void CloseObject(GameObject closeLog)
+    public void CloseObject(GameObject closeObj)
     {
-        closeLog.SetActive(false);
+        closeObj.SetActive(false);
     }
 
     public void OnClickStartGame() {
@@ -478,11 +546,21 @@ public class ButtonManager : MonoBehaviour
     }
 
     /// <summary>
+    /// オンラインモードの時プレイヤーエントリー画面でクライアントに見せるUI
+    /// </summary>
+    public void OpenLogClientOnline()
+    {
+        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient)
+        {
+            
+        }
+    }
+
+    /// <summary>
     /// ミニゲームを選択した場合はミニゲーム選択画面に戻ってくるように
     /// </summary>
     public void MiniGameSelect()
     {
-        Debug.Log("Save comoBackFromGame = 1");
         PlayerPrefs.SetInt("ComeBackFromGame", 1);
         PlayerPrefs.Save();
     }

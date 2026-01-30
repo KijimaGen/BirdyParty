@@ -545,15 +545,9 @@ public class ButtonManager : MonoBehaviour
         TitleManager.instance.SetActiveNextButton(false);
     }
 
-    /// <summary>
-    /// オンラインモードの時プレイヤーエントリー画面でクライアントに見せるUI
-    /// </summary>
-    public void OpenLogClientOnline()
+    public void SetActiveClientUI(bool isActive)
     {
-        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient)
-        {
-            
-        }
+        clientLog.SetActive(isActive);
     }
 
     /// <summary>

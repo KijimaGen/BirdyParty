@@ -90,7 +90,11 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
         //エントリ～したときにプレイヤーの人数が2人以上だったら
         if (GetEntriedPlayerCount() < 2) return;
         //オンラインかつホストじゃなかったらリターン
-        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient) return;
+        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient)
+        {
+            ButtonManager.instance.SetActiveClientUI(true);
+            return;
+        }
         //オフラインもしくは、オンラインかつマスターだったら
         TitleManager.instance.SetActiveNextButton(true);
     }
@@ -108,7 +112,11 @@ public class GameDataManager : MonoBehaviourPunCallbacks {
         //エントリ～したときにプレイヤーの人数が2人以上だったら
         if (GetEntriedPlayerCount() < 2) return;
         //オンラインかつホストじゃなかったらリターン
-        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient) return;
+        if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient)
+        {
+            ButtonManager.instance.SetActiveClientUI(true);
+            return;
+        }
         //オフラインもしくは、オンラインかつマスターだったら
         TitleManager.instance.SetActiveNextButton(true);
     }

@@ -774,6 +774,7 @@ MonoBehaviour:
   photonView: {fileID: 0}
   PVIsMine: 0
   PlayerIsMine: {fileID: 6190204762087966220}
+  canvasObject: {fileID: 6190204762087966220}
 --- !u!114 &564628840877135468
 MonoBehaviour:
   m_ObjectHideFlags: 0

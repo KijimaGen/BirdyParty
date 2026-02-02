@@ -30,6 +30,10 @@ public class PartyModeManager : SystemObject
 
     public const string PREF_PARTY_RUNNING = "PartyModeRunning";
 
+
+    private const string ROOMPROP_CHOICED_LIST = "ChoicedGameList";
+    private const string ROOMPROP_CHOICED_INDEX = "ChoicedGameIndexList";
+
     // タイトル（ルーレットがあるシーン名）※プロジェクトに合わせて変更してください
     private const string TITLE_SCENE_NAME = "Title";
 
@@ -82,37 +86,44 @@ public class PartyModeManager : SystemObject
     /// </summary>
     public void MakeGameList()
     {
-        // ここでパーティ開始のたびにindexをリセットしておく（重要）
         NowGameIndex = 0;
 
-        // パーティ開始フラグ
         PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 1);
         PlayerPrefs.SetInt(PREF_BACK_TO_PARTY, 0);
         PlayerPrefs.Save();
 
-        // 何回抽選を行うかを設定
-        PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
+        // オフラインは今まで通りローカル抽選でOK
+        if (!GameManager.instance.IsOnline())
+        {
+            PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
+            ChoicedSceneList = PartyModeGamePicker.instance.BuildGameIndexs();
+            return;
+        }
 
-        // 選ばれたゲームのリストをもらう
+        // オンライン：Master以外は抽選しない
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("[PartyMode] Not Master: skip lottery. wait room properties.");
+            return;
+        }
+
+        // Masterが抽選する
+        PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
         ChoicedSceneList = PartyModeGamePicker.instance.BuildGameIndexs();
 
-        for (int i = 0, max = ChoicedSceneList.Count; i < max; i++)
-        {
-            Debug.Log("選ばれたシーン名 : " + ChoicedSceneList[i]);
-        }
+        // sprites用 index リストも保存する
+        int[] indexArray = PartyModeGamePicker.instance.GetGameIndexList().ToArray();
 
-        // オンラインだったら配布
-        if (!GameManager.instance.IsOnline()) return;
-        if (PhotonNetwork.IsMasterClient) {
+        // ルームのカスタムプロパティに両方入れる
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+        props["ChoicedGameList"] = ChoicedSceneList.ToArray();
+        props["ChoicedGameIndexList"] = indexArray;
 
-            //ルームのカスタムプロパティを設定
-            Hashtable props = new Hashtable();
-            props["ChoicedGameList"] = ChoicedSceneList.ToArray();
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
 
-            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
-        }
-        
+        Debug.Log($"[DBG] IndexListCount={PartyModeGamePicker.instance.GetGameIndexList().Count}");
     }
+
 
     public override void OnRoomPropertiesUpdate(Hashtable props) {
         if (props.ContainsKey("ChoicedGameList")) {
@@ -215,5 +226,14 @@ public class PartyModeManager : SystemObject
         {
             SceneManager.LoadScene(TITLE_SCENE_NAME);
         }
+    }
+
+    public void ApplySyncedSceneList(string[] arr)
+    {
+        ChoicedSceneList.Clear();
+        ChoicedSceneList.AddRange(arr);
+
+        // 非Master側もインデックス開始を揃える
+        NowGameIndex = 0;
     }
 }

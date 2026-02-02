@@ -24,7 +24,7 @@ public class PartyModeGamePicker : SystemObject
 
     public override async UniTask Initialize()
     {
-        // ★破壊しない。非Masterは「抽選禁止」にするだけ
+        // 破壊しない。非Masterは「抽選禁止」にするだけ
         if (GameManager.instance.IsOnline() && !PhotonNetwork.IsMasterClient)
         {
             canLottery = false;

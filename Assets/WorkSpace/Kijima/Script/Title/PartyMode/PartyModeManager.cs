@@ -97,6 +97,8 @@ public class PartyModeManager : SystemObject
         {
             PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
             ChoicedSceneList = PartyModeGamePicker.instance.BuildGameIndexs();
+
+            DebugPrintPartyGameList(" (Offline Lottery)");
             return;
         }
 
@@ -110,6 +112,9 @@ public class PartyModeManager : SystemObject
         // Masterが抽選する
         PartyModeGamePicker.instance.SetRandomCount(GameChoiceCount);
         ChoicedSceneList = PartyModeGamePicker.instance.BuildGameIndexs();
+
+        // デバッグ用 ゲームリスト表示
+        DebugPrintPartyGameList(" (Master Lottery)");
 
         // sprites用 index リストも保存する
         int[] indexArray = PartyModeGamePicker.instance.GetGameIndexList().ToArray();
@@ -184,19 +189,19 @@ public class PartyModeManager : SystemObject
     public List<PlayerInfomation> GetPlayerRankList() => playerRankingList;
 
     /// <summary>
-    /// ★ミニゲーム終了時に呼ぶ：次へ進めてルーレット（タイトル）へ戻す
+    /// ミニゲーム終了時に呼ぶ：次へ進めてルーレット（タイトル）へ戻す
     /// </summary>
     public void OnMiniGameFinishedAndReturnToRoulette()
     {
         NowGameIndex++;
 
-        // ★ 全部終わったか？
+        // 全部終わったか？
         if (NowGameIndex >= ChoicedSceneList.Count)
         {
             // ===== パーティ終了 =====
             Debug.Log("[PartyMode] Party Finished");
 
-            // ★ここが超重要
+            // ここが超重要
             GameManager.instance?.SetPartyMode(false);
 
             // パーティ用フラグも消す
@@ -236,4 +241,22 @@ public class PartyModeManager : SystemObject
         // 非Master側もインデックス開始を揃える
         NowGameIndex = 0;
     }
+
+    public void DebugPrintPartyGameList(string label = "")
+    {
+        if (ChoicedSceneList == null || ChoicedSceneList.Count == 0)
+        {
+            Debug.Log($"[PartyMode]{label} GameList is EMPTY");
+            return;
+        }
+
+        string log = $"[PartyMode]{label} Game Order => ";
+        for (int i = 0; i < ChoicedSceneList.Count; i++)
+        {
+            log += $"[{i}] {ChoicedSceneList[i]} ";
+        }
+
+        Debug.Log(log);
+    }
+
 }

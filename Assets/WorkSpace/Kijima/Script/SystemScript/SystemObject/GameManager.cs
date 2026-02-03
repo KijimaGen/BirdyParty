@@ -29,8 +29,11 @@ public class GameManager : SystemObject{
 
     public const string PREF_PARTY_RUNNING = "PartyModeRunning";
 
-    private void Awake()
-    {
+    [Header("InputManagerのプレファブ")]
+    [SerializeField]
+    GameObject InputManagerPrefab;
+
+    private void Awake(){
         isPartyMode = PlayerPrefs.GetInt(PREF_PARTY_RUNNING, 0) == 1;
     }
 
@@ -66,18 +69,20 @@ public class GameManager : SystemObject{
         }
 
         //オフラインマネージャーなかったら取得
-        if (OfflineManager == null) {
-            Transform childTransform = transform.Find("PlayerInputManager");
-            OfflineManager = childTransform.gameObject;
-        }
+        GetOfflineManager();
 
         if (t) {
+            //オンラインマネージャーをアクティブにして、オフラインマネージャーを破壊
             OnlineManager.SetActive(true);
-            OfflineManager.SetActive(false);
+            
+            Destroy(OfflineManager);
         }
         else {
-            OnlineManager.SetActive(false);
-            OfflineManager.SetActive(true);
+            //オンラインマネージャーをかくして、オフラインマネージャーを再生性
+            OnlineManager.SetActive(true);
+            //重複しないように
+            if(OfflineManager == null)
+            Instantiate(InputManagerPrefab,this.gameObject.transform);
         }
     }
 
@@ -94,5 +99,16 @@ public class GameManager : SystemObject{
         isPartyMode = enabled;
         PlayerPrefs.SetInt(PREF_PARTY_RUNNING, enabled ? 1 : 0);
         PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// オフラインマネージャーを取得
+    /// </summary>
+    private void GetOfflineManager() {
+        if (OfflineManager == null) {
+            Transform childTransform = transform.Find("PlayerInputManager");
+            if (childTransform != null)
+                OfflineManager = childTransform.gameObject;
+        }
     }
 }

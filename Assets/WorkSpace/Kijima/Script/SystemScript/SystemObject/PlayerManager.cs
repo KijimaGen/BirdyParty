@@ -42,6 +42,37 @@ public class PlayerManager : SystemObject {
     }
 
     /// <summary>
+    /// プレイヤーをリストから除外
+    /// </summary>
+    /// <param name="player"></param>
+    public void RemovePlayer(PlayerInfomation player) {
+        if(playerList.Contains(player)) {
+            playerList.Remove(player);
+        }
+
+        //リストを再生性
+        List<PlayerInfomation> newList = new List<PlayerInfomation>();
+        //もともとあったリストから要素を入れてもらう
+        for(int i = 0 , max = playerList.Count; i<max; i++) {
+            if(playerList[i] != null)
+                newList.Add(playerList[i]);
+        }
+        //要素数が4に届かなかったら足りない分追加
+        if(newList.Count < 4) {
+            //リストの不足分
+            int ListMinus = PLAYER_MAX - newList.Count;
+
+            //不足分nullを入れる
+            for (int i = 0 ; i < ListMinus; i++) {
+                newList.Add(null);
+            }
+        }
+        //プレイヤーリストを新しいものと置き換えて完成
+        playerList = newList;
+
+    }
+
+    /// <summary>
     /// プレイヤーリストを引き渡す
     /// </summary>
     /// <returns></returns>

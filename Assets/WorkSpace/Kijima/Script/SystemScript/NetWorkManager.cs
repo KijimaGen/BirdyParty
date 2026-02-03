@@ -503,7 +503,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     /// サーバーに接続
     /// </summary>
     public void ConnectingServer() {
-        Debug.Log("Photonに接続中...");
         UpdateConnectionStatus("Photonに接続中...");
         PhotonNetwork.ConnectUsingSettings(); // Photon設定を使用して接続開始
         

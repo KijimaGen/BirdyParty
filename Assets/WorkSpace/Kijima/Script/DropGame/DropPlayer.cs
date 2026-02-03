@@ -12,7 +12,7 @@ using ExitGames.Client.Photon;
 using Photon.Realtime;
 
 [RequireComponent(typeof(Rigidbody))]
-public class DropPlayer : MonoBehaviourPunCallbacks {
+public class DropPlayer : MonoBehaviour {
     // 移動速度
     [SerializeField]
     private float moveSpeed = 8f;
@@ -49,10 +49,10 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
     // プレイヤーのニックネーム
     public string myName;
 
-    void Start() {
+    void OnEnable() {
         // 途中参加は認めない
-        if (DropGameManager.instance.isStart)
-            gameObject.SetActive(false);
+        //if (DropGameManager.instance.isStart)
+        //    gameObject.SetActive(false);
 
         // rbの取得と設定
         rb = GetComponent<Rigidbody>();
@@ -92,7 +92,9 @@ public class DropPlayer : MonoBehaviourPunCallbacks {
 
     // アップデート
     void FixedUpdate() {
-       
+
+        
+
         // 開始するまで動いてはならない
         if (!DropGameManager.instance.isStart) {
             rb.velocity = Vector3.zero;

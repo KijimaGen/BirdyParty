@@ -108,22 +108,38 @@ public class PlayerInfomation:MonoBehaviour{
         DontDestroyOnLoad(gameObject);
     }
 
-    // 簡単な切断検知
+    
     void Update() {
+        Debug.Log(myInputLeftStickValue);
+
+
+        //それ以外の処理はこの上に書く
+        // 簡単な切断検知
         if (!GameManager.instance.IsOnline())
             return;
 
+        //接続できているか確認
         if (!PhotonNetwork.IsConnected) {
             Debug.Log("接続が切れています");
             // 切断時の処理
             Destroy(gameObject); return;
         }
+
+        
     }
 
     //自身が消えるときにコールバックを止める
     private void OnDisable() {
         // 忘れずに解除
         SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    /// <summary>
+    /// 自身が破壊されるときに呼ばれる関数
+    /// </summary>
+    private void OnDestroy() {
+        //プレイヤーマネージャーのリストから除外
+        PlayerManager.instance.RemovePlayer(this);
     }
 
     /// <summary>
@@ -179,8 +195,6 @@ public class PlayerInfomation:MonoBehaviour{
 
     //ドロップゲームのシーンが読み込まれたときに呼ぶ
     public void LoadDropGameScene() {
-        PlayerInput playerInput = gameObject.GetComponent<PlayerInput>();
-        playerInput.SwitchCurrentActionMap("DropGame");
         dropPlayer.SetActive(true);
     }
 

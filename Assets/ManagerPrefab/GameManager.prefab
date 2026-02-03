@@ -183,6 +183,7 @@ MonoBehaviour:
   isOnline: 0
   OnlineManager: {fileID: 7218702036961058334}
   OfflineManager: {fileID: 6785473933398913923}
+  InputManagerPrefab: {fileID: 2366279882592211353, guid: 941cf989500445440859085b6dad4ee3, type: 3}
 --- !u!1 &898550799912624984
 GameObject:
   m_ObjectHideFlags: 0

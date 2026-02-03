@@ -178,6 +178,15 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         }
 
         ranking.Add(player);
+
+        // ここで「この人は何位で追加されたか」が確定
+        int rank = ranking.Count - 1;      // 0-based
+        //player.myRank = rank;              // もし別の場所で決めてるなら不要（でもデバッグには便利）
+
+        Debug.Log($"[AddRanking] {player.name} が {rank + 1}位でゴール（rankingCount={ranking.Count}）");
+
+        // 一覧表示（毎回見たいならON、うるさければコメントアウト）
+        DebugPrintRanking("AddRanking");
     }
 
     /// <summary>
@@ -194,6 +203,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     private async void RPC_SetGoal() {
         isGoal = true;
         Debug.Log("ゴールフラグが全員に伝わった！");
+        DebugPrintRanking("FINAL");
         await AfterGoal();
     }
 
@@ -215,5 +225,41 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         
         //画面遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
+    }
+
+    /// <summary>
+    /// 順位デバッグ表示
+    /// </summary>
+    private void DebugPrintRanking(string header = "Ranking")
+    {
+        // ranking は「ゴールした順」で入っている想定
+        if (ranking == null || ranking.Count == 0)
+        {
+            Debug.Log($"[{header}] ranking is empty.");
+            return;
+        }
+
+        Debug.Log($"[{header}] ----- ranking count: {ranking.Count} / racers: {racers.Count} -----");
+
+        for (int i = 0; i < ranking.Count; i++)
+        {
+            var p = ranking[i];
+            if (p == null)
+            {
+                Debug.Log($"[{header}] {i + 1}位: (null)");
+                continue;
+            }
+
+            // なるべく識別しやすい情報を出す（名前 / Actor / myRank）
+            // RacePlayer が PhotonView を持っている想定。無ければ null で落ちないように。
+            int actor = -1;
+            PhotonView pv = null;
+
+            // RacePlayer が MonoBehaviour なら GetComponent できる
+            try { pv = p.GetComponent<PhotonView>(); } catch { /* ignore */ }
+            if (pv != null && pv.Owner != null) actor = pv.OwnerActorNr;
+
+            Debug.Log($"[{header}] {i + 1}位: {p.name} (Actor:{actor}) myRank:{p.myRank}");
+        }
     }
 }

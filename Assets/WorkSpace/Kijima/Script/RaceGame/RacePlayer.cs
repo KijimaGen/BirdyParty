@@ -249,6 +249,7 @@ public class RacePlayer : MonoBehaviour {
     /// </summary>
     public void Goal() {
         isGoal = true;
+        Debug.Log("isGoalがTrueになりました。");
         //アニメーションを止める
         ChangeAnimationSpeed(0);
 

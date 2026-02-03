@@ -335,6 +335,12 @@ public class ButtonManager : MonoBehaviour
 #endif
     }
 
+    // ゲームを終了した際の処理
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetInt("ComeBackFromGame", 0);
+        PlayerPrefs.Save();
+    }
 
     // ネットワーク関連のメソッド
     /// <summary>
@@ -545,6 +551,9 @@ public class ButtonManager : MonoBehaviour
         TitleManager.instance.SetActiveNextButton(false);
     }
 
+    /// <summary>
+    /// クライアントに見せるUI
+    /// </summary>
     public void SetActiveClientUI(bool isActive)
     {
         clientLog.SetActive(isActive);

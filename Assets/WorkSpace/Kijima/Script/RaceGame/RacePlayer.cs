@@ -40,7 +40,7 @@ public class RacePlayer : MonoBehaviour {
     //自身の番号
     public int myNumber { get; private set; }
     //自身の順位
-    public int myRank { get; private set; }
+    public int myRank ;//{ get; private set; }
 
     //ブーストエフェクト
     [SerializeField]
@@ -258,6 +258,12 @@ public class RacePlayer : MonoBehaviour {
 
         //自身の順位をプレイヤー情報管理クラスに引き渡す
         GetComponentInParent<PlayerInfomation>().SetRank(myRank);
+
+        //パーティモードだったときに
+        if (GameManager.instance.isPartyMode) {
+            //プレイヤーインフォメーションに自身の順位に合わせた得点を加算してもらう
+            GetComponentInParent<PlayerInfomation>().SetPoint(myRank);
+        }
 
         //デバッグ
         Debug.Log(GetComponentInParent<PlayerInfomation>().myName +"がゴールしました");

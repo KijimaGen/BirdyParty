@@ -258,15 +258,6 @@ public class RacePlayer : MonoBehaviour {
 
         //自身の順位をプレイヤー情報管理クラスに引き渡す
         GetComponentInParent<PlayerInfomation>().SetRank(myRank);
-
-        //パーティモードだったときに
-        if (GameManager.instance.isPartyMode) {
-            //プレイヤーインフォメーションに自身の順位に合わせた得点を加算してもらう
-            GetComponentInParent<PlayerInfomation>().SetPoint(myRank);
-        }
-
-        //デバッグ
-        Debug.Log(GetComponentInParent<PlayerInfomation>().myName +"がゴールしました");
     }
 
     
@@ -275,6 +266,20 @@ public class RacePlayer : MonoBehaviour {
         if(other.gameObject.tag == "Finish") {
             //ゴールした時の処理を呼ぶ
             Goal();
+
+            //パーティモードだったときに
+            if (GameManager.instance.isPartyMode) {
+                //プレイヤーインフォメーションに自身の順位に合わせた得点を加算してもらう
+                //PlayerInfomation側の自身のポイント
+                int myBeforePoint = GetComponentInParent<PlayerInfomation>().GetPoint();
+                //自身の順位に合わせたポイント
+                int myScorePoint = GameConst.PLAYER_SCORE_LIST[myRank];
+
+                //二つを合わせたものを適用
+                GetComponentInParent<PlayerInfomation>().SetPoint(myBeforePoint + myScorePoint);
+                //デバッグ
+                Debug.Log(GetComponentInParent<PlayerInfomation>().myNumber + "が" + GetComponentInParent<PlayerInfomation>().GetPoint() + "点になりました");
+            }
         }
     }
 

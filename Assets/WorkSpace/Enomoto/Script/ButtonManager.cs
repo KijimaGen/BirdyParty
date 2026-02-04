@@ -710,7 +710,19 @@ public class ButtonManager : MonoBehaviour
         if (PartyModeManager.instance != null) {
             //パーティモードマネージャーがゲームリストを作成
             PartyModeManager.instance.MakeGameList();
+
+            //プレイヤーにパーティモードマネージャーにエントリーするよう促す
+            PlayerManager.instance.EntoriedAllPlayer();
         } 
+    }
+
+    /// <summary>
+    /// ミニゲームモードのボタンが押されたときの処理
+    /// </summary>
+    public void PressMiniGameModeButton() {
+        if (GameManager.instance != null) {
+            GameManager.instance.SetPartyMode(false);
+        }
     }
 
     /// <summary>
@@ -726,4 +738,6 @@ public class ButtonManager : MonoBehaviour
     public void ShowRoomCodePlate() {
         RoomNumberPlate.SetActive(true);
     }
+
+    
 }

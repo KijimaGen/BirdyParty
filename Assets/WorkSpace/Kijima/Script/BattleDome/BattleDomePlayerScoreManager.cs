@@ -58,7 +58,7 @@ public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
 
         // CustomPropertiesをセット
         Hashtable hash = new Hashtable();
-        hash["point"] = myPoint;
+        hash["myPoint"] = myPoint;
         PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
 
         //オフラインだったら直にUI更新を呼び出す
@@ -71,7 +71,7 @@ public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
     // PlayerのCustomPropertiesが変わった時に呼ばれるコールバック
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps) {
         // スコアが更新された時だけ処理
-        if (changedProps.ContainsKey("point")) {
+        if (changedProps.ContainsKey("myPoint")) {
             // スコアボード更新
             ScoreboardUI.instance?.RefreshUI();
         }

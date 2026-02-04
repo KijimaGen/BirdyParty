@@ -1255,10 +1255,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835a5bc9a22724b4da55296aae2994b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  faceNumber: 0
-  diceParent: {fileID: 0}
-  groundLayer:
-    m_Bits: 0
 --- !u!65 &576536303
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1620,10 +1616,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835a5bc9a22724b4da55296aae2994b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  faceNumber: 0
-  diceParent: {fileID: 0}
-  groundLayer:
-    m_Bits: 0
 --- !u!65 &820482051
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1881,6 +1873,50 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 482255087}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &973385042
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 973385044}
+  - component: {fileID: 973385043}
+  m_Layer: 0
+  m_Name: DebugItem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &973385043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973385042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d5baf09bf020f5429dda8235705b961, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &973385044
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973385042}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1049947737
 PrefabInstance:
@@ -2432,10 +2468,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835a5bc9a22724b4da55296aae2994b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  faceNumber: 0
-  diceParent: {fileID: 0}
-  groundLayer:
-    m_Bits: 0
 --- !u!65 &1151825206
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2629,14 +2661,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66e655deb6c2b174f8540317da94f568, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxTurns: 5
-  rollWindowSeconds: 10
-  minPlayers: 2
-  maxPlayers: 4
-  expectedPlayers: 0
-  watchInterval: 0.25
-  diceNetTokenPrefabName: DiceNetToken
-  ui: {fileID: 1620887069}
 --- !u!1 &1356588180
 GameObject:
   m_ObjectHideFlags: 0
@@ -2933,10 +2957,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835a5bc9a22724b4da55296aae2994b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  faceNumber: 0
-  diceParent: {fileID: 0}
-  groundLayer:
-    m_Bits: 0
 --- !u!65 &1563215514
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3449,10 +3469,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835a5bc9a22724b4da55296aae2994b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  faceNumber: 0
-  diceParent: {fileID: 0}
-  groundLayer:
-    m_Bits: 0
 --- !u!65 &1697580894
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4713,10 +4729,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835a5bc9a22724b4da55296aae2994b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  faceNumber: 0
-  diceParent: {fileID: 0}
-  groundLayer:
-    m_Bits: 0
 --- !u!65 &2138946232
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6349,3 +6361,4 @@ SceneRoots:
   - {fileID: 1274199691}
   - {fileID: 408560812}
   - {fileID: 1620887073}
+  - {fileID: 973385044}

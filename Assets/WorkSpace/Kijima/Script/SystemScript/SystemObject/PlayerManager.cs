@@ -103,6 +103,16 @@ public class PlayerManager : SystemObject {
     }
 
     /// <summary>
+    /// 全てのプレイヤーにエントリーさせる
+    /// </summary>
+    public void EntoriedAllPlayer() {
+        for(int i = 0,max = playerList.Count ; i < max; i++) {
+            if (playerList[i] != null)
+            playerList[i].EntoriedPartyModeManager();
+        }
+    }
+
+    /// <summary>
     /// プレイヤーリストを一掃しながら破壊
     /// </summary>
     public void DestroyPlayerList() {

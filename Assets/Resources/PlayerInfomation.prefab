@@ -83,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16ffaf3dab159d948a99a6e525c2d681, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  point: 0
+  myPoint: 0
   rank: 0
   myName: 
   mySkin: 0
@@ -769,6 +769,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 300
   isGoal: 0
+  myRank: 0
   boostEffect: {fileID: 5589407954798139204, guid: 8aef91ff22719194daeb49deb63cc81c, type: 3}
   slowEffect: {fileID: 765015981913960131, guid: 56d088be2dfd29849b93ba7b8d8f158f, type: 3}
   photonView: {fileID: 0}

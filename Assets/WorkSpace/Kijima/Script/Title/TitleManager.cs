@@ -67,4 +67,13 @@ public class TitleManager : MonoBehaviour{
     public void SetPlayerNameList(int PlayerIndex,string PlayerName) {
         _playerNameList[PlayerIndex].text = PlayerName;
     }
+
+    /// <summary>
+    /// 全ての名前リストの名前を初期化する
+    /// </summary>
+    public void ResetPlayerName() {
+        for(int i = 0,max = _playerNameList.Count; i < max; i++) {
+            _playerNameList[i].text = "P"+(i+1);
+        }
+    }
 }

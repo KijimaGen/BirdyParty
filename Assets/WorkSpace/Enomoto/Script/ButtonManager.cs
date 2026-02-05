@@ -18,6 +18,7 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject onlineUI;
     [SerializeField] private GameObject playerSelectUI;
     [SerializeField] private GameObject gameReadyUI;
+    [SerializeField] private GameObject gameResultUI;
 
     [Header("エラーログ")]
     [SerializeField] private GameObject errorMinigameSelect;
@@ -90,6 +91,8 @@ public class ButtonManager : MonoBehaviour
 
         bool comeBack = PlayerPrefs.GetInt("ComeBackFromGame", 0) == 1;
 
+        bool showPartyResult = PlayerPrefs.GetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0) == 1;
+
         // オンライン中かつホストの場合はローカル同様各ゲームによって戻ってきた際にUIを変更
         if (GameManager.instance.IsOnline() && PhotonNetwork.IsMasterClient)
         {
@@ -136,6 +139,30 @@ public class ButtonManager : MonoBehaviour
                 ChangeMinigameMode();
 
                 PlayerPrefs.SetInt("ComeBackFromGame", 0);
+                PlayerPrefs.Save();
+
+                PlayStyle();
+
+                instance = this;
+                return;
+            }
+
+            if (showPartyResult)
+            {
+                titleUI.SetActive(false);
+                modeUI.SetActive(false);
+                minigameSelectUI.SetActive(false);
+                partyModeUI.SetActive(false);
+
+                gameResultUI.SetActive(true);
+
+
+                uiHistory.Clear();
+                uiHistory.Push(titleUI);
+                uiHistory.Push(gameResultUI);
+
+
+                PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
                 PlayerPrefs.Save();
 
                 PlayStyle();
@@ -205,6 +232,30 @@ public class ButtonManager : MonoBehaviour
                 ChangeMinigameMode();
 
                 PlayerPrefs.SetInt("ComeBackFromGame", 0);
+                PlayerPrefs.Save();
+
+                PlayStyle();
+
+                instance = this;
+                return;
+            }
+
+            if (showPartyResult)
+            {
+                titleUI.SetActive(false);
+                modeUI.SetActive(false);
+                minigameSelectUI.SetActive(false);
+                partyModeUI.SetActive(false);
+
+                gameResultUI.SetActive(true);
+
+
+                uiHistory.Clear();
+                uiHistory.Push(titleUI);
+                uiHistory.Push(gameResultUI);
+
+
+                PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
                 PlayerPrefs.Save();
 
                 PlayStyle();
@@ -338,6 +389,9 @@ public class ButtonManager : MonoBehaviour
     // ゲームを終了した際の処理
     private void OnApplicationQuit()
     {
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_RUNNING, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
         PlayerPrefs.SetInt("ComeBackFromGame", 0);
         PlayerPrefs.Save();
     }

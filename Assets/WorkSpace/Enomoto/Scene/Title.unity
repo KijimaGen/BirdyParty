@@ -21186,6 +21186,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: CloseObject
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1293008410}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1890585975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22765,12 +22777,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d5baf09bf020f5429dda8235705b961, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firstPlayerPoint: {fileID: 770595656}
-  secondPlayerPoint: {fileID: 770595656}
-  thirdPlayerPoint: {fileID: 62873290}
-  forthPlayerPoint: {fileID: 416162049}
-  Players: []
-  PlayerPoints: 
 --- !u!1 &2022308179
 GameObject:
   m_ObjectHideFlags: 0
@@ -23821,6 +23827,10 @@ PrefabInstance:
       propertyPath: partyModeUI
       value: 
       objectReference: {fileID: 813492589}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: gameResultUI
+      value: 
+      objectReference: {fileID: 613233718}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: minigameIcon
       value: 

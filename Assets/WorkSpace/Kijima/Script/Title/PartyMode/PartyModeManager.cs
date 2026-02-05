@@ -30,9 +30,11 @@ public class PartyModeManager : SystemObject
 
     public const string PREF_PARTY_RUNNING = "PartyModeRunning";
 
+    public const string PREF_PARTY_SHOW_RESULT = "PartyShowResult";
 
     private const string ROOMPROP_CHOICED_LIST = "ChoicedGameList";
     private const string ROOMPROP_CHOICED_INDEX = "ChoicedGameIndexList";
+
 
     // タイトル（ルーレットがあるシーン名）※プロジェクトに合わせて変更してください
     private const string TITLE_SCENE_NAME = "Title";
@@ -207,6 +209,7 @@ public class PartyModeManager : SystemObject
             // パーティ用フラグも消す
             PlayerPrefs.SetInt(PREF_BACK_TO_PARTY, 0);
             PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 0);
+            PlayerPrefs.SetInt(PREF_PARTY_SHOW_RESULT, 1);
             PlayerPrefs.Save();
 
             // 通常のタイトルへ

@@ -68,8 +68,8 @@ public class ScoreboardUI : MonoBehaviourPunCallbacks {
                 var player = players[i];
                 int score = 0;
 
-                if (player.CustomProperties.ContainsKey("point"))
-                    score = (int) player.CustomProperties["point"];
+                if (player.CustomProperties.ContainsKey("myPoint"))
+                    score = (int) player.CustomProperties["myPoint"];
 
                 // —á: Player1: 100
                 scoreTexts[i].text = $"{player.NickName}: {score}";

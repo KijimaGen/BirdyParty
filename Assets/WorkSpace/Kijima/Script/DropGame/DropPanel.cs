@@ -41,8 +41,6 @@ public class DropPanel : MonoBehaviour{
             if (!other.gameObject.GetComponent<PhotonView>().IsMine && GameManager.instance.IsOnline())
                 return;
 
-            Debug.Log($"自分のバリエーション({myVariation})");
-
             //正解だったら加算
             if (DropGameManager.instance.CheckingAnswers(myVariation)) {
                 //オンラインだった時

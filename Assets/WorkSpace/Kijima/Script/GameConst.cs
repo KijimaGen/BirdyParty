@@ -64,4 +64,7 @@ public static class GameConst {
     //プレイヤーの色のマテリアル一覧
     public static List<Material> PLAYER_MATERIAL = new List<Material>();
 
+    //プレイヤーの得点一覧
+    public static readonly int[] PLAYER_SCORE_LIST = new int[] { 4, 3, 2, 1 };
+
 }

@@ -20,7 +20,7 @@ public class PartyModeManager : SystemObject
     public int NowGameIndex { get; private set; }
 
     // プレイヤーのランキングリスト(必要かどうかは不明)
-    private List<PlayerInfomation> playerRankingList = new List<PlayerInfomation>();
+    public List<PlayerInfomation> playerRankingList = new List<PlayerInfomation>();
 
     // 一応こいつにも何回抽選を行うかを保存してもらう
     private int GameChoiceCount = 3; // <- 一時的に三つにしておく
@@ -257,6 +257,28 @@ public class PartyModeManager : SystemObject
         }
 
         Debug.Log(log);
+    }
+
+    /// <summary>
+    /// プレイヤーのランキングリストをポイント順に並び替える
+    /// </summary>
+    public void SortPlayerRanking() {
+        //一度キャッシュ
+        var newRankingList = playerRankingList;
+        //ポイント順に並び替える
+        newRankingList.Sort((a,b) => a.myPoint.CompareTo(b.myPoint));
+        //ランキングでは逆順なのでさかさまにする
+        newRankingList.Reverse();
+        //出来上がったリストを反映させて完成
+        playerRankingList = newRankingList;
+    }
+
+    /// <summary>
+    /// プレイヤーランキングリストに追加
+    /// </summary>
+    /// <param name="player"></param>
+    public void AddPlayerRanking(PlayerInfomation player) {
+        playerRankingList.Add(player);
     }
 
 }

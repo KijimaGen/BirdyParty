@@ -12,7 +12,7 @@ using static GameConst;
 
 public class PlayerInfomation:MonoBehaviour{
     //今持っているポイント
-    public int point;
+    public int myPoint;
     //現在の順位
     public int rank;
     //自分の名前
@@ -58,7 +58,7 @@ public class PlayerInfomation:MonoBehaviour{
     /// </summary>
     void Start() {
         //ポイントを初期化
-        point = 0;
+        myPoint = 0;
         //自身のフォトンビュー取得
         photonView = GetComponent<PhotonView>();
         //プレイヤー管理クラスに登録
@@ -110,9 +110,6 @@ public class PlayerInfomation:MonoBehaviour{
 
     
     void Update() {
-        Debug.Log(myInputLeftStickValue);
-
-
         //それ以外の処理はこの上に書く
         // 簡単な切断検知
         if (!GameManager.instance.IsOnline())
@@ -285,10 +282,21 @@ public class PlayerInfomation:MonoBehaviour{
         }
     }
 
+    /// <summary>
+    /// 自身をパーティモードマネージャーにエントリーさせる
+    /// </summary>
+    public void EntoriedPartyModeManager() {
+        PartyModeManager.instance.AddPlayerRanking(this);
+    }
+
     #region 各種ゲッターとセッター
     // Point
-    public int GetPoint() { return point; }
-    public void SetPoint(int value) { point = value; }
+    public int GetPoint() { return myPoint; }
+    public void SetPoint(int value) { 
+        myPoint = value;
+        //パーティモードマネージャーに得点の変化を共有
+        PartyModeManager.instance?.SortPlayerRanking();
+    }
 
     // Rank
     public int GetRank() { return rank; }

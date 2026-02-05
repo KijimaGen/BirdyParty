@@ -616,6 +616,10 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         ToInvisibleScore();
         //答えの表示も切る
         NextVariationUI.SetActive(false);
+        //プレイヤーにゲーム終了処理を呼んでもらう
+        for(int i = 0,max = dropperList.Count;i < max;i++) {
+            dropperList[i].End();
+        }
 
         // オンライン時はRPCで同期、オフライン時は直接呼び出し
         if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom && GameManager.instance.IsOnline()) {

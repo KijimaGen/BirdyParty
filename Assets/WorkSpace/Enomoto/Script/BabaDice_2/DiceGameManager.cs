@@ -64,7 +64,7 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         if (ui == null)
             ui = FindFirstObjectByType<DiceUIController>(FindObjectsInactive.Include);
 
-        // ★開始条件を常時監視
+        // 開始条件を常時監視
         StartCoroutine(WaitPlayersAndStartLoop());
     }
 
@@ -84,7 +84,7 @@ public class DiceGameManager : MonoBehaviourPunCallbacks
         {
             if (p == null) continue;
 
-            // 0..3運用想定（必要なら外してOK）
+            // 0.3運用想定（必要なら外してOK）
             if (p.myNumber < 0 || p.myNumber >= maxPlayers) continue;
 
             if (players.ContainsKey(p.myNumber))

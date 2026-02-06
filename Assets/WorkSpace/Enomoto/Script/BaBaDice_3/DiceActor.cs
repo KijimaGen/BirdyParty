@@ -6,6 +6,7 @@ public class DiceActor : MonoBehaviour
     public int PlayerId { get; private set; }
     public bool IsRolling { get; private set; }
     public bool IsEliminated { get; private set; }
+    public bool HasFinalizedThisTurn { get; private set; }
 
     public event Action<DiceActor, int> OnRollFinalized;
 
@@ -38,6 +39,7 @@ public class DiceActor : MonoBehaviour
     public void BeginTurn()
     {
         IsRolling = false;
+        HasFinalizedThisTurn = false;
         stableTimer = 0f;
         groundFace = null;
         lastResolvedFace = 0;
@@ -75,6 +77,7 @@ public class DiceActor : MonoBehaviour
     {
         // 「まだ振ってない」人のみ強制ロール
         if (IsEliminated) return;
+        if (HasFinalizedThisTurn) return;
         if (!IsRolling) RollNow();
     }
 
@@ -102,6 +105,7 @@ public class DiceActor : MonoBehaviour
                 int up = OppositeFace(down);          // 上の面 = 確定出目
                 lastResolvedFace = up;
 
+                HasFinalizedThisTurn = true;
                 IsRolling = false;
                 OnRollFinalized?.Invoke(this, up);
             }
@@ -125,5 +129,24 @@ public class DiceActor : MonoBehaviour
             4 => 3,
             _ => 0
         };
+    }
+
+    public void ForceFinalizeForSafety(int faceValue)
+    {
+        if (IsEliminated) return;
+        if (HasFinalizedThisTurn) return;
+
+        HasFinalizedThisTurn = true;
+        IsRolling = false;
+
+        // 物理を止めて安定させる
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.Sleep();
+        }
+
+        OnRollFinalized?.Invoke(this, Mathf.Clamp(faceValue, 1, 6));
     }
 }

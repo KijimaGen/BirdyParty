@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,26 +17,26 @@ public class BabaDiceGameManager : MonoBehaviour
         public int score = 0;
         public int lastRoll = 0;
 
-        // ’E—ŠÇ—
+        // è„±è½ç®¡ç†
         public int eliminatedTurn = -1;
-        public int eliminatedOrder = -1; // 0,1,2... ‚Ì‡‚Å’E—
+        public int eliminatedOrder = -1; // 0,1,2... ã®é †ã§è„±è½
     }
 
     [Header("Setup")]
-    [SerializeField] private Transform[] spawnPoints; // Å‘å4
+    [SerializeField] private Transform[] spawnPoints; // æœ€å¤§4
     [SerializeField] private DiceActor dicePrefab;
-    [SerializeField] private Material[] playerMats;   // l”•ªiFˆá‚¢j
+    [SerializeField] private Material[] playerMats;   // äººæ•°åˆ†ï¼ˆè‰²é•ã„ï¼‰
 
     [Header("Rules")]
     [SerializeField] private int maxPlayers = 4;
     [SerializeField] private int maxTurns = 5;
-    [SerializeField] private float turnTimeLimit = 8f; // §ŒÀŠÔ
+    [SerializeField] private float turnTimeLimit = 8f; // åˆ¶é™æ™‚é–“
 
     [Header("UI")]
     [SerializeField] private BabaDiceUI ui;
 
     private List<PlayerState> players = new();
-    private int turnIndex = 0; // 1..5•\¦‚Í+1
+    private int turnIndex = 0; // 1..5è¡¨ç¤ºã¯+1
     private int babaNumber = 1;
     private int eliminatedCount = 0;
 
@@ -46,19 +46,42 @@ public class BabaDiceGameManager : MonoBehaviour
         StartCoroutine(GameLoop());
     }
 
-    public void RollButton()
+    private void Update()
     {
-        Debug.Log("ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚æ");
+        // ä»»æ„ãƒ­ãƒ¼ãƒ«ï¼ˆã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ï¼‰
+        if (Input.GetKeyDown(KeyCode.Alpha1)) TryRoll(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) TryRoll(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) TryRoll(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) TryRoll(3);
     }
 
-    //private void Update()
-    //{
-    //    // ƒeƒXƒgF1ƒL[‚ÅP1A2ƒL[‚ÅP2c
-    //    if (Input.GetKeyDown(KeyCode.Alpha1)) players[0].dice.RollNow();
-    //    if (players.Count > 1 && Input.GetKeyDown(KeyCode.Alpha2)) players[1].dice.RollNow();
-    //    if (players.Count > 2 && Input.GetKeyDown(KeyCode.Alpha3)) players[2].dice.RollNow();
-    //    if (players.Count > 3 && Input.GetKeyDown(KeyCode.Alpha4)) players[3].dice.RollNow();
-    //}
+    private void TryRoll(int playerIndex)
+    {
+        if (playerIndex < 0 || playerIndex >= players.Count) return;
+
+        var p = players[playerIndex];
+        if (!p.alive) return;
+
+        if (p.lastRoll > 0) return;
+
+        // ãƒ€ã‚¤ã‚¹ãŒç„¡ã‘ã‚Œã°å¬å–š
+        if (p.dice == null)
+            SpawnDiceForPlayer(playerIndex);
+
+        p.dice.RollNow();
+    }
+
+    private void SpawnDiceForPlayer(int playerIndex)
+    {
+        var spawn = spawnPoints[playerIndex];
+        var dice = Instantiate(dicePrefab, spawn.position, spawn.rotation);
+
+        var mat = (playerMats != null && playerIndex < playerMats.Length) ? playerMats[playerIndex] : null;
+        dice.Setup(playerIndex, mat);
+        dice.OnRollFinalized += OnPlayerRollFinalized;
+
+        players[playerIndex].dice = dice;
+    }
 
     private void SetupPlayers(int count)
     {
@@ -85,33 +108,37 @@ public class BabaDiceGameManager : MonoBehaviour
         eliminatedCount = 0;
         turnIndex = 0;
 
-        // 5ƒ^[ƒ“
+        // 5ã‚¿ãƒ¼ãƒ³
         while (turnIndex < maxTurns)
         {
-            // ¶‘¶Ò‚ª1l‚È‚ç‘¦I—¹
+            // ç”Ÿå­˜è€…ãŒ1äººãªã‚‰å³çµ‚äº†
             if (AlivePlayers().Count <= 1)
                 break;
 
             turnIndex++;
             babaNumber = Random.Range(1, 7); // 1..6
 
-            // ƒ^[ƒ“ŠJn
-            foreach (var p in players) p.dice.BeginTurn();
+            // ã‚¿ãƒ¼ãƒ³é–‹å§‹
+            foreach (var p in players) 
+            {
+                p.lastRoll = 0;
+                if (p.dice != null) p.dice.BeginTurn();
+            }
             ui?.SetTurn(turnIndex, maxTurns);
             ui?.SetBaba(babaNumber);
             ui?.UpdateScores(players);
             ui?.ClearLastRolls(players);
 
-            // ƒ[ƒ‹ŠJn‡}
+            // ãƒ­ãƒ¼ãƒ«é–‹å§‹åˆå›³
             ui?.ShowStartRoll();
 
-            // ƒ^ƒCƒ}[ŠJn
+            // ã‚¿ã‚¤ãƒãƒ¼é–‹å§‹
             float remain = turnTimeLimit;
             while (remain > -1f)
             {
                 ui?.SetTimer(remain, turnTimeLimit);
 
-                // ‘Sˆõi¶‘¶Òj‚ªuƒ[ƒ‹Šm’èv‚µ‚½‚çŸ‚Ö
+                // å…¨å“¡ï¼ˆç”Ÿå­˜è€…ï¼‰ãŒã€Œãƒ­ãƒ¼ãƒ«ç¢ºå®šã€ã—ãŸã‚‰æ¬¡ã¸
                 if (AllAliveFinalized())
                     break;
 
@@ -119,32 +146,57 @@ public class BabaDiceGameManager : MonoBehaviour
                 yield return null;
             }
 
-            // ŠÔØ‚êF–¢ƒ[ƒ‹‚Í‹­§ƒ[ƒ‹
+            // æ™‚é–“åˆ‡ã‚Œï¼šæœªãƒ­ãƒ¼ãƒ«ã ã‘å¼·åˆ¶ãƒ­ãƒ¼ãƒ«
             foreach (var p in AlivePlayers())
-                p.dice.ForceRoll();
-
-            // ‹­§ƒ[ƒ‹Œã‚àŠm’è‘Ò‚¿iÅ‘å—P—\j
-            float wait = 3f;
-            while (!AllAliveFinalized() && wait > 0f)
             {
-                wait -= Time.deltaTime;
+                if (p.dice == null) continue;
+
+                // æœªç¢ºå®šã®äººã ã‘
+                if (!p.dice.HasFinalizedThisTurn)
+                    p.dice.ForceRoll();
+            }
+
+            // å¼·åˆ¶ãƒ­ãƒ¼ãƒ«å¾Œï¼šç€åœ°ï¼ˆç¢ºå®šï¼‰ã‚’å¾…ã¤
+            float finalizeWait = 6f; // ã“ã“ã¯å¥½ã¿ã§ 4ã€œ8 ç§’
+            while (finalizeWait > 0f && !AllAliveDiceFinalized())
+            {
+                finalizeWait -= Time.deltaTime;
                 yield return null;
             }
 
-            // ‚±‚±‚Ü‚Å‚ÅŠm’è‚µ‚È‚¢ê‡‚Ì•ÛŒ¯i•¨—‚ª•sˆÀ’è‚Èj
-            // ¨ ‚»‚ê‚Å‚àŒˆ‚Ü‚ç‚È‚¢‚È‚çƒ‰ƒ“ƒ_ƒ€Šm’è‚É‚·‚é“™‚à‰Â
+            // ---- ãã‚Œã§ã‚‚ç¢ºå®šã—ãªã„äººãŒã„ãŸæ™‚ã®ä¿é™ºï¼ˆç‰©ç†äº‹æ•…å¯¾ç­–ï¼‰
+            if (!AllAliveDiceFinalized())
+            {
+                foreach (var p in AlivePlayers())
+                {
+                    if (p.dice == null) continue;
+
+                    if (!p.dice.HasFinalizedThisTurn)
+                    {
+                        // å¼·åˆ¶ç¢ºå®šï¼ˆãƒ©ãƒ³ãƒ€ãƒ ã§æ±ºã‚ã‚‹ï¼‰
+                        int fallback = Random.Range(1, 7);
+                        p.dice.ForceFinalizeForSafety(fallback);
+                    }
+                }
+
+                // ä¿é™ºç¢ºå®šã‚’åæ˜ ã•ã›ã‚‹ãŸã‚ 1ãƒ•ãƒ¬ãƒ¼ãƒ å¾…ã¤
+                yield return null;
+            }
+
+            // ã“ã“ã¾ã§ã§ç¢ºå®šã—ãªã„å ´åˆã®ä¿é™ºï¼ˆç‰©ç†ãŒä¸å®‰å®šãªæ™‚ï¼‰
+            // â†’ ãã‚Œã§ã‚‚æ±ºã¾ã‚‰ãªã„ãªã‚‰ãƒ©ãƒ³ãƒ€ãƒ ç¢ºå®šã«ã™ã‚‹ç­‰ã‚‚å¯
             yield return new WaitForSeconds(0.3f);
         }
 
-        // I—¹ ¨ ‡ˆÊŒvZ
+        // çµ‚äº† â†’ é †ä½è¨ˆç®—
         var ranking = BuildRanking();
         ui?.ShowResult(true);
         ui?.SetResult(ranking);
 
         Debug.Log("GAME END");
 
-        //‰æ–Ê‘JˆÚ
-        //SceneManager.LoadScene(TITLE_SCENE_NAME);
+        //ç”»é¢é·ç§»
+        DiceFinish();
     }
 
     private void OnPlayerRollFinalized(DiceActor dice, int value)
@@ -157,7 +209,7 @@ public class BabaDiceGameManager : MonoBehaviour
 
         if (value == babaNumber)
         {
-            // ’E—
+            // è„±è½
             p.alive = false;
             p.eliminatedTurn = turnIndex;
             p.eliminatedOrder = eliminatedCount++;
@@ -165,12 +217,12 @@ public class BabaDiceGameManager : MonoBehaviour
 
             ui?.SetPlayerEliminated(p.id, true);
 
-            // ¶‘¶1l‚É‚È‚Á‚½‚ç‚±‚Ìƒ^[ƒ“’†‚Å‚àI—¹‚ÖŠñ‚¹‚½‚¢‚È‚ç
-            // ¨ GameLoop‘¤‚ÌuAlivePlayers().Count<=1v‚ÅŸƒ‹[ƒv‘O‚É~‚Ü‚é
+            // ç”Ÿå­˜1äººã«ãªã£ãŸã‚‰ã“ã®ã‚¿ãƒ¼ãƒ³ä¸­ã§ã‚‚çµ‚äº†ã¸å¯„ã›ãŸã„ãªã‚‰
+            // â†’ GameLoopå´ã®ã€ŒAlivePlayers().Count<=1ã€ã§æ¬¡ãƒ«ãƒ¼ãƒ—å‰ã«æ­¢ã¾ã‚‹
         }
         else
         {
-            // ‰Á“_
+            // åŠ ç‚¹
             p.score += value;
             ui?.UpdateScores(players);
         }
@@ -180,44 +232,54 @@ public class BabaDiceGameManager : MonoBehaviour
 
     private bool AllAliveFinalized()
     {
-        // alive‚Ìl‚ª‘Sˆõ lastRoll > 0 ‚É‚È‚Á‚½‚çOK
+        // aliveã®äººãŒå…¨å“¡ lastRoll > 0 ã«ãªã£ãŸã‚‰OK
         return AlivePlayers().All(p => p.lastRoll > 0);
+    }
+
+    private bool AllAliveDiceFinalized()
+    {
+        return AlivePlayers().All(p => p.dice != null && p.dice.HasFinalizedThisTurn);
     }
 
     private List<PlayerState> BuildRanking()
     {
-        // —vŒ:
-        // - ’E—‚µ‚½l‚Íu‚»‚Ì“_‚ÅÅ‰ºˆÊ‚©‚ç‡‚ÉŠ„‚è“–‚Äv
-        //   ¨ æ‚É’E—‚µ‚½l‚Ù‚Ç‰ºˆÊi=Å‰ºˆÊ‘¤j
-        // - ¶‘¶Ò‚ÍƒXƒRƒA‚ÅãˆÊ
+        // è¦ä»¶:
+        // - è„±è½ã—ãŸäººã¯ã€Œãã®æ™‚ç‚¹ã§æœ€ä¸‹ä½ã‹ã‚‰é †ã«å‰²ã‚Šå½“ã¦ã€
+        //   â†’ å…ˆã«è„±è½ã—ãŸäººã»ã©ä¸‹ä½ï¼ˆ=æœ€ä¸‹ä½å´ï¼‰
+        // - ç”Ÿå­˜è€…ã¯ã‚¹ã‚³ã‚¢ã§ä¸Šä½
 
         var alive = players.Where(p => p.alive).OrderByDescending(p => p.score).ToList();
         var eliminated = players.Where(p => !p.alive).OrderBy(p => p.eliminatedOrder).ToList();
 
-        // eliminatedOrder: 0(Å‰‚É’E—) ‚ª gÅ‰ºˆÊh
-        // •\¦‚ğu1ˆÊ¨v‚É‚µ‚½‚¢‚Ì‚ÅA‰ºˆÊ‚É‰ñ‚·
+        // eliminatedOrder: 0(æœ€åˆã«è„±è½) ãŒ â€œæœ€ä¸‹ä½â€
+        // è¡¨ç¤ºã‚’ã€Œ1ä½â†’ã€ã«ã—ãŸã„ã®ã§ã€ä¸‹ä½ã«å›ã™
         var ranking = new List<PlayerState>();
         ranking.AddRange(alive);
-        ranking.AddRange(eliminated.Reverse<PlayerState>()); // ‚±‚±‚Í•\¦D‚İ‚Å’²®
-        // ‚à‚µuÅ‰‚É’E—‚µ‚½l‚ªÅ‰ºˆÊv•\¦‚É‚µ‚½‚¢‚È‚ç Reverse ‚µ‚È‚¢
+        ranking.AddRange(eliminated.Reverse<PlayerState>()); // ã“ã“ã¯è¡¨ç¤ºå¥½ã¿ã§èª¿æ•´
+        // ã‚‚ã—ã€Œæœ€åˆã«è„±è½ã—ãŸäººãŒæœ€ä¸‹ä½ã€è¡¨ç¤ºã«ã—ãŸã„ãªã‚‰ Reverse ã—ãªã„
 
         return ranking;
+    }
+
+    private async void DiceFinish()
+    {
+        await AfterGoal();
     }
 
     private async UniTask AfterGoal()
     {
 
-        //ŒÜ•b‚Ù‚Ç‘Ò‚Á‚Ä
+        //äº”ç§’ã»ã©å¾…ã£ã¦
         await UniTask.Delay(5000);
 
         if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null)
         {
-            // ƒp[ƒeƒBFŸ‚Öi‚ß‚Äƒ‹[ƒŒƒbƒgiƒ^ƒCƒgƒ‹j‚Ö–ß‚·
+            // ãƒ‘ãƒ¼ãƒ†ã‚£ï¼šæ¬¡ã¸é€²ã‚ã¦ãƒ«ãƒ¼ãƒ¬ãƒƒãƒˆï¼ˆã‚¿ã‚¤ãƒˆãƒ«ï¼‰ã¸æˆ»ã™
             PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
             return;
         }
 
-        //‰æ–Ê‘JˆÚ
+        //ç”»é¢é·ç§»
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
 }

@@ -19,6 +19,7 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject playerSelectUI;
     [SerializeField] private GameObject gameReadyUI;
     [SerializeField] private GameObject gameResultUI;
+    [SerializeField] private GameObject creditUI;
 
     [Header("エラーログ")]
     [SerializeField] private GameObject errorMinigameSelect;

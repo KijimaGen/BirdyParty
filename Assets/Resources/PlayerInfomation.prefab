@@ -543,66 +543,25 @@ PrefabInstance:
     - {fileID: 0}
     - {fileID: 0}
     - {fileID: 0}
+    - {fileID: 5173249992056141707, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    - {fileID: 5446615305043207294, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    - {fileID: 5172003899027778117, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    - {fileID: 1996021604749975767, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    - {fileID: 1964945841008190314, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    - {fileID: 5343302584938449848, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
+    - {fileID: 7327042701003358196, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5481195705280599043}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
 --- !u!4 &188162896376112969 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5470910147119695644, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
   m_PrefabInstance: {fileID: 5291992219464392789}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3233035217075838881 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7327042701003358196, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
-  m_PrefabInstance: {fileID: 5291992219464392789}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 831e141ecee9ec14baabd58702a36ac1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!54 &4441843754016143422 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 8418485265326479467, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
-  m_PrefabInstance: {fileID: 5291992219464392789}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5395308920231397157 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 265450703654086512, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
-  m_PrefabInstance: {fileID: 5291992219464392789}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &5481195705280599043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5395308920231397157}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5d0cad1cc2839d4f8472550daf7d8f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  diceRigidbody: {fileID: 4441843754016143422}
-  faceDetector: {fileID: 3233035217075838881}
-  rollForce: {x: 0, y: 6, z: 0}
-  rollTorque: {x: 12, y: 18, z: 10}
-  settleCheckMinSeconds: 0.6
-  diceRenderer: {fileID: 8566054276784849812}
-  materials:
-  - {fileID: 2100000, guid: 7cfef8c7af7233f48bdf0b5f736be209, type: 2}
-  - {fileID: 2100000, guid: b950b9b7caee7a84c95f33637695198d, type: 2}
-  - {fileID: 2100000, guid: 041c025c77de3024ea1e19c8ceb307de, type: 2}
-  - {fileID: 2100000, guid: 84cd69044c0e3324b951a8724366213d, type: 2}
-  materialIndexDefault: 0
---- !u!23 &8566054276784849812 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 4580251086169072577, guid: 54d87289e48211347bb9c51b61335d2c, type: 3}
   m_PrefabInstance: {fileID: 5291992219464392789}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6753055959871670079

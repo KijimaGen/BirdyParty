@@ -48,8 +48,7 @@ public class PartyModeManager : SystemObject
     // フォトンビューの参照
     PhotonView pv;
 
-    private void Start()
-    {
+    private void Start(){
         _ = Initialize();
     }
 
@@ -86,8 +85,7 @@ public class PartyModeManager : SystemObject
     /// <summary>
     /// ゲームリストの作成
     /// </summary>
-    public void MakeGameList()
-    {
+    public void MakeGameList(){
         NowGameIndex = 0;
 
         PlayerPrefs.SetInt(PREF_PARTY_RUNNING, 1);
@@ -140,8 +138,7 @@ public class PartyModeManager : SystemObject
     }
 
     [PunRPC]
-    public void SetChoicedGameList(string[] ChoicedGameList)
-    {
+    public void SetChoicedGameList(string[] ChoicedGameList){
         // 一度リストを初期化
         ChoicedSceneList.Clear();
 
@@ -155,16 +152,14 @@ public class PartyModeManager : SystemObject
     public List<string> GetChoicedGameList() => ChoicedSceneList;
 
     /// <summary>次のゲームへ進める</summary>
-    public void IncreaseNowGameIndex()
-    {
+    public void IncreaseNowGameIndex(){
         NowGameIndex++;
     }
 
     /// <summary>
     /// 次にルーレットで表示すべきゲームの index（sprites 側の配列番号用）
     /// </summary>
-    public int GetNextGameIndex()
-    {
+    public int GetNextGameIndex(){
         // 範囲外なら安全に0返し（※本当は終了扱い）
         if (NowGameIndex < 0) return 0;
         if (PartyModeGamePicker.instance == null) return 0;

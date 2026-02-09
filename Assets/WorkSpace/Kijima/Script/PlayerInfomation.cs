@@ -102,7 +102,9 @@ public class PlayerInfomation:MonoBehaviour{
 
         //自身の色を決める
         myColor = PLAYER_COLOR[myNumber];
-        
+
+        //一回実働オブジェクトを非アクティブ
+        DestroySelectedChildren();
 
         //自身が消えないようにする
         DontDestroyOnLoad(gameObject);
@@ -171,14 +173,14 @@ public class PlayerInfomation:MonoBehaviour{
             LoadTitleScene();
         }
     }
-    
+
     /// <summary>
-    /// 自身の実働オブジェクトの中身を破壊
+    /// 自身の実働オブジェクトの中身を非アクティブ
     /// </summary>
     public void DestroySelectedChildren() {
         if (transform == null) return;
 
-        // 子オブジェクトの孫を順番に破壊
+        // 子オブジェクトの孫を順番に非アクティブ
         foreach (Transform grandChild in transform) {
             if (grandChild != null)
                 grandChild.gameObject.SetActive(false);

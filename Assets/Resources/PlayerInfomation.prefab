@@ -638,7 +638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 4760b499172080c48b9626d570649b65, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 4760b499172080c48b9626d570649b65, type: 3}
       propertyPath: m_TagString
@@ -733,7 +733,7 @@ MonoBehaviour:
   slowEffect: {fileID: 765015981913960131, guid: 56d088be2dfd29849b93ba7b8d8f158f, type: 3}
   photonView: {fileID: 0}
   PVIsMine: 0
-  PlayerIsMine: {fileID: 6190204762087966220}
+  PlayerIsMine: {fileID: 5048820205515182375}
   canvasObject: {fileID: 6190204762087966220}
 --- !u!114 &564628840877135468
 MonoBehaviour:
@@ -920,6 +920,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54ae1204bf8588a428cab27a3188ee0c, type: 3}
+--- !u!1 &5048820205515182375 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1788274431260346715, guid: 54ae1204bf8588a428cab27a3188ee0c, type: 3}
+  m_PrefabInstance: {fileID: 6827519866046765180}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6190204762087966220 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 803962128658374256, guid: 54ae1204bf8588a428cab27a3188ee0c, type: 3}

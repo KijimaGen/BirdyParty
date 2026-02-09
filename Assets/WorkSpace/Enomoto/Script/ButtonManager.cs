@@ -255,6 +255,8 @@ public class ButtonManager : MonoBehaviour
                 uiHistory.Push(titleUI);
                 uiHistory.Push(gameResultUI);
 
+                //タイトルマネージャーのランキング表示関数呼び出し
+                TitleManager.instance.ShowRankingResult();
 
                 PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
                 PlayerPrefs.Save();

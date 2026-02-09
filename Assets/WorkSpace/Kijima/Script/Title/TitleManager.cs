@@ -5,6 +5,7 @@
  * @date 2025/10/6
  */
 
+using Cysharp.Threading.Tasks;
 using Photon.Pun;
 using System.Collections.Generic;
 using TMPro;
@@ -83,11 +84,21 @@ public class TitleManager : MonoBehaviour{
     /// <summary>
     /// タイトルのリザルトにプレイヤーのリストを表示させる
     /// </summary>
-    public void ShowRankingResult() {
+    public async UniTask ShowRankingResult() {
         //ランキングを取得
         var playerRankingList = PartyModeManager.instance.GetPlayerRankList();
+
+        //ドラムロールの効果音
+        _ = AudioManager.instance.PlaySE(6);
+
+        //ドラムロールの時間待ち
+        await UniTask.Delay(400);
+
+        //ドラムロール締めの効果音
+        _ = AudioManager.instance.PlaySE(7);
+
         //ランキングを元にリザルト用のランキングUIを作成
-        for(int i = 0, max = playerRankingList.Count ; i < max; i++) {
+        for (int i = 0, max = playerRankingList.Count ; i < max; i++) {
             //ランキングのi番目のプレイヤーの番号に合わせたUIを作成
             var rankFrame = Instantiate(_playerRankingFrame[playerRankingList[i].myNumber],UIMakeRoot.transform);
             //ランキングUI作成ルート検索

@@ -10,16 +10,17 @@ public class ButtonManager : MonoBehaviour
 {
     [Header("UI定義")]
     [SerializeField] private GameObject titleUI;
+    [SerializeField] private GameObject selectPlayStyleUI;
     [SerializeField] private GameObject modeUI;
     [SerializeField] private GameObject minigameSelectUI;
     [SerializeField] private GameObject partyModeUI;
     [SerializeField] private GameObject optionUI;
-    [SerializeField] private GameObject netWorkUI;
     [SerializeField] private GameObject onlineUI;
     [SerializeField] private GameObject playerSelectUI;
     [SerializeField] private GameObject gameReadyUI;
     [SerializeField] private GameObject gameResultUI;
     [SerializeField] private GameObject creditUI;
+    private GameObject backOverrideUI;
 
     [Header("エラーログ")]
     [SerializeField] private GameObject errorMinigameSelect;
@@ -57,6 +58,8 @@ public class ButtonManager : MonoBehaviour
     //説明テキスト
     [SerializeField]
     private TextMeshProUGUI ExplanationText;
+
+
 
 
     //レースゲームの説明テキスト
@@ -110,6 +113,7 @@ public class ButtonManager : MonoBehaviour
 
                 uiHistory.Clear();
                 uiHistory.Push(titleUI);
+                uiHistory.Push(selectPlayStyleUI);
                 uiHistory.Push(modeUI);
                 uiHistory.Push(partyModeUI);
 
@@ -134,6 +138,8 @@ public class ButtonManager : MonoBehaviour
 
                 uiHistory.Clear();
                 uiHistory.Push(titleUI);
+                uiHistory.Push(selectPlayStyleUI);
+                uiHistory.Push(playerSelectUI);
                 uiHistory.Push(modeUI);
                 uiHistory.Push(minigameSelectUI);
 
@@ -181,6 +187,7 @@ public class ButtonManager : MonoBehaviour
 
             uiHistory.Clear();
             uiHistory.Push(titleUI);
+            uiHistory.Push(selectPlayStyleUI);
             uiHistory.Push(modeUI);
             uiHistory.Push(clientUI);
 
@@ -203,6 +210,7 @@ public class ButtonManager : MonoBehaviour
 
                 uiHistory.Clear();
                 uiHistory.Push(titleUI);
+                uiHistory.Push(selectPlayStyleUI);
                 uiHistory.Push(modeUI);
                 uiHistory.Push(partyModeUI);
 
@@ -227,6 +235,8 @@ public class ButtonManager : MonoBehaviour
 
                 uiHistory.Clear();
                 uiHistory.Push(titleUI);
+                uiHistory.Push(selectPlayStyleUI);
+                uiHistory.Push(playerSelectUI);
                 uiHistory.Push(modeUI);
                 uiHistory.Push(minigameSelectUI);
 
@@ -243,6 +253,7 @@ public class ButtonManager : MonoBehaviour
 
             if (showPartyResult)
             {
+
                 titleUI.SetActive(false);
                 modeUI.SetActive(false);
                 minigameSelectUI.SetActive(false);
@@ -253,6 +264,7 @@ public class ButtonManager : MonoBehaviour
 
                 uiHistory.Clear();
                 uiHistory.Push(titleUI);
+                uiHistory.Push(selectPlayStyleUI);
                 uiHistory.Push(gameResultUI);
 
                 //タイトルマネージャーのランキング表示関数呼び出し
@@ -308,20 +320,45 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-    public void Back(){
-        if (GameManager.instance == null) {
+    public void Back()
+    {
+        if (GameManager.instance == null)
+        {
             Debug.LogWarning("GameManager が存在しません");
             return;
         }
-        if (uiHistory.Count > 1)
-        {
-            GameObject closing = uiHistory.Pop();
-            closing.SetActive(false);
 
-            GameObject previous = uiHistory.Peek();
-            previous.SetActive(true);
+        if (uiHistory.Count <= 1) return;
+
+        // いま開いてるUIを閉じる
+        GameObject closing = uiHistory.Pop();
+        closing.SetActive(false);
+
+        // override がある場合：履歴ごと正しく組み替える
+        if (backOverrideUI != null)
+        {
+            // 直前の画面（今回だと gameResultUI）もスキップしたいので履歴から外す
+            if (uiHistory.Count > 0)
+            {
+                GameObject skipped = uiHistory.Pop();
+                skipped.SetActive(false);
+            }
+
+            // 指定UIへ戻す
+            backOverrideUI.SetActive(true);
+            uiHistory.Push(backOverrideUI);
+
+            // 使い捨て
+            backOverrideUI = null;
+
+            return;
         }
+
+        // 通常の戻る
+        GameObject previous = uiHistory.Peek();
+        previous.SetActive(true);
     }
+
 
     //プレイスタイル変更関数
     public void PlayStyle(){
@@ -349,6 +386,16 @@ public class ButtonManager : MonoBehaviour
     {
         closeObj.SetActive(false);
     }
+
+    // GameResultUI から別UIへ移動する時に呼ぶ
+    public void OpenFromGameResult(GameObject openUI)
+    {
+        // 次のUIで戻るが押されたら PlayerSelectUI へ
+        backOverrideUI = playerSelectUI;
+
+        Open(openUI);
+    }
+
 
     public void OnClickStartGame() {
         //自分がマスタークライアントだったら全員に送る

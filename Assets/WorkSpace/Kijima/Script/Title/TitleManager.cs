@@ -9,6 +9,7 @@ using Photon.Pun;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TitleManager : MonoBehaviour{
     //ルームコードのテキスト
@@ -90,9 +91,13 @@ public class TitleManager : MonoBehaviour{
             //ランキングのi番目のプレイヤーの番号に合わせたUIを作成
             var rankFrame = Instantiate(_playerRankingFrame[playerRankingList[i].myNumber],UIMakeRoot.transform);
             //ランキングUI作成ルート検索
-            var rankUIRoot = rankFrame.transform.GetChild(2);
+            GameObject rankUIRoot = rankFrame.transform.Find("PlayerRankRoot")?.gameObject;
             //ランキングUI作成
-            Instantiate(_playerRankingNumberUI[i],rankUIRoot.transform);
+            if(rankUIRoot != null) {
+                rankUIRoot.GetComponent<Image>().sprite = _playerRankingNumberUI[i];
+            }
+            rankFrame.transform.Find("ResultPointText").GetComponent<TextMeshProUGUI>().text = playerRankingList[i].myPoint.ToString();
+
         }
     }
 

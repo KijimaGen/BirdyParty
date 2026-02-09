@@ -220,6 +220,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 074f65bb-6d60-4c1d-b797-eeef6311dcad
     m_ActionName: BattleDome/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 592c53c7-9f04-4ff7-bb0e-261b492b54d7
+    m_ActionName: RaceGame/Roll[/Keyboard/space,/XInputControllerWindows/buttonEast]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: RaceGame

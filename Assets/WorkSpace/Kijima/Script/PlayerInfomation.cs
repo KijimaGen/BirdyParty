@@ -211,8 +211,8 @@ public class PlayerInfomation:MonoBehaviour{
         var pi = GetComponent<PlayerInput>();
         if (pi != null)
         {
-            pi.SwitchCurrentActionMap("DiceGame");
-            Debug.Log($"[Input] Switched to DiceGame : P{myNumber}");
+            //pi.SwitchCurrentActionMap("DiceGame");
+            //Debug.Log($"[Input] Switched to DiceGame : P{myNumber}");
         }
     }
 

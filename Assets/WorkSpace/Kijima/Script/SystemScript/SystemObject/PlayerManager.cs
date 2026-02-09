@@ -132,4 +132,15 @@ public class PlayerManager : SystemObject {
             
         }
     }
+
+    /// <summary>
+    /// playerリストのIndex番目に特定のポイントの加算処理を実行させる
+    /// </summary>
+    /// <param name="playerIndex"></param>
+    /// <param name="point"></param>
+    public void AddPointIndexPlayer(int playerIndex,int point) {
+        int beforPoint = playerList[playerIndex].GetPoint();
+
+        playerList[playerIndex].SetPoint(beforPoint+point);
+    }
 }

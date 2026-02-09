@@ -268,7 +268,7 @@ public class ButtonManager : MonoBehaviour
                 uiHistory.Push(gameResultUI);
 
                 //タイトルマネージャーのランキング表示関数呼び出し
-                TitleManager.instance.ShowRankingResult();
+                _ = TitleManager.instance.ShowRankingResult();
 
                 PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
                 PlayerPrefs.Save();
@@ -843,5 +843,11 @@ public class ButtonManager : MonoBehaviour
         RoomNumberPlate.SetActive(true);
     }
 
+    /// <summary>
+    /// プレイヤーのエントリーを外すためにすべて破壊
+    /// </summary>
+    public void DestroyPlayerList() {
+        PlayerManager.instance.DestroyPlayerList();
+    }
     
 }

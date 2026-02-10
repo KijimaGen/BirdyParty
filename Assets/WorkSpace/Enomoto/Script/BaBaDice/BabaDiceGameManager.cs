@@ -44,7 +44,7 @@ public class BabaDiceGameManager : MonoBehaviour
     {
         int count = maxPlayers;
 
-        if (GameManager.instance.isPartyMode && PlayerManager.instance != null)
+        if (PlayerManager.instance != null)
             count = Mathf.Clamp(PlayerManager.instance.ActivePlayerCount, 1, 4);
 
         SetupPlayers(count);

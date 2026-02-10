@@ -42,7 +42,12 @@ public class BabaDiceGameManager : MonoBehaviour
 
     private void Start()
     {
-        SetupPlayers(maxPlayers);
+        int count = maxPlayers;
+
+        if (GameManager.instance.isPartyMode && PlayerManager.instance != null)
+            count = Mathf.Clamp(PlayerManager.instance.ActivePlayerCount, 1, 4);
+
+        SetupPlayers(count);
         StartCoroutine(GameLoop());
     }
 
@@ -190,6 +195,10 @@ public class BabaDiceGameManager : MonoBehaviour
 
         // 終了 → 順位計算
         var ranking = BuildRanking();
+
+        // パーティモードで加点処理
+        ApplyPartyModePoints(ranking);
+
         ui?.ShowResult(true);
         ui?.SetResult(ranking);
 
@@ -260,6 +269,35 @@ public class BabaDiceGameManager : MonoBehaviour
 
         return ranking;
     }
+
+    private void ApplyPartyModePoints(List<PlayerState> ranking)
+    {
+        if (!GameManager.instance.isPartyMode) return;
+        if (PlayerManager.instance == null) return;
+
+        // 実際に参加しているプレイヤーの index 一覧（例：2人なら [0,1]）
+        var activePartyIndices = PlayerManager.instance.GetActivePlayerIndices();
+
+        // 配列長も超えないように安全に
+        int count = Mathf.Min(ranking.Count, activePartyIndices.Count, GameConst.PLAYER_SCORE_LIST.Length);
+
+        for (int rank = 0; rank < count; rank++)
+        {
+            // ranking[rank].id は BABADice内の 0..(人数-1) を想定
+            int babaId = ranking[rank].id;
+
+            // BABADiceの id を、Party側の実 index に変換する
+            if (babaId < 0 || babaId >= activePartyIndices.Count) continue;
+            int partyIndex = activePartyIndices[babaId];
+
+            int point = GameConst.PLAYER_SCORE_LIST[rank];
+            PlayerManager.instance.AddPointIndexPlayer(partyIndex, point);
+
+            Debug.Log($"[BABADice Party] rank={rank} babaId={babaId} partyIndex={partyIndex} +{point}");
+        }
+    }
+
+
 
     private async void DiceFinish()
     {

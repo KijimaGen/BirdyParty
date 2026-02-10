@@ -70,7 +70,7 @@ public class ButtonManager : MonoBehaviour
         "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
     //ダイスゲームの説明テキスト
     private const string DiceGameExplanationText = "５ターン制のダイスゲームです。\r\n一斉にダイスを転がし、\r\n指定されるBABAを当てないようにしましょう。" +
-        "\r\n--------------------------------------\r\n操作説明\r\nA：ダイスを振る";
+        "\r\n--------------------------------------\r\n操作説明\r\n1P：1キー 2P：2キー 3P：3キー 4P：4キー";
 
     [Header("名前入力欄")]
     [SerializeField]

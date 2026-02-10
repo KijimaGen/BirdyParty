@@ -143,4 +143,19 @@ public class PlayerManager : SystemObject {
 
         playerList[playerIndex].SetPoint(beforPoint+point);
     }
+
+    public int PlayerCount => playerList == null ? 0 : playerList.Count;
+
+    public int ActivePlayerCount => playerList == null ? 0 : playerList.Count(p => p != null);
+
+    public List<int> GetActivePlayerIndices()
+    {
+        var list = new List<int>();
+        if (playerList == null) return list;
+
+        for (int i = 0; i < playerList.Count; i++)
+            if (playerList[i] != null) list.Add(i);
+
+        return list;
+    }
 }

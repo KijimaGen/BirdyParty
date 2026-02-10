@@ -91,11 +91,9 @@ public class TitleManager : MonoBehaviour{
         //ドラムロールの効果音
         _ = AudioManager.instance.PlaySE(6);
 
-        //ドラムロールの時間待ち
-        await UniTask.Delay(4000);
-
-        //ドラムロール締めの効果音
-        _ = AudioManager.instance.PlaySE(7);
+        
+        //順位フレーム保管用のリスト
+        List<GameObject> rankFrameList = new List<GameObject>();
 
         //ランキングを元にリザルト用のランキングUIを作成
         for (int i = 0, max = playerRankingList.Count ; i < max; i++) {
@@ -107,7 +105,26 @@ public class TitleManager : MonoBehaviour{
             if(rankUIRoot != null) {
                 rankUIRoot.GetComponent<Image>().sprite = _playerRankingNumberUI[i];
             }
+            //順位の枠に得点の反映をさせる
             rankFrame.transform.Find("ResultPointText").GetComponent<TextMeshProUGUI>().text = playerRankingList[i].myPoint.ToString();
+            //順位フレーム保管リストに追加
+            rankFrameList.Add(rankFrame);
+            //アクティブを切っておく
+            rankFrame.SetActive(false);
+        }
+
+        //ドラムロールの時間待ち
+        await UniTask.Delay(4000);
+
+        //逆順for文
+        //順位を下から表示する
+        for (int i = rankFrameList.Count - 1; i >= 0; i--) {
+            //アクティブにしておく
+            rankFrameList[i].SetActive(true);
+            //ドラムロール締めの効果音
+            _ = AudioManager.instance.PlaySE(7);
+            //間を開ける
+            await UniTask.Delay(1000);
 
         }
     }

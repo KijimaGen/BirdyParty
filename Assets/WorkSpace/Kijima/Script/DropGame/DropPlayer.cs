@@ -44,10 +44,11 @@ public class DropPlayer : MonoBehaviour {
     // 固定ハイ
     private const float SET_Y = 100;
 
-    // プレイヤーのスコア(所有権用)
-
     // プレイヤーのニックネーム
     public string myName;
+
+    //移動量
+    Vector3 moveDir;
 
     void OnEnable() {
         // 途中参加は認めない
@@ -86,6 +87,9 @@ public class DropPlayer : MonoBehaviour {
 
         //色の設定
         SetMyColor();
+
+        //移動量初期化
+        moveDir = Vector3.zero;
     }
 
     // アップデート
@@ -120,14 +124,28 @@ public class DropPlayer : MonoBehaviour {
     /// 移動
     /// </summary>
     private void Move() {
+        //インプットの受け取り
         moveInput = GetComponentInParent<PlayerInfomation>().GetLeftStickValue();
-        // 入力値の受け取り
-        float x = moveInput.x;
-        float z = moveInput.y;
+        // 入力値の加算
+        moveDir.x += moveInput.x /10;
+        moveDir.z += moveInput.y /10;
 
-        // 正規化しないでそのまま適用
-        Vector3 moveDir = new Vector3(x, 0, z);
+        //上限の設定
+        if (moveDir.x > 1f) moveDir.x = 1f;
+        if (moveDir.z > 1f) moveDir.z = 1f;
+
+        //移動量の反映
         rb.velocity = moveDir * moveSpeed * Time.deltaTime;
+
+        if(moveDir.x > 0f)
+            moveDir.x -= 0.01f;
+        if(moveDir.x < 0f)
+            moveDir.x += 0.01f;
+
+        if (moveDir.z > 0f)
+            moveDir.z -= 0.01f;
+        if (moveDir.z < 0f)
+            moveDir.z += 0.01f;
     }
 
     
@@ -164,7 +182,14 @@ public class DropPlayer : MonoBehaviour {
         //オフラインだったらこっち
         if (!GameManager.instance.IsOnline()) {
             Vector3 pushDir = (col.transform.position - transform.position).normalized;
-            ApplyPushBack(pushDir, bounceForce);
+            //カス
+            if (pushDir.x < 0f) moveDir.x = -1;
+            if (pushDir.x > 0f) moveDir.x =  1;
+            if (pushDir.z < 0f) moveDir.z = -1;
+            if (pushDir.z > 0f) moveDir.z =  1;
+
+
+            //ApplyPushBack(pushDir, bounceForce);
             return;
         }
 
@@ -175,8 +200,10 @@ public class DropPlayer : MonoBehaviour {
         // プレイヤーに当たったら跳ね返す
         if (col.gameObject.CompareTag(PLAYER_TAG)) {
             Vector3 pushDir = (col.transform.position - transform.position).normalized;
-            col.gameObject.GetComponent<PhotonView>()
-                .RPC(nameof(ApplyPushBack), RpcTarget.All, pushDir, bounceForce);
+            if (pushDir.x < 0f) moveDir.x = -1;
+            if (pushDir.x > 0f) moveDir.x = 1;
+            if (pushDir.z < 0f) moveDir.z = -1;
+            if (pushDir.z > 0f) moveDir.z = 1;
         }
     }
     /// <summary>

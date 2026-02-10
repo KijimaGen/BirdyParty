@@ -95,6 +95,20 @@ public class PlayerInfomation:MonoBehaviour{
                 TitleManager.instance.SetPlayerNameList(myNumber, myName);
             }
         }
+        else {
+            //オフラインだったら名前を番号でつける
+            myName = "P" + (myNumber + 1);
+        }
+        //名前が無かったら
+        if(myName == "") {
+            myName = "ななしトリ";
+            //オンラインだった場合、名前の表示依頼
+            //タイトルマネージャーのヌルチェック
+            if (TitleManager.instance != null) {
+                //タイトルマネージャーに名前の表示を依頼
+                TitleManager.instance?.SetPlayerNameList(myNumber, myName);
+            }
+        }
 
         //エントリーしましたテキストを作る
         if(GameManager.instance.IsOnline() && GameDataManager.instance != null)

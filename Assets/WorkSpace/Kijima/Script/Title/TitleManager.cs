@@ -92,7 +92,7 @@ public class TitleManager : MonoBehaviour{
         _ = AudioManager.instance.PlaySE(6);
 
         //ドラムロールの時間待ち
-        await UniTask.Delay(400);
+        await UniTask.Delay(4000);
 
         //ドラムロール締めの効果音
         _ = AudioManager.instance.PlaySE(7);

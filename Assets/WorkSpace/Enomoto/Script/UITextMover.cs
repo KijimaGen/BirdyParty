@@ -63,8 +63,8 @@ public class UITextMover : MonoBehaviour
         UpdateFade();
 
         // 完全にマスクを通過したらリセット
-        float textRight = textTransform.position.x + textMeshPro.preferredWidth * 0.5f;
-        if (textRight < maskLeftX - 50f)
+        float textRight = textTransform.position.x + textMeshPro.preferredWidth * 1.3f;
+        if (textRight < maskLeftX)
         {
             StartCoroutine(RestartAfterDelay());
         }
@@ -117,7 +117,7 @@ public class UITextMover : MonoBehaviour
 
         // テキストを再配置（画面右端へ戻す）
         Vector3 pos = textTransform.position;
-        pos.x = screenRightX + 200.0f;
+        pos.x = screenRightX + 1500.0f;
         textTransform.position = pos;
 
         // 透明度をリセット

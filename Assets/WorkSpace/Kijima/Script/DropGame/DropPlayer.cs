@@ -56,7 +56,7 @@ public class DropPlayer : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-        rb.isKinematic = true;
+        //rb.isKinematic = true;
         // 自分のフォトンビュー取得
         PV = GetComponent<PhotonView>();
         // カメラの参照に自分を追加

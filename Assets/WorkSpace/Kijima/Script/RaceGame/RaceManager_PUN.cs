@@ -56,8 +56,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         isGoal = false;
         //BGM再生
         AudioManager.instance.PlayBGM(1);
-        //プレイヤーのランキングモデルを表示
-        PlayerRankModelSetActive();
+        
     }
 
     private void Update() {
@@ -81,6 +80,8 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
 
         //ゴールしてた時にポジションを常にゴール地点に設定
         if (isGoal) {
+            //プレイヤーのランキングモデルを表示
+            PlayerRankModelSetActive();
             //ゴール位置にプレイヤーを送る関数
             SetRankModelColor();
         }

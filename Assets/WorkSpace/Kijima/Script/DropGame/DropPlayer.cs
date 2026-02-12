@@ -144,8 +144,6 @@ public class DropPlayer : MonoBehaviour {
             moveDir.z -= 0.01f;
         if (moveDir.z < 0f)
             moveDir.z += 0.01f;
-
-        Debug.Log(moveDir);
     }
 
     

@@ -1186,8 +1186,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 90623549d4482f042ade35d8a0758e35, type: 2}
     - target: {fileID: 7923539941931041943, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
-      propertyPath: ObservedComponents.Array.size
+      propertyPath: observableSearch
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7923539941931041943, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
+      propertyPath: ObservedComponents.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7923539941931041943, guid: 99ce47a4bfa1e7c4d9ce8a270c7726e5, type: 3}
       propertyPath: ObservedComponents.Array.data[1]

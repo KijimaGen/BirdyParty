@@ -64,7 +64,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
             // オンライン時はRPCで同期、オフライン時は直接呼び出し
             if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
                 // オンライン：RPCで全プレイヤーに送信
-                photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
+                //photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
                 RPC_SetGoal();
             } else {
                 // オフライン：直接メソッドを呼び出し

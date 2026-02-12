@@ -8,8 +8,6 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static GameConst;
-using ExitGames.Client.Photon;
-using Photon.Realtime;
 
 [RequireComponent(typeof(Rigidbody))]
 public class DropPlayer : MonoBehaviour {
@@ -58,6 +56,7 @@ public class DropPlayer : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.isKinematic = true;
         // 自分のフォトンビュー取得
         PV = GetComponent<PhotonView>();
         // カメラの参照に自分を追加
@@ -145,6 +144,8 @@ public class DropPlayer : MonoBehaviour {
             moveDir.z -= 0.01f;
         if (moveDir.z < 0f)
             moveDir.z += 0.01f;
+
+        Debug.Log(moveDir);
     }
 
     
@@ -219,13 +220,7 @@ public class DropPlayer : MonoBehaviour {
         rb.AddForce(dir * power, ForceMode.Impulse);
     }
 
-    // プラスボタンが押されたときにホストがゲーム開始(今のところない可能性)
-    public void Plus(InputAction.CallbackContext context) {
-        //ヌルチェック
-        if(DropGameManager.instance != null)
-            DropGameManager.instance.TryStartCountDown();
-    }
-
+    
 
     #region 各ゲッターセッター
     /// <summary>

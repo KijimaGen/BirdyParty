@@ -27,7 +27,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
     //準備完了かどうか
     //private bool isStandby = false;
-    public bool isStart { get; private set; } = false;
+    
+    public bool isStart = false;
     public bool isEnd { get; private set; } = false;
 
     // --- 各プレイヤーの開始位置
@@ -100,6 +101,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
         //ポイントの見た目を切る
         ToInvisibleScore();
+        //バグ制御の1秒待ち
         await UniTask.Delay(1000);
 
         //パネルを作る
@@ -190,6 +192,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         // プレイヤーをスタート位置に置く
         PlayerStartPosSet();
 
+        //効果音+三秒待ち
         _ = AudioManager.instance.PlaySE(2);
         await UniTask.Delay(3000);
 
@@ -207,15 +210,18 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <param name="player"></param>
     public void AddDropper(DropPlayer player) {
+        //プレイヤーをリストに参加させる
         dropperList.Add(player);
+        //画面上に表示されるリストを表示
         pointUIList[player.GetMyNumber()].SetActive(true);
         //名前の反映
         TextMeshProUGUI playerText = pointUIList[GetPlayerNumber(player)].transform.GetChild(NUMBER_TEXT_INDEX).GetComponent<TextMeshProUGUI>();
-        player.SetName('P' + GetPlayerNumber(player).ToString());
         playerText.text = player.myName;
 
         //ポイントを反映してもらう
         SetPointUI(player);
+
+        Debug.Log(player.GetMyNumber());
     }
 
     /// <summary>

@@ -90,6 +90,8 @@ public class RacePlayer : MonoBehaviour {
 
         //スピードのオリジナルを取得
         originSpeed = moveSpeed;
+
+        
     }
 
 
@@ -125,8 +127,6 @@ public class RacePlayer : MonoBehaviour {
         //ゲーム開始
         RaceManager_PUN.instance.TryStartCountDown();
 
-        //向きの固定
-        transform.Rotate(0, 0, 0);
         //色の設定
         SetMyColor();
 
@@ -137,6 +137,8 @@ public class RacePlayer : MonoBehaviour {
         animator = GetComponent<Animator>();
         //アニメーションを再生
         ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
+        //角度の初期化
+        transform.localRotation = Quaternion.Euler(0, -90, 0);
     }
 
     //アップデート

@@ -158,14 +158,19 @@ public class RacePlayer : MonoBehaviour {
             boostTime -= Time.deltaTime;
             moveSpeed = originSpeed * SPEED_CHANGE_RATE;
         }
+        //ブーストしてかつ時間切れだったら
         if(boostTime <= 0 && isBoost) {
             isBoost = false;
             moveSpeed = originSpeed;
             //自身の子オブジェクトの中の特定のオブジェクトを探して破壊する
             Transform child = transform.Find(BOOST_AURA_NAME);
             Destroy(child.gameObject);
-            //アニメーションの再生速度を普通の物に
-            ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
+            //ゴールしてなかったら
+            if (!isGoal) {
+                //アニメーションの再生速度を普通の物に
+                ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
+            }
+                
         }
 
         //ここでスロウ時間の確認＆switchの切り替え
@@ -173,14 +178,17 @@ public class RacePlayer : MonoBehaviour {
             slowTime -= Time.deltaTime;
             moveSpeed = originSpeed / SPEED_CHANGE_RATE;
         }
+        //スロウしてかつ時間切れだったら
         if (slowTime <= 0 && isSlow) {
             isSlow = false;
             moveSpeed = originSpeed;
             //自身の子オブジェクトの中の特定のオブジェクトを探して破壊する
             Transform child = transform.Find(SLOW_AURA_NAME);
             Destroy(child.gameObject);
-            //アニメーションの再生速度を普通の物に
-            ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
+            if (!isGoal) {
+                //アニメーションの再生速度を普通の物に
+                ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
+            }
         }
 
         //移動

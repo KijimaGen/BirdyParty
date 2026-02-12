@@ -25,7 +25,6 @@ public class DropPlayer : MonoBehaviour {
     // 終了したかどうか
     private bool isEnd;
 
-    
     // 自分の番号
     public int myPhotonNumber { get; private set; }
     // 自分の順位

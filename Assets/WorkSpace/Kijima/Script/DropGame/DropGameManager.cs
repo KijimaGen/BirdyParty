@@ -307,8 +307,12 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
             PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
             return;
         }
-
         //画面遷移
+        if (GameManager.instance.IsOnline()) {
+            PhotonNetwork.LoadLevel(TITLE_SCENE_NAME);
+        }
+
+        //オフラインシーン遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
     /// <summary>

@@ -138,7 +138,12 @@ public class RacePlayer : MonoBehaviour {
         //アニメーションを再生
         ChangeAnimationSpeed(_NORMAL_ANIMATION_SPEED);
         //角度の初期化
-        transform.localRotation = Quaternion.Euler(0, -90, 0);
+        if (GameManager.instance.IsOnline()) {
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
+        else {
+            transform.localRotation = Quaternion.Euler(0, -90, 0);
+        }
     }
 
     //アップデート
@@ -297,11 +302,9 @@ public class RacePlayer : MonoBehaviour {
     /// マイナンバーを引き渡す
     /// </summary>
     /// <returns></returns>
-    public int GetMyNumber() {
-        if(photonView.Owner == null) {
-            return myNumber;
-        }
-        return photonView.Owner.ActorNumber - 1;
+    public int GetMyNumber() {        
+        //親の番号渡したほうが確実
+        return GetComponentInParent<PlayerInfomation>().GetMyNumber();
     }
 
     /// <summary>
@@ -338,5 +341,13 @@ public class RacePlayer : MonoBehaviour {
     /// <param name="changeTime"></param>
     private void ChangeAnimationSpeed(float changeTime) {
         animator.speed = changeTime;
+    }
+
+    /// <summary>
+    /// ゴールしたかどうかを外部から変えられるようにする
+    /// </summary>
+    /// <param name="t"></param>
+    public void SetisGoal(bool t) {
+        isGoal = t;
     }
 }

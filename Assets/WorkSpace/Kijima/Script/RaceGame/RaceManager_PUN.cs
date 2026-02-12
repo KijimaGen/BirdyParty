@@ -74,6 +74,10 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
 
         //ゴールしてた時にポジションを常にゴール地点に設定
         if (isGoal) {
+            //一応強制ゴール
+            for(int i = 0,max = racers.Count; i < max; i++) {
+                racers[i].SetisGoal(true);
+            }
             //ゴール位置にプレイヤーを送る関数
             PlayerGoalPosSet();
         }
@@ -206,14 +210,18 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         //五秒ほど待って
         await UniTask.Delay(5000);
 
-        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null)
-        {
+        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null){
             // パーティ：次へ進めてルーレット（タイトル）へ戻す
             PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
             return;
         }
         
         //画面遷移
+        if(isOnline) {
+            PhotonNetwork.LoadLevel(TITLE_SCENE_NAME);
+        }
+
+        //オフラインシーン遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
 }

@@ -15,12 +15,7 @@ public class DebugScript : MonoBehaviour{
     
 
     void Start(){
-        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null) {
-            // パーティ：次へ進めてルーレット（タイトル）へ戻す
-            PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
-            return;
-        }
-        SceneManager.LoadScene("Title");
+        
     }
 
     void Update(){

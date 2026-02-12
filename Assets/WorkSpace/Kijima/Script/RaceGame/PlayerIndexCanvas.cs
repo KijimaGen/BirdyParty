@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 /// <summary>
 /// í‚ÉƒJƒƒ‰‚ğŒü‚­UIiY²‚Ì‚Ë‚¶‚ê‚ğ—}§j
@@ -20,6 +19,11 @@ public class PlayerIndexCanvas : MonoBehaviour {
         myNumber = GetComponentInParent<PlayerInfomation>().GetMyNumber() + 1;
 
         text.text = myNumber.ToString() + "P";
+    }
+
+    void LateUpdate() {
+        transform.LookAt(Camera.main.transform);
+        transform.Rotate(0, 180, 0); // ”½“]‘Îô
     }
 }
 

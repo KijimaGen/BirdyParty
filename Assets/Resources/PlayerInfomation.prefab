@@ -157,7 +157,19 @@ MonoBehaviour:
     m_ActionId: bb0b8160-83c1-4366-9e7d-298ebcbe00c7
     m_ActionName: RaceGame/Move[/XInputControllerWindows/leftStick,/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4493471762524714440}
+        m_TargetAssemblyTypeName: PlayerInfomation, Assembly-CSharp
+        m_MethodName: Plus
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 7159fa62-257f-4aef-99ad-a367b708f7da
     m_ActionName: RaceGame/Plus[/XInputControllerWindows/start,/Keyboard/p]
   - m_PersistentCalls:
@@ -255,7 +267,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1128135119645854755, guid: 56a7c746ac54d5a44a58904dd1a8f367, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5990213820162436371, guid: 56a7c746ac54d5a44a58904dd1a8f367, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1029,7 +1041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.size
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[5].m_ActionId
@@ -1044,6 +1056,10 @@ PrefabInstance:
       value: 074f65bb-6d60-4c1d-b797-eeef6311dcad
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[8].m_ActionId
+      value: 592c53c7-9f04-4ff7-bb0e-261b492b54d7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[5].m_ActionName
       value: EggGame/Fire[/Keyboard/space,/XInputControllerWindows/buttonEast]
       objectReference: {fileID: 0}
@@ -1054,6 +1070,10 @@ PrefabInstance:
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[7].m_ActionName
       value: BattleDome/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[8].m_ActionName
+      value: RaceGame/Roll[/Keyboard/space]
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.size

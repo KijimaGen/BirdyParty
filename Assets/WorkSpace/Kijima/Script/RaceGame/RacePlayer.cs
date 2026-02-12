@@ -80,7 +80,7 @@ public class RacePlayer : MonoBehaviour {
     /// 参照取得系
     /// </summary>
     private void Awake() {
-
+        //りぎっどぼでぃの取得
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -94,9 +94,6 @@ public class RacePlayer : MonoBehaviour {
 
 
     void OnEnable() {
-        
-        
-
         //カメラの参照に自身を入れる
         Camera.main.gameObject.GetComponent<RaceCameraController>().AddRacer(this.transform);
         //レースマネージャーにも入れる
@@ -320,6 +317,13 @@ public class RacePlayer : MonoBehaviour {
 
             child.GetComponent<Renderer>().material.color = myColor;
         }
+    }
+
+    /// <summary>
+    /// 自身の色を渡す
+    /// </summary>
+    public Color GetMyColror(){
+        return GetComponentInParent<PlayerInfomation>().GetMyColor();
     }
 
     /// <summary>

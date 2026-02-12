@@ -45,12 +45,19 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         new Vector3 (2.6f, 3, -96f)
     };
 
+    //終わった後に表示するランキングのリスト
+    [SerializeField]
+    private List<GameObject> rankingModelList = new List<GameObject>();
+
     //自身のインスタンスを作成
     private void Awake() {
         instance = this;
         //ゴールを初期化
         isGoal = false;
+        //BGM再生
         AudioManager.instance.PlayBGM(1);
+        //プレイヤーのランキングモデルを表示
+        PlayerRankModelSetActive();
     }
 
     private void Update() {
@@ -75,7 +82,7 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         //ゴールしてた時にポジションを常にゴール地点に設定
         if (isGoal) {
             //ゴール位置にプレイヤーを送る関数
-            PlayerGoalPosSet();
+            SetRankModelColor();
         }
     }
 
@@ -202,12 +209,10 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// </summary>
     /// <returns></returns>
     private async UniTask AfterGoal() {
-
         //五秒ほど待って
         await UniTask.Delay(5000);
 
-        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null)
-        {
+        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null){
             // パーティ：次へ進めてルーレット（タイトル）へ戻す
             PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
             return;
@@ -216,4 +221,39 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         //画面遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
+
+    /// <summary>
+    /// レーサーの数だけモデルを表示する
+    /// </summary>
+    public void PlayerRankModelSetActive(){
+        for(int i = 0,max = racers.Count;i < max; i++) {
+            int rank = racers[i].myRank;
+            if(rank < 0 || rank >= rankingModelList.Count) continue;
+            //ランクに応じたモデルを表示
+            rankingModelList[rank].SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// ランキングにあわせてモデルの色を変える
+    /// </summary>
+    public void SetRankModelColor(){
+        for(int i = 0,max = racers.Count;i < max; i++) {
+
+            //色の取得
+            Color rankColor = racers[i].GetMyColror();
+            foreach (Transform child in rankingModelList[i].transform){
+                if (child.name == "LeftEye" || child.name == "RightEye") continue;
+                if (child.name == "hat" || child.name == "Canvas") continue;
+                if (child.name == "LeftReg" || child.name == "RightReg") continue;
+                if (child.name == "UnderMouse" || child.name == "UpMouse") continue;
+                if (child.name == "アーマチュア") continue;
+
+                //色の適用
+                child.GetComponent<Renderer>().material.color = rankColor;
+            }
+
+        }
+    }
+
 }

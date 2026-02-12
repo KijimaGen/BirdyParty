@@ -239,10 +239,10 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     /// ランキングにあわせてモデルの色を変える
     /// </summary>
     public void SetRankModelColor(){
-        for(int i = 0,max = racers.Count;i < max; i++) {
+        for(int i = 0,max = ranking.Count;i < max; i++) {
 
             //色の取得
-            Color rankColor = racers[i].GetMyColror();
+            Color rankColor = ranking[i].GetMyColror();
             foreach (Transform child in rankingModelList[i].transform){
                 if (child.name == "LeftEye" || child.name == "RightEye") continue;
                 if (child.name == "hat" || child.name == "Canvas") continue;

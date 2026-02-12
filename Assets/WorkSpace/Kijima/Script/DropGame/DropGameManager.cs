@@ -91,6 +91,12 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private const int GAME_END_COUNT = 8;   //ゲームが終わるカウント
     private const string KEY_NAME_POINT = "PlayerScore";
 
+
+    //終わった後に表示するランキングのリスト
+    [SerializeField]
+    private List<GameObject> rankingModelList = new List<GameObject>();
+
+
     private async void Awake() {
         instance = this;
         isStart = false;
@@ -272,7 +278,7 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
                 dropperList[i].SetRank(GetRankingCount(dropperList[i]));
             }
         }
-
+        ranking.Reverse(); //ポイントが高い順にするため反転
     }
 
     /// <summary>
@@ -621,7 +627,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         //プレイヤーをポイント順でランキングに入れる
         MakeRanking();
         //プレイヤーをランキング順で並べる
-        PlayerGoalPosSet();
+        PlayerRankModelSetActive();
+        SetRankModelColor();
         //ポイントの見た目を切る
         ToInvisibleScore();
         //答えの表示も切る
@@ -652,4 +659,42 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         }
     }
 
+
+    /// <summary>
+    /// レーサーの数だけモデルを表示する
+    /// </summary>
+    public void PlayerRankModelSetActive()
+    {
+        for (int i = 0, max = dropperList.Count; i < max; i++)
+        {
+            int rank = dropperList[i].myRank;
+            if (rank < 0 || rank >= rankingModelList.Count) continue;
+            //ランクに応じたモデルを表示
+            rankingModelList[rank].SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// ランキングにあわせてモデルの色を変える
+    /// </summary>
+    public void SetRankModelColor(){
+        for (int i = 0, max = ranking.Count; i < max; i++)
+        {
+
+            //色の取得
+            Color rankColor = ranking[i].GetMyColror();
+            foreach (Transform child in rankingModelList[i].transform)
+            {
+                if (child.name == "LeftEye" || child.name == "RightEye") continue;
+                if (child.name == "hat" || child.name == "Canvas") continue;
+                if (child.name == "LeftReg" || child.name == "RightReg") continue;
+                if (child.name == "UnderMouse" || child.name == "UpMouse") continue;
+                if (child.name == "アーマチュア") continue;
+
+                //色の適用
+                child.GetComponent<Renderer>().material.color = rankColor;
+            }
+
+        }
+    }
 }

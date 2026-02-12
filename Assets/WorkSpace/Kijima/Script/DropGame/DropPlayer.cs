@@ -222,12 +222,15 @@ public class DropPlayer : MonoBehaviour {
 
     #region 各ゲッターセッター
     /// <summary>
-    /// マイナンバーを渡す
+    /// マイナンバーを引き渡す
     /// </summary>
     /// <returns></returns>
-    public int GetMyNumber() {
-        return DropGameManager.instance.GetPlayerNumber(this);
+    public int GetMyNumber()
+    {
+        //親の番号渡したほうが確実
+        return GetComponentInParent<PlayerInfomation>().GetMyNumber();
     }
+
 
     /// <summary>
     /// 位置移動
@@ -277,6 +280,14 @@ public class DropPlayer : MonoBehaviour {
         // 名前を適用(一時的にカス)
         myName = newName;
     }
+
+    /// <summary>
+    /// 自身の色を渡す
+    /// </summary>
+    public Color GetMyColror(){
+        return GetComponentInParent<PlayerInfomation>().GetMyColor();
+    }
+
 
     #endregion
 

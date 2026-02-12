@@ -39,6 +39,12 @@ public class TitleManager : MonoBehaviour{
     //UIを作るルート
     [SerializeField]
     private GameObject UIMakeRoot;
+    //テキスト
+    [SerializeField]
+    private TextMeshProUGUI _resultText;
+    //次へボタン（リザルト用）
+    [SerializeField]
+    private GameObject _resultNextButton;
 
     /// <summary>
     /// ルームコードのセット
@@ -85,6 +91,8 @@ public class TitleManager : MonoBehaviour{
     /// タイトルのリザルトにプレイヤーのリストを表示させる
     /// </summary>
     public async UniTask ShowRankingResult() {
+        //次へボタンを非アクティブにする
+        _resultNextButton.SetActive(false);
         //ランキングを取得
         var playerRankingList = PartyModeManager.instance.GetPlayerRankList();
 
@@ -125,8 +133,13 @@ public class TitleManager : MonoBehaviour{
             _ = AudioManager.instance.PlaySE(7);
             //間を開ける
             await UniTask.Delay(1000);
-
         }
+
+        //テキストを変更
+        _resultText.text = playerRankingList[0].GetName() + "が優勝！！！";
+        //次へボタンをアクティブにする
+        _resultNextButton.SetActive(true);
+
     }
 
 }

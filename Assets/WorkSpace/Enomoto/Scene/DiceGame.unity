@@ -1443,6 +1443,7 @@ GameObject:
   m_Component:
   - component: {fileID: 781424024}
   - component: {fileID: 781424023}
+  - component: {fileID: 781424025}
   m_Layer: 0
   m_Name: DiceGameManager
   m_TagString: Untagged
@@ -1492,6 +1493,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &781424025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 781424022}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 449386068258a0645878396cf40ab0cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPoints:
+  - {fileID: 2075429780}
+  - {fileID: 367879513}
+  - {fileID: 2035925062}
+  - {fileID: 1052052322}
+  dicePrefab: {fileID: 1331649620375314443, guid: d1b225552b228db46b2395c44b77ee0e, type: 3}
+  ui: {fileID: 1620887074}
 --- !u!1 &799982608
 GameObject:
   m_ObjectHideFlags: 0

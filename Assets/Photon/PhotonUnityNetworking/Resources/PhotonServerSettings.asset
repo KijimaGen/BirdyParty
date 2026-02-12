@@ -113,6 +113,12 @@ MonoBehaviour:
   - FlipLeft
   - FlipRight
   - SetChoicedGameList
+  - RPC_SendRollToMaster
+  - RPC_SetBaba
+  - RPC_ShowResult
+  - RPC_UpdateScore
+  - RPC_SubmitRoll
+  - RPC_SyncPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

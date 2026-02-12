@@ -131,7 +131,7 @@ public class BabaDiceGameManager : MonoBehaviour
             }
             ui?.SetTurn(turnIndex, maxTurns);
             ui?.SetBaba(babaNumber);
-            ui?.UpdateScores(players);
+            //ui?.UpdateScores(players);
             ui?.ClearLastRolls(players);
 
             // ロール開始合図

@@ -59,7 +59,41 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         
     }
 
-    private void Update() {
+    int lastCount = -1;
+    double startTime;
+
+    void Update()
+    {
+        if (!PhotonNetwork.CurrentRoom.CustomProperties
+            .TryGetValue("StartTime", out object value))
+            return;
+
+        startTime = (double)value;
+
+        double remaining = startTime - PhotonNetwork.Time;
+
+        if (remaining <= 0)
+        {
+            if (!isStart)
+            {
+                isStart = true;
+                Debug.Log("GO!!!!");
+            }
+            return;
+        }
+
+        int currentCount = Mathf.CeilToInt((float)remaining);
+
+        if (currentCount != lastCount)
+        {
+            lastCount = currentCount;
+
+            // 3,2,1 のとき鳴らす
+            if (currentCount <= 3)
+            {
+                _=AudioManager.instance.PlaySE(1);
+            }
+        }
         // 全員ゴール判定
         if (racers.Count == ranking.Count && isStart && !isGoal) {
             //一応バグ制御でここで全員ゴールにしておく
@@ -99,14 +133,20 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     // ============================================
     public void TryStartCountDown() {
         // オンライン時の処理
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
-            if (PhotonNetwork.IsMasterClient) {
-                if (isStart) return;
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
+        {
+            if (!PhotonNetwork.IsMasterClient) return;
+            if (isStart) return;
 
-                Debug.Log("オンライン：MasterClientがカウントダウンを開始");
-                photonView.RPC(nameof(StartCountDownRPC), RpcTarget.All);
-            }
-        } 
+            double startTime = PhotonNetwork.Time + 5.0; // 5秒後
+
+            ExitGames.Client.Photon.Hashtable hash =
+                new ExitGames.Client.Photon.Hashtable();
+
+            hash["StartTime"] = startTime;
+
+            PhotonNetwork.CurrentRoom.SetCustomProperties(hash);
+        }
         // オフライン時の処理
         else {
             if (isStart) return;
@@ -134,6 +174,18 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
 
         // スタート！
         isStart = true;
+        Debug.Log("GO!!!!");
+    }
+
+    /// <summary>
+    /// げーむすたーと
+    /// </summary>
+    private void StartRace()
+    {
+        if (isStart) return;
+
+        isStart = true;
+        PlayerStartPosSet();
         Debug.Log("GO!!!!");
     }
 

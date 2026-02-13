@@ -23757,6 +23757,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 753193487}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: hostIcon
+      value: 
+      objectReference: {fileID: 1777119529}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: onlineUI
       value: 
       objectReference: {fileID: 338083222}

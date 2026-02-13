@@ -46,12 +46,13 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] private GameObject minigameIcon;
     [SerializeField] private GameObject partyIcon;
 
+    [Header("オンラインホストアイコン")]
+    [SerializeField] private GameObject hostIcon;
+
     // 開いたUIを保存して戻れるように
     private Stack<GameObject> uiHistory = new Stack<GameObject>();
     //ホストかどうか
     private bool isHost;
-    // オンラインモードか？
-    private bool isOnlineMode = false;
     //次に行くシーンの名前
     private string NextSceneText;
     [Header("説明テキスト")]
@@ -610,7 +611,6 @@ public class ButtonManager : MonoBehaviour
     public void SetOnline() {
         if (GameManager.instance != null && GameManager.instance.gameObject != null) {
             GameManager.instance.SetIsOnline(true);
-            isOnlineMode = true;
         }
         else {
             Debug.LogWarning("GameManager が破壊されています");
@@ -623,7 +623,6 @@ public class ButtonManager : MonoBehaviour
     public void SetOffline() {
         if (GameManager.instance != null && GameManager.instance.gameObject != null) {
             GameManager.instance.SetIsOnline(false);
-            isOnlineMode = false;
         }
         else {
             Debug.LogWarning("GameManager が破壊されています");
@@ -697,10 +696,12 @@ public class ButtonManager : MonoBehaviour
         if (GameManager.instance.IsOnline())
         {
             roomCodeUI.SetActive(true);
+            hostIcon.SetActive(true);
         }
         else
         {
             roomCodeUI.SetActive(false);
+            hostIcon.SetActive(false);
         }
     }
 

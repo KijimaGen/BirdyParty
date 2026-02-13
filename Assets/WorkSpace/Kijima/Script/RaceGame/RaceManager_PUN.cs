@@ -56,7 +56,8 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         isGoal = false;
         //BGM再生
         AudioManager.instance.PlayBGM(1);
-        
+        //フェードイン
+        _ = FadeManager.instance.FadeIn();
     }
 
     int lastCount = -1;
@@ -265,6 +266,9 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     private async UniTask AfterGoal() {
         //五秒ほど待って
         await UniTask.Delay(5000);
+
+        //フェードアウト
+        await FadeManager.instance.FadeOut();
 
         if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null){
             // パーティ：次へ進めてルーレット（タイトル）へ戻す

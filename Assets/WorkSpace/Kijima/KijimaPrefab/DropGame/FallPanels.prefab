@@ -499,6 +499,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c439ffb385ac334fb53467d2b495184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BatsuEffect: {fileID: 3295887994680424101, guid: e9ec16e211e2da442beced03a947c5f5, type: 3}
+  MaruEffect: {fileID: 7815145949339629220, guid: 9fbcd5f094a875f47bbf60d6459353ca, type: 3}
 --- !u!1 &3693355067035835234
 GameObject:
   m_ObjectHideFlags: 0
@@ -646,6 +648,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c439ffb385ac334fb53467d2b495184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BatsuEffect: {fileID: 3295887994680424101, guid: e9ec16e211e2da442beced03a947c5f5, type: 3}
+  MaruEffect: {fileID: 7815145949339629220, guid: 9fbcd5f094a875f47bbf60d6459353ca, type: 3}
 --- !u!1 &4520025654998539992
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,6 +993,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c439ffb385ac334fb53467d2b495184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BatsuEffect: {fileID: 3295887994680424101, guid: e9ec16e211e2da442beced03a947c5f5, type: 3}
+  MaruEffect: {fileID: 7815145949339629220, guid: 9fbcd5f094a875f47bbf60d6459353ca, type: 3}
 --- !u!1 &8336389513636523168
 GameObject:
   m_ObjectHideFlags: 0
@@ -1241,6 +1247,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c439ffb385ac334fb53467d2b495184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BatsuEffect: {fileID: 3295887994680424101, guid: e9ec16e211e2da442beced03a947c5f5, type: 3}
+  MaruEffect: {fileID: 7815145949339629220, guid: 9fbcd5f094a875f47bbf60d6459353ca, type: 3}
 --- !u!1 &8984902435381319019
 GameObject:
   m_ObjectHideFlags: 0

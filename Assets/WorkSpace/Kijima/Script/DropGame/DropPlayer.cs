@@ -48,10 +48,6 @@ public class DropPlayer : MonoBehaviour {
     Vector3 moveDir;
 
     void OnEnable() {
-        // 途中参加は認めない
-        //if (DropGameManager.instance.isStart)
-        //    gameObject.SetActive(false);
-
         // rbの取得と設定
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
@@ -204,22 +200,6 @@ public class DropPlayer : MonoBehaviour {
             if (pushDir.z > 0f) moveDir.z = 1;
         }
     }
-    /// <summary>
-    /// オンラインで跳ね返す
-    /// </summary>
-    /// <param name="dir"></param>
-    /// <param name="power"></param>
-    [PunRPC]
-    void ApplyPushBack(Vector3 dir, float power) {
-        if (rb == null) 
-            rb = GetComponent<Rigidbody>();
-
-        //力を加えるよん
-        rb.AddForce(dir * power, ForceMode.Impulse);
-    }
-
-    
-
     #region 各ゲッターセッター
     /// <summary>
     /// マイナンバーを引き渡す
@@ -305,4 +285,5 @@ public class DropPlayer : MonoBehaviour {
         }
     }
 
+    
 }

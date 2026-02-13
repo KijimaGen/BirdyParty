@@ -3,7 +3,9 @@ guid: 2c439ffb385ac334fb53467d2b495184
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - BatsuEffect: {fileID: 3295887994680424101, guid: e9ec16e211e2da442beced03a947c5f5, type: 3}
+  - MaruEffect: {fileID: 7815145949339629220, guid: 9fbcd5f094a875f47bbf60d6459353ca, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

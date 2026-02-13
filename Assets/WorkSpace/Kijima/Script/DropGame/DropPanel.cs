@@ -19,6 +19,15 @@ public class DropPanel : MonoBehaviour{
     private MeshRenderer myMeshRendrer;
 
 
+    // バツエフェクト
+    [SerializeField]
+    private GameObject BatsuEffect;
+    // 〇エフェクト
+    [SerializeField]
+    private GameObject MaruEffect;
+
+
+
     private void Awake() {
         DropGameManager.instance.AddPanelList(this);
         myMeshRendrer = GetComponent<MeshRenderer>();
@@ -55,12 +64,17 @@ public class DropPanel : MonoBehaviour{
                     var player = other.GetComponent<DropPlayer>();
                     player.SetPoint(player.GetPoint() + TO_ADD_SCORE);
                 }
-                
+                //〇エフェクト生成
+                Instantiate(MaruEffect, other.transform.position, Quaternion.identity);
+                //効果音再生
                 _ = AudioManager.instance.PlaySE(3);
             }
             //不正解だったら効果音だけ
             else {
-                _=AudioManager.instance.PlaySE(4);
+                //バツエフェクト生成
+                Instantiate(BatsuEffect, other.transform.position, Quaternion.identity);
+                //効果音再生
+                _ = AudioManager.instance.PlaySE(4);
             }
         }
     }

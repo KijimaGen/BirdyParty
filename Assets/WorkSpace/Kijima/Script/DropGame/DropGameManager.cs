@@ -697,4 +697,14 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
 
         }
     }
+
+    // もしミニゲーム中にウィンドウを落としたらタイトルに戻るように
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_RUNNING, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
+        PlayerPrefs.SetInt("ComeBackFromGame", 0);
+        PlayerPrefs.Save();
+    }
 }

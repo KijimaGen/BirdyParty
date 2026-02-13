@@ -323,4 +323,14 @@ public class BabaDiceGameManager : MonoBehaviour
         //画面遷移
         SceneManager.LoadScene(TITLE_SCENE_NAME);
     }
+
+    // もしミニゲーム中にウィンドウを落としたらタイトルに戻るように
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_RUNNING, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
+        PlayerPrefs.SetInt("ComeBackFromGame", 0);
+        PlayerPrefs.Save();
+    }
 }

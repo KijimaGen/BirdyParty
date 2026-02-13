@@ -9,6 +9,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DashBoard: MonoBehaviour{
+    //当たったときのエフェクト
+    [SerializeField]
+    private GameObject hitEffect;
+
     /// <summary>
     /// 入処理
     /// </summary>
@@ -16,6 +20,7 @@ public class DashBoard: MonoBehaviour{
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.tag == "Player") {
             other.gameObject.GetComponent<RacePlayer>().Boost();
+            Instantiate(hitEffect, other.transform.position, Quaternion.identity);
         }
     }
 }

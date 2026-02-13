@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Hurdle : MonoBehaviour{
+    //当たったときのエフェクト
+    [SerializeField]
+    private GameObject hitEffect;
     /// <summary>
     /// 入処理
     /// </summary>
@@ -16,6 +19,7 @@ public class Hurdle : MonoBehaviour{
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.tag == "Player") {
             other.gameObject.GetComponent<RacePlayer>().Slow();
+            Instantiate(hitEffect,other.transform.position,Quaternion.identity);
         }
     }
 }

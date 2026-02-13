@@ -293,8 +293,10 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-    public void Open(GameObject openUI)
-    {
+    public void Open(GameObject openUI){
+        //開く効果音
+        _=AudioManager.instance.PlaySE(11);
+
         if (uiHistory.Count > 0)
         {
             GameObject current = uiHistory.Peek();
@@ -320,8 +322,10 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-    public void Back()
-    {
+    public void Back(){
+        //閉じる効果音
+        _ = AudioManager.instance.PlaySE(12);
+
         if (GameManager.instance == null)
         {
             Debug.LogWarning("GameManager が存在しません");
@@ -833,6 +837,7 @@ public class ButtonManager : MonoBehaviour
     /// ローカルモードの時にルームコードの表示をなくす
     /// </summary>
     public void HideRoomCodePlate() {
+        if(GameManager.instance.IsOnline())
         RoomNumberPlate.SetActive(false);
     }
 

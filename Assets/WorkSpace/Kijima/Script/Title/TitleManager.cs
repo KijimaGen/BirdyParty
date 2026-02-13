@@ -139,6 +139,7 @@ public class TitleManager : MonoBehaviour{
         _resultText.text = playerRankingList[0].GetName() + "が優勝！！！";
         //次へボタンをアクティブにする
         _resultNextButton.SetActive(true);
+        _ = AudioManager.instance.PlaySE(10);
 
     }
 

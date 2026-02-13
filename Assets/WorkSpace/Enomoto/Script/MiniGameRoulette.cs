@@ -90,7 +90,7 @@ public class MiniGameRoulette : MonoBehaviour
     {
         if (isRunning) return;
 
-        _ = AudioManager.instance.PlaySE(6);
+        _ = AudioManager.instance.PlaySE(8);
 
         if (preselectOnStart)
             PreselectResult();
@@ -235,7 +235,7 @@ public class MiniGameRoulette : MonoBehaviour
         //ここで事前に決めてあった抽選結果を反映させる
         preselectedSprite = sprites[ReflectNextGame()];
 
-        _ = AudioManager.instance.PlaySE(7);
+        _ = AudioManager.instance.PlaySE(9);
 
         //ボタンマネージャーの次のゲームの設定をしてもらう
         PartyModeManager.instance.SetNextSceneName();

@@ -49,6 +49,9 @@ public class BabaDiceGameManager : MonoBehaviour
 
         SetupPlayers(count);
         StartCoroutine(GameLoop());
+
+        //BGMの再生
+        AudioManager.instance.PlayBGM(3);
     }
 
     private void Update()

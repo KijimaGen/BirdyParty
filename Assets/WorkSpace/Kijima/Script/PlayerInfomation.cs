@@ -280,6 +280,8 @@ public class PlayerInfomation:MonoBehaviour{
 
         //名前を登録してもらう
         GameDataManager.instance.EntryPlayer(this);
+        //エントリー効果音
+        _ = AudioManager.instance.PlaySE(13);
     }
 
     /// <summary>

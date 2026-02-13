@@ -62,51 +62,23 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     int lastCount = -1;
     double startTime;
 
-    void Update()
-    {
-        if (!PhotonNetwork.CurrentRoom.CustomProperties
-            .TryGetValue("StartTime", out object value))
-            return;
+    void Update(){
 
-        startTime = (double)value;
 
-        double remaining = startTime - PhotonNetwork.Time;
-
-        if (remaining <= 0)
-        {
-            if (!isStart)
-            {
-                isStart = true;
-                Debug.Log("GO!!!!");
-            }
-            return;
-        }
-
-        int currentCount = Mathf.CeilToInt((float)remaining);
-
-        if (currentCount != lastCount)
-        {
-            lastCount = currentCount;
-
-            // 3,2,1 のとき鳴らす
-            if (currentCount <= 3)
-            {
-                _=AudioManager.instance.PlaySE(1);
-            }
-        }
         // 全員ゴール判定
         if (racers.Count == ranking.Count && isStart && !isGoal) {
             //一応バグ制御でここで全員ゴールにしておく
-            for(int i = 0; i < racers.Count; i++) {
+            for (int i = 0; i < racers.Count; i++) {
                 racers[i].Goal();
             }
-            
+
             // オンライン時はRPCで同期、オフライン時は直接呼び出し
             if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
                 // オンライン：RPCで全プレイヤーに送信
                 photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
                 RPC_SetGoal();
-            } else {
+            }
+            else {
                 // オフライン：直接メソッドを呼び出し
                 RPC_SetGoal();
             }
@@ -118,6 +90,35 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
             PlayerRankModelSetActive();
             //ゴール位置にプレイヤーを送る関数
             SetRankModelColor();
+        }
+        //オンラインの時のゲーム開始カウント
+        if(isOnline) {
+            if (!PhotonNetwork.CurrentRoom.CustomProperties
+            .TryGetValue("StartTime", out object value))
+                return;
+
+            startTime = (double) value;
+
+            double remaining = startTime - PhotonNetwork.Time;
+
+            if (remaining <= 0) {
+                if (!isStart) {
+                    isStart = true;
+                    Debug.Log("GO!!!!");
+                }
+                return;
+            }
+
+            int currentCount = Mathf.CeilToInt((float) remaining);
+
+            if (currentCount != lastCount) {
+                lastCount = currentCount;
+
+                // 3,2,1 のとき鳴らす
+                if (currentCount <= 3) {
+                    _ = AudioManager.instance.PlaySE(1);
+                }
+            }
         }
     }
 

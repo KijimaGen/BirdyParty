@@ -225,8 +225,7 @@ public class DropPlayer : MonoBehaviour {
     /// マイナンバーを引き渡す
     /// </summary>
     /// <returns></returns>
-    public int GetMyNumber()
-    {
+    public int GetMyNumber(){
         //親の番号渡したほうが確実
         return GetComponentInParent<PlayerInfomation>().GetMyNumber();
     }

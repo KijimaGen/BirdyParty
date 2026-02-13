@@ -13097,6 +13097,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 69201debcfe527d4baf2b7d2e431e384, type: 3}
   - {fileID: 21300000, guid: ab2eb7e5d7774584eb7fd83c73794a15, type: 3}
   UIMakeRoot: {fileID: 194595149}
+  _resultText: {fileID: 219280361}
+  _resultNextButton: {fileID: 15133343}
 --- !u!4 &1090465621
 Transform:
   m_ObjectHideFlags: 0
@@ -21259,6 +21261,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1569012578}
+        m_TargetAssemblyTypeName: ButtonManager, Assembly-CSharp
+        m_MethodName: HideRoomCodePlate
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1890585975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23802,6 +23816,10 @@ PrefabInstance:
       propertyPath: ExplanationText
       value: 
       objectReference: {fileID: 1925219916}
+    - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
+      propertyPath: RoomNumberPlate
+      value: 
+      objectReference: {fileID: 1393000004}
     - target: {fileID: 2178432192507757822, guid: bcc215297c16aa243a95a434366c17ee, type: 3}
       propertyPath: _nameInputField
       value: 

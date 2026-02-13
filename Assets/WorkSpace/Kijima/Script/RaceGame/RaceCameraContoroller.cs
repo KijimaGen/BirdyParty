@@ -14,7 +14,7 @@ public class RaceCameraController : MonoBehaviour {
 
     private Vector3 velocity;
 
-    private readonly Vector3 isGoalPosition = new Vector3(0,3.5f,-103);
+    private readonly Vector3 isGoalPosition = new Vector3(0,4f,-103);
     private readonly Vector3 NormalRotation = new Vector3(45,0, 0);
 
     void LateUpdate() {

@@ -115,6 +115,8 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
         //パネルの見た目を切る
         PanelObject.gameObject.SetActive(false);
 
+        //フェードイン
+        _ = FadeManager.instance.FadeIn();
         //ゲームの開始を宣言する！
         await StartCountDown();
     }
@@ -306,6 +308,9 @@ public class DropGameManager : MonoBehaviourPunCallbacks {
     private async UniTask AfterGoal() {
         //五秒ほど待って
         await UniTask.Delay(5000);
+
+        //フェードアウト
+        await FadeManager.instance.FadeOut();
 
         if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null)
         {

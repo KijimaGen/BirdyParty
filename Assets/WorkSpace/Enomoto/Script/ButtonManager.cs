@@ -420,10 +420,12 @@ public class ButtonManager : MonoBehaviour
 
     [PunRPC]
     // ミニゲーム開始
-    public void StartGame(string sceneName) {
+    public async void StartGame(string sceneName) {
         // プレイヤーがいないのにゲームは始められませんでしょう
         //if (GameDataManager.instance.GetEntriedPlayerCount() == 0) return;
 
+        //フェードアウト
+        await FadeManager.instance.FadeOut();
 
         if (GameDataManager.instance != null) {
             GameDataManager.instance.selectedMiniGame = sceneName;
@@ -721,6 +723,9 @@ public class ButtonManager : MonoBehaviour
         partyIcon.SetActive(true);
     }
 
+    /// <summary>
+    /// ミニゲームモードに切り替え
+    /// </summary>
     public void ChangeMinigameMode()
     {
         // パーティモード時はReadyUIから戻るボタン削除
@@ -842,8 +847,8 @@ public class ButtonManager : MonoBehaviour
     /// ローカルモードの時にルームコードの表示をなくす
     /// </summary>
     public void HideRoomCodePlate() {
-        if(GameManager.instance.IsOnline())
-        RoomNumberPlate.SetActive(false);
+        if(!GameManager.instance.IsOnline())
+            RoomNumberPlate.SetActive(false);
     }
 
     /// <summary>

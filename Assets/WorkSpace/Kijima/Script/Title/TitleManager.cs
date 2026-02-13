@@ -75,6 +75,8 @@ public class TitleManager : MonoBehaviour{
             Destroy(gameObject);
         }
         AudioManager.instance.PlayBGM(0);
+        //フェードイン
+        _ = FadeManager.instance.FadeIn();
     }
 
 

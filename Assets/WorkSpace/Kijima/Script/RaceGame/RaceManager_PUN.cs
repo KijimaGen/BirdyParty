@@ -48,40 +48,51 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
     //終わった後に表示するランキングのリスト
     [SerializeField]
     private List<GameObject> rankingModelList = new List<GameObject>();
+    //終わったときの演出を入れたかどうか
+    private bool isFinished = false;
+    //フィニッシュ
+    [SerializeField]
+    private GameObject finishCanvas;
+
 
     //自身のインスタンスを作成
     private void Awake() {
         instance = this;
         //ゴールを初期化
         isGoal = false;
+        isFinished = false;
         //BGM再生
         AudioManager.instance.PlayBGM(1);
         //フェードイン
         _ = FadeManager.instance.FadeIn();
+        //フィニッシュキャンバスを消す
+        finishCanvas.SetActive(false);
     }
 
+
+    //
     int lastCount = -1;
     double startTime;
 
-    void Update(){
+    async void Update(){
 
 
         // 全員ゴール判定
         if (racers.Count == ranking.Count && isStart && !isGoal) {
-            //一応バグ制御でここで全員ゴールにしておく
-            for (int i = 0; i < racers.Count; i++) {
-                racers[i].Goal();
-            }
-
-            // オンライン時はRPCで同期、オフライン時は直接呼び出し
-            if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
-                // オンライン：RPCで全プレイヤーに送信
-                photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
-                RPC_SetGoal();
-            }
-            else {
-                // オフライン：直接メソッドを呼び出し
-                RPC_SetGoal();
+            //終了演出出てないようだったら、出す
+            if (!isFinished) {
+                //二回も演出入れないように
+                isFinished = true;
+                //効果音の再生
+                _ = AudioManager.instance.PlaySE(14);
+                //フィニッシュキャンバスをつける
+                finishCanvas.SetActive(true);
+                //三秒待つ
+                await UniTask.Delay(3000);
+                //フィニッシュキャンバスを消す
+                finishCanvas.SetActive(false);
+                //次の処理
+                Goal();
             }
         }
 
@@ -322,5 +333,26 @@ public class RaceManager_PUN : MonoBehaviourPunCallbacks {
         PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
         PlayerPrefs.SetInt("ComeBackFromGame", 0);
         PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    private void Goal() {
+        //一応バグ制御でここで全員ゴールにしておく
+        for (int i = 0; i < racers.Count; i++) {
+            racers[i].Goal();
+        }
+
+        // オンライン時はRPCで同期、オフライン時は直接呼び出し
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom) {
+            // オンライン：RPCで全プレイヤーに送信
+            photonView.RPC(nameof(RPC_SetGoal), RpcTarget.AllBuffered);
+            RPC_SetGoal();
+        }
+        else {
+            // オフライン：直接メソッドを呼び出し
+            RPC_SetGoal();
+        }
     }
 }

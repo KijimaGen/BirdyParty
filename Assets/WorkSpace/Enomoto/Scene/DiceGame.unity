@@ -1477,6 +1477,10 @@ MonoBehaviour:
   maxPlayers: 4
   maxTurns: 5
   turnTimeLimit: 10
+  eliminateFxPrefabs:
+  - {fileID: 4593184484909914550, guid: 2e1e9506f5904a64b81744324fb7cd50, type: 3}
+  - {fileID: 5339739117810204696, guid: 26e1cb216e3635e4a820f58a1118d6b9, type: 3}
+  eliminateFxLife: 3
   ui: {fileID: 1620887074}
 --- !u!4 &781424024
 Transform:

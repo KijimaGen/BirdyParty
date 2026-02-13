@@ -32,6 +32,10 @@ public class BabaDiceGameManager : MonoBehaviour
     [SerializeField] private int maxTurns = 5;
     [SerializeField] private float turnTimeLimit = 8f; // 制限時間
 
+    [Header("Particle Effects")]
+    [SerializeField] private ParticleSystem[] eliminateFxPrefabs;
+    [SerializeField] private float eliminateFxLife = 3f;
+
     [Header("UI")]
     [SerializeField] private BabaDiceUI ui;
 
@@ -224,6 +228,20 @@ public class BabaDiceGameManager : MonoBehaviour
 
         if (value == babaNumber)
         {
+            Vector3 pos = p.dice.transform.position;
+
+            if (eliminateFxPrefabs != null)
+            {
+                foreach (var fxPrefab in eliminateFxPrefabs)
+                {
+                    if (fxPrefab == null) continue;
+
+                    var fx = Instantiate(fxPrefab, pos, Quaternion.identity);
+                    fx.Play();
+                    Destroy(fx.gameObject, eliminateFxLife);
+                }
+            }
+
             // 脱落
             p.alive = false;
             p.eliminatedTurn = turnIndex;

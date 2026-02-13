@@ -52,6 +52,9 @@ public class BabaDiceGameManager : MonoBehaviour
 
         //BGMの再生
         AudioManager.instance.PlayBGM(3);
+
+        //フェードイン
+        _ = FadeManager.instance.FadeIn();
     }
 
     private void Update()
@@ -312,6 +315,9 @@ public class BabaDiceGameManager : MonoBehaviour
 
         //五秒ほど待って
         await UniTask.Delay(5000);
+
+        //フェードアウト
+        await FadeManager.instance.FadeOut();
 
         if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null)
         {

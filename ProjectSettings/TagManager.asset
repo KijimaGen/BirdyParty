@@ -39,7 +39,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - FadeImage
   - PlayerNameBox
   m_SortingLayers:
   - name: Default

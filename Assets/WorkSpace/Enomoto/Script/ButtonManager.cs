@@ -382,12 +382,16 @@ public class ButtonManager : MonoBehaviour
 
     // ログオープン
     public void OpenObject(GameObject openObj){
+        //開く効果音
+        _ = AudioManager.instance.PlaySE(11);
         openObj.SetActive(true);
     }
 
     // ログクローズ
     public void CloseObject(GameObject closeObj)
     {
+        //閉じる効果音
+        _ = AudioManager.instance.PlaySE(12);
         closeObj.SetActive(false);
     }
 
@@ -690,7 +694,7 @@ public class ButtonManager : MonoBehaviour
     /// </summary>
     public void DisplayRoomCode()
     {
-        if (isOnlineMode)
+        if (GameManager.instance.IsOnline())
         {
             roomCodeUI.SetActive(true);
         }

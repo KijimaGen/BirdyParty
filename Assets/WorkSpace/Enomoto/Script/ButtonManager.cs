@@ -60,9 +60,6 @@ public class ButtonManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI ExplanationText;
 
-
-
-
     //レースゲームの説明テキスト
     private const string RaceGameExplanationText = "レーンを走って1位を競います。\r\nダッシュ板に乗ると加速、\r\nハードルに当たると減速です。" +
         "\r\n--------------------------------------\r\n操作説明\r\n左スティック：移動";
@@ -72,6 +69,9 @@ public class ButtonManager : MonoBehaviour
     //ダイスゲームの説明テキスト
     private const string DiceGameExplanationText = "５ターン制のダイスゲームです。\r\n一斉にダイスを転がし、\r\n指定されるBABAを当てないようにしましょう。" +
         "\r\n--------------------------------------\r\n操作説明\r\n1P：1キー 2P：2キー 3P：3キー 4P：4キー";
+    //バトルドームの説明テキスト
+    private const string BattleDomeExplanationText = "ながれてくるボールをフリッパーを使って\r\n撃ち返しましょう。\r\n自分のゴールに入ってしまったら\r\n得点が入ってしまいます。\r\n最後に得点が少ないほうが勝ちになります。" +
+        "\r\n--------------------------------------\r\n操作説明\r\nLボタン：左フリップ Rボタン：右フリップ";
 
     [Header("名前入力欄")]
     [SerializeField]
@@ -448,8 +448,7 @@ public class ButtonManager : MonoBehaviour
     }
 
     // ゲームを終了した際の処理
-    private void OnApplicationQuit()
-    {
+    private void OnApplicationQuit(){
         PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_RUNNING, 0);
         PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
         PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
@@ -772,9 +771,15 @@ public class ButtonManager : MonoBehaviour
             case "DropBird":
                 ExplanationText.text = DropGameExplanationText;
                 break;
+                //ダイスゲーム
             case "DiceGame":
                 ExplanationText.text = DiceGameExplanationText;
                 break;
+                //バトルドーム
+            case "BattleDome":
+                ExplanationText.text = BattleDomeExplanationText;
+                break;
+
         }
     }
     /// <summary>
@@ -799,6 +804,10 @@ public class ButtonManager : MonoBehaviour
                 //ダイス
             case "DiceGame":
                 MiniGameImage[2].SetActive(true);
+                break;
+            //バトルドーム
+            case "BattleDome":
+                MiniGameImage[3].SetActive(true);
                 break;
         }
     }

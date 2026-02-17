@@ -9,6 +9,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static GameConst;
 
 public class BattleDomeGameManager : BattleDomeManagerOrigin {
@@ -50,6 +51,9 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
     //バトルドームプレファブ
     [SerializeField]
     private GameObject _battleDomePrefab;
+    //結果発表のキャンバス
+    [SerializeField]
+    private GameObject _resultCanvas;
 
     //=================================================================================
     //↑変数宣言部
@@ -64,10 +68,18 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
         _ballMakeCount = 0;
         //各種アイテム呼び出し
         Instantiate(_battleDomePrefab);
-        //制限時間をスタート
-        _ = CountTime();
+       
         //制限時間テキストの更新
         UpdateLimitTimeUI();
+        //結果発表キャンバスを表示させない
+        _resultCanvas.SetActive(false);
+
+        //開始のカウントダウン
+
+
+        //制限時間をスタート
+        _ = CountTime();
+
     }
 
     /// <summary>
@@ -85,10 +97,19 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
             _limitTime -= 1;
             //制限時間UIの更新
             UpdateLimitTimeUI();
-
         }
         //制限時間終了の効果音
         await AudioManager.instance.PlaySE(5);
+        //リザルトキャンバスのランキング表示関数を呼ぶ
+        _resultCanvas.GetComponent<BattleDomePointRanking>()?.SortRank();
+        _resultCanvas.GetComponent<BattleDomePointRanking>()?.ShowRank();
+
+        //PlayerInfomationのパーティモードスコア加算処理を呼び出す
+        if (GameManager.instance.isPartyMode) {
+            BattleDomePlayerManager.instance.PlayerListAddScore();
+        }
+
+
         //一定時間結果表示の時間を取る
         _ = ShowPointRanking();
     }
@@ -171,10 +192,28 @@ public class BattleDomeGameManager : BattleDomeManagerOrigin {
     /// </summary>
     private async UniTask ShowPointRanking() {
         //結果発表を行うキャンバスを表示
-
+        _resultCanvas.SetActive(true);
         //10秒まつ
         await UniTask.Delay(10000);
-        //シーン遷移
-        PhotonNetwork.LoadLevel("Title");
+
+        //フェードアウト
+        await FadeManager.instance.FadeOut();
+        if (GameManager.instance != null && GameManager.instance.isPartyMode && PartyModeManager.instance != null) {
+            // パーティ：次へ進めてルーレット（タイトル）へ戻す
+            PartyModeManager.instance.OnMiniGameFinishedAndReturnToRoulette();
+            return;
+        }
+
+        //画面遷移
+        SceneManager.LoadScene(TITLE_SCENE_NAME);
+    }
+
+    // もしミニゲーム中にウィンドウを落としたらタイトルに戻るように
+    private void OnApplicationQuit() {
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_RUNNING, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_BACK_TO_PARTY, 0);
+        PlayerPrefs.SetInt(PartyModeManager.PREF_PARTY_SHOW_RESULT, 0);
+        PlayerPrefs.SetInt("ComeBackFromGame", 0);
+        PlayerPrefs.Save();
     }
 }

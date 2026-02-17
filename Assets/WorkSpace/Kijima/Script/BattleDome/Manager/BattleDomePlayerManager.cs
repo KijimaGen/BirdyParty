@@ -5,6 +5,7 @@
 * @date 2025/11/26
 */
 
+using Photon.Pun.Demo.Cockpit;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -146,9 +147,16 @@ public class BattleDomePlayerManager : BattleDomeManagerOrigin {
         _playerList[number].gameObject.GetComponent<BattleDomePlayerScoreManager>().AddPoint(point);
     }
 
-    ///プレイヤーリストをあげる
+    /// <summary>
+    /// プレイヤーリストをあげる
+    /// </summary>
+    /// <returns></returns>
     public List<BattleDomePlayer> GetPlayerList() { return _playerList; }
 
+    /// <summary>
+    /// プレイヤーがエントリー
+    /// </summary>
+    /// <param name="entryPlayer"></param>
     public void ScoreEnty(BattleDomePlayerScoreManager entryPlayer) {
         //これ途中参加限定だからそのうち変えると思う
         //プレイヤーの最大値確認
@@ -183,6 +191,18 @@ public class BattleDomePlayerManager : BattleDomeManagerOrigin {
     //渡されたプレイヤーはリストの何番目なのかを返す
     public int GetNumberToPlayer(BattleDomePlayerScoreManager player) {
         return _playerScoreList.IndexOf(player);
+    }
+
+    //プレイヤーに順番にスコアを加算させる処理を行わせる
+    public void PlayerListAddScore() {
+        //ぬるちぇっく
+        if(_playerScoreList == null) return;
+        
+        for(int i = 0,max = _playerScoreList.Count;i < max;i++) {
+            //
+            if (_playerScoreList[i] == null) continue;
+            _playerScoreList[i].GetScoreToInfomation();
+        }
     }
 
 }

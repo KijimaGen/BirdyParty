@@ -15,6 +15,12 @@ public class BattleDomePointRanking : MonoBehaviour{
     //表示するランキングのテキスト
     [SerializeField]
     private TextMeshProUGUI _rankingText;
+    //自身のインスタンス
+    public static BattleDomePointRanking instance;
+
+    private void Awake() {
+        instance = this; 
+    }
 
     /// <summary>
     /// ランキングを並び替える
@@ -30,6 +36,20 @@ public class BattleDomePointRanking : MonoBehaviour{
     /// 自身の持っているキャンバスに反映
     /// </summary>
     public void ShowRank() {
-        _rankingText.text = ("ランキング\n1位\n" + playerRanking[0].myNumber + "P : " + playerRanking[0].myPoint);
+        if (playerRanking == null) return;
+
+        //ランキングリストの素体を作成
+        _rankingText.text = ("ランキング\n");
+
+        for(int i = 0; i < playerRanking.Count; i++) {
+            if (playerRanking[i] == null) return;
+
+            //ランキングのテキストを作成
+            _rankingText.text += ((i+1) +"位\n" + (playerRanking[i].myNumber + 1) + "P : " + playerRanking[i].myPoint+"\n");
+        }
     }
+
+    public List<BattleDomePlayerScoreManager> GetRankingList() {return playerRanking;}
+
+    public int GetPlayerScoreRank(BattleDomePlayerScoreManager player) { return playerRanking.IndexOf(player); }
 }

@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class PartyModeGamePicker : SystemObject
 {
     //ゲーム名のシーンの配列
-    private string[] gameSceneNames = new string[] { "Race", "DropBird", "DiceGame" };
+    private string[] gameSceneNames = new string[] { "Race", "DropBird", "DiceGame" ,"BattleDome"};
 
     //どのゲームを選んだかの配列
     private List<int> gameIndexList = new List<int>();

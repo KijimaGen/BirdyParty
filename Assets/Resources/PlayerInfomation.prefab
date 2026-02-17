@@ -201,35 +201,11 @@ MonoBehaviour:
     m_ActionId: 6e143de5-1a90-4f5d-8e3e-b93f81f1bb2d
     m_ActionName: EggGame/Fire[/Keyboard/space,/XInputControllerWindows/buttonEast]
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7923202820144939433}
-        m_TargetAssemblyTypeName: BattleDomePlayer, Assembly-CSharp
-        m_MethodName: TryFlipRight
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: c0c5b4ec-85ed-4fa6-8f7d-1fb6aca3ff74
     m_ActionName: BattleDome/Right[/Keyboard/rightArrow,/Keyboard/d,/XInputControllerWindows/rightShoulder]
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7923202820144939433}
-        m_TargetAssemblyTypeName: BattleDomePlayer, Assembly-CSharp
-        m_MethodName: TryFlipLeft
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: 074f65bb-6d60-4c1d-b797-eeef6311dcad
     m_ActionName: BattleDome/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
   - m_PersistentCalls:
@@ -248,6 +224,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 592c53c7-9f04-4ff7-bb0e-261b492b54d7
     m_ActionName: RaceGame/Roll[/Keyboard/space,/XInputControllerWindows/buttonEast]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7923202820144939433}
+        m_TargetAssemblyTypeName: BattleDomePlayer, Assembly-CSharp
+        m_MethodName: TryFlipLeft
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 01223593-7fc2-47d0-8d43-12baef8e63be
+    m_ActionName: RaceGame/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7923202820144939433}
+        m_TargetAssemblyTypeName: BattleDomePlayer, Assembly-CSharp
+        m_MethodName: TryFlipRight
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0b8bf60f-2937-486d-9be9-1083a164d2f1
+    m_ActionName: RaceGame/Right[/Keyboard/rightArrow,/Keyboard/d,/XInputControllerWindows/rightShoulder]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: RaceGame
@@ -989,7 +997,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1039109199585870083, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2452777713029733093, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ConnectedAnchor.y
@@ -1041,7 +1049,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.size
-      value: 9
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[5].m_ActionId
@@ -1060,6 +1068,14 @@ PrefabInstance:
       value: 592c53c7-9f04-4ff7-bb0e-261b492b54d7
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[9].m_ActionId
+      value: 01223593-7fc2-47d0-8d43-12baef8e63be
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[10].m_ActionId
+      value: 0b8bf60f-2937-486d-9be9-1083a164d2f1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[5].m_ActionName
       value: EggGame/Fire[/Keyboard/space,/XInputControllerWindows/buttonEast]
       objectReference: {fileID: 0}
@@ -1076,6 +1092,14 @@ PrefabInstance:
       value: RaceGame/Roll[/Keyboard/space]
       objectReference: {fileID: 0}
     - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[9].m_ActionName
+      value: RaceGame/Left[/Keyboard/leftArrow,/Keyboard/a,/XInputControllerWindows/leftShoulder]
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
+      propertyPath: m_ActionEvents.Array.data[10].m_ActionName
+      value: RaceGame/Right[/Keyboard/rightArrow,/Keyboard/d,/XInputControllerWindows/rightShoulder]
+      objectReference: {fileID: 0}
+    - target: {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
       propertyPath: m_ActionEvents.Array.data[5].m_PersistentCalls.m_Calls.Array.size
       value: 0
       objectReference: {fileID: 0}
@@ -1083,7 +1107,8 @@ PrefabInstance:
       propertyPath: m_ActionEvents.Array.data[6].m_PersistentCalls.m_Calls.Array.size
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4267754345943126141, guid: 18226e4235109ea4c8d90203ca8306f7, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

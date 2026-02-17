@@ -65,7 +65,6 @@ public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
         if (!GameManager.instance.IsOnline()) {
             ScoreboardUI.instance.RefreshUI();
         }
-
     }
 
     // PlayerのCustomPropertiesが変わった時に呼ばれるコールバック
@@ -75,5 +74,9 @@ public class BattleDomePlayerScoreManager : MonoBehaviourPunCallbacks {
             // スコアボード更新
             ScoreboardUI.instance?.RefreshUI();
         }
+    }
+
+    public void GetScoreToInfomation() {
+        GetComponentInParent<PlayerInfomation>().SetPoint(GetPoint() + GameConst.PLAYER_SCORE_LIST[BattleDomePointRanking.instance.GetPlayerScoreRank(this)]);
     }
 }

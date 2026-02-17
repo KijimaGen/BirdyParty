@@ -14,7 +14,8 @@ public class MiniGameRoulette : MonoBehaviour
     {
         BatoStacle,
         DropBird,
-        BabaDice
+        BabaDice,
+        BattleDome
     }
 
     [Serializable]

@@ -27,7 +27,10 @@ public class BattleDomeManager : MonoBehaviour{
             // 初期化
             createObject.Initialize();
         }
+        //BGM再生
         AudioManager.instance.PlayBGM(1);
+        //フェードイン
+        _ = FadeManager.instance.FadeIn();
     }
 
 }

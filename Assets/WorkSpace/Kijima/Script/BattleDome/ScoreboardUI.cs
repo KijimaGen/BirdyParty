@@ -17,6 +17,8 @@ public class ScoreboardUI : MonoBehaviourPunCallbacks {
     //すぐに呼ぶ処理
     private void Awake() {
         instance = this;
+        //スコアボードの初期化関数を呼ぶ
+        RefreshUI();
     }
 
     /// <summary>
@@ -76,7 +78,11 @@ public class ScoreboardUI : MonoBehaviourPunCallbacks {
             }
         }
         else {
+            if (BattleDomePlayerManager.instance == null)
+                return;
+            //プレイヤーのリスト
             var players = BattleDomePlayerManager.instance.GetPlayerScoreList();
+            if (players == null) return;
 
             // プレイヤー順にスコアをUIへ反映
             for (int i = 0; i < players.Count; i++) {
